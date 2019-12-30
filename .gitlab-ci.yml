@@ -1,0 +1,36 @@
+stages:
+- .pre
+- build
+- unit_test
+- e2e_test
+- deploy
+
+ready:
+  stage: .pre
+  script:
+  - echo "pre"
+
+build:
+  stage: build
+  script:
+  - echo "build ok"
+
+unit_test:
+  stage: unit_test
+  script:
+  - echo "unit_test ok"
+
+e2e_test:
+  stage: e2e_test
+  script:
+  - make cluster-clean
+  - make cluster-up
+  - kubectl get nodes
+  - echo "e2e test ok"
+  after_script:
+  - make cluster-clean
+
+deploy:
+  stage: deploy
+  script:
+  - echo "deploy ok"
