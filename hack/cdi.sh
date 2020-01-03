@@ -1,0 +1,62 @@
+# include
+. $(dirname "$0")/common.sh
+
+cdiDeployDir="${deployDir}/cdi"
+
+function cdi_manifests() {
+  cdiDockerRegistry=${cdiDockerRegistry:-kubevirt}
+
+  mkdir -p ${cdiDeployDir}
+  cp -r ${manifestsDir}/cdi ${deployDir}
+
+  sed -i -- "s|{{.cdiDockerRegistry}}|${cdiDockerRegistry}|g" ${cdiDeployDir}/cdi-operator.yaml.in
+
+  mv ${cdiDeployDir}/cdi-cr.yaml.in ${cdiDeployDir}/cdi-cr.yaml
+  mv ${cdiDeployDir}/cdi-operator.yaml.in ${cdiDeployDir}/cdi-operator.yaml
+}
+
+function cdi_install() {
+  print_red "========================== install cdi =========================="
+  (
+    set -x
+    cdi_manifests
+    kubectl create -f ${cdiDeployDir}/cdi-operator.yaml
+    kubectl create -f ${cdiDeployDir}/cdi-cr.yaml
+    kubectl_wait cdi deployment/cdi-apiserver 60
+    kubectl_wait cdi deployment/cdi-deployment 60
+    kubectl_wait cdi deployment/cdi-operator 60
+    kubectl_wait cdi deployment/cdi-uploadproxy 60
+    kubectl_wait cdi cdi.cdi.kubevirt.io/cdi 60
+  )
+  print_red "========================== ok install cdi =========================="
+}
+
+function cdi_uninstall() {
+  print_red "========================== uninstall cdi =========================="
+  (
+    set -x
+    cdi_manifests
+    kubectl delete --wait=true --ignore-not-found=true -f ${cdiDeployDir}/cdi-cr.yaml
+    kubectl delete --ignore-not-found=true -f ${cdiDeployDir}/cdi-operator.yaml
+  )
+  print_red "========================== ok uninstall cdi =========================="
+}
+
+function main() {
+  case "${1:-}" in
+  install)
+    cdi_install
+    ;;
+  uninstall)
+    cdi_uninstall
+    ;;
+  *)
+    echo "usage:" >&2
+    echo "  $0 install" >&2
+    echo "  $0 uninstall" >&2
+    echo "  $0 help" >&2
+    ;;
+  esac
+}
+
+main $1
