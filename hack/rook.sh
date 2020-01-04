@@ -61,6 +61,11 @@ function rook_uninstall() {
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/toolbox.yaml
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/cluster-test.yaml
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/operator.yaml
+
+    kubectl_wait_delete rook-ceph deployment/rook-ceph-operator 600
+    kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
+    kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
+
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/common.yaml
 
     # TODO: multinode cluster
