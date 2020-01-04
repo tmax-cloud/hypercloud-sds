@@ -1,31 +1,17 @@
 stages:
-  - build
-  - unit_test
   - e2e_test
   - deploy
 
-build:
-  stage: build
-  script:
-    - make build
-
-unit_test:
-  stage: unit_test
-  script:
-    - make unit
-
+# TODO: 다양한 버전, 다양한 환경으로 e2e 테스트
 e2e_test:
   stage: e2e_test
   script:
     - make clusterClean
     - make clusterUp
+    - make yaml
     - make install
-    - make e2e
+    - make test
   after_script:
     - make uninstall
+    - make uninstall    # 멱등성을 체크하기 위함
     - make clusterClean
-
-deploy:
-  stage: deploy
-  script:
-    - echo "deploy ok"

@@ -4,16 +4,18 @@
 set -eo pipefail
 
 srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
-manifestsDir="${srcDir}/manifests"
-deployDir="${srcDir}/.cache/deploy"
+templatesDir="${srcDir}/templates"
+deployDir="${srcDir}/_deploy"
 
 # include
 . ${srcDir}/cluster_config
 
-function kubectl_wait() {
+function kubectl_wait_avail() {
   namespace=$1
   waitFor=$2
   timeoutSecond=$3
+
+  echo "Waiting for available ${waitFor}..."
 
   for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
     if kubectl describe -n ${namespace} ${waitFor} &>/dev/null; then break; fi
@@ -21,6 +23,19 @@ function kubectl_wait() {
   done
 
   kubectl wait -n ${namespace} --for=condition=available ${waitFor} --timeout=${timeoutSecond}s
+}
+
+function kubectl_wait_delete() {
+  namespace=$1
+  waitFor=$2
+  timeoutSecond=$3
+
+  echo "Waiting for deleting ${waitFor}..."
+
+  for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
+    if ! kubectl describe -n ${namespace} ${waitFor} &>/dev/null; then break; fi
+    sleep 1
+  done
 }
 
 function print_red() {
