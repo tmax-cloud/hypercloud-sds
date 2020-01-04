@@ -20,11 +20,11 @@ function cdi_install() {
     set -x
     kubectl create -f ${cdiDeployDir}/cdi-operator.yaml
     kubectl create -f ${cdiDeployDir}/cdi-cr.yaml
-    kubectl_wait_avail cdi deployment/cdi-apiserver 60
-    kubectl_wait_avail cdi deployment/cdi-deployment 60
-    kubectl_wait_avail cdi deployment/cdi-operator 60
-    kubectl_wait_avail cdi deployment/cdi-uploadproxy 60
-    kubectl_wait_avail cdi cdi.cdi.kubevirt.io/cdi 60
+    kubectl_wait_avail cdi deployment/cdi-apiserver 300
+    kubectl_wait_avail cdi deployment/cdi-deployment 300
+    kubectl_wait_avail cdi deployment/cdi-operator 300
+    kubectl_wait_avail cdi deployment/cdi-uploadproxy 300
+    kubectl_wait_avail cdi cdi.cdi.kubevirt.io/cdi 300
   )
   print_red "========================== ok install cdi =========================="
 }
@@ -35,12 +35,12 @@ function cdi_uninstall() {
     set +eo pipefail
     set -x
     kubectl delete --ignore-not-found=true --wait=true -f ${cdiDeployDir}/cdi-cr.yaml
-    kubectl_wait_delete cdi deployment/cdi-apiserver 60
-    kubectl_wait_delete cdi deployment/cdi-deployment 60
-    kubectl_wait_delete cdi deployment/cdi-uploadproxy 60
+    kubectl_wait_delete cdi deployment/cdi-apiserver 300
+    kubectl_wait_delete cdi deployment/cdi-deployment 300
+    kubectl_wait_delete cdi deployment/cdi-uploadproxy 300
 
     kubectl delete --ignore-not-found=true -f ${cdiDeployDir}/cdi-operator.yaml
-    kubectl_wait_delete cdi deployment/cdi-operator 60
+    kubectl_wait_delete cdi deployment/cdi-operator 300
   )
   print_red "========================== ok uninstall cdi =========================="
 }
