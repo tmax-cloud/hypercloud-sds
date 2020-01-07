@@ -2,11 +2,12 @@
 
 # include
 . $(dirname "$0")/common.sh
-. $(dirname "$0")/cluster.sh
 
 function yaml() {
   $(dirname "$0")/rook.sh yaml
   $(dirname "$0")/cdi.sh yaml
+
+  echo "Generated yaml in ./_deploy"
 }
 
 function install() {
@@ -39,11 +40,17 @@ function main() {
   uninstall)
     uninstall
     ;;
+  minikubeUp)
+    $(dirname "$0")/cluster.sh minikubeUp
+    ;;
+  minikubeClean)
+    $(dirname "$0")/cluster.sh minikubeClean
+    ;;
   clusterUp)
-    clusterUp
+    $(dirname "$0")/cluster.sh clusterUp
     ;;
   clusterClean)
-    clusterClean
+    $(dirname "$0")/cluster.sh clusterClean
     ;;
   *)
     set +x
@@ -52,6 +59,8 @@ function main() {
     echo "  $0 install" >&2
     echo "  $0 test" >&2
     echo "  $0 uninstall" >&2
+    echo "  $0 minikubeUp" >&2
+    echo "  $0 minikubeClean" >&2
     echo "  $0 clusterUp" >&2
     echo "  $0 clusterClean" >&2
     echo "  $0 help" >&2
