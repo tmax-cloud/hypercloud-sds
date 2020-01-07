@@ -1,0 +1,34 @@
+require File.expand_path('../vagrant-provision-disk-and-reboot-plugin.rb', __FILE__)
+
+# Node ID if it is a node.
+NODE = ENV['NODE'].to_i || 1
+
+# Vagrantfile set to use.
+BOX_OS = ENV['BOX_OS'] || 'fedora'.freeze
+
+# Load the type specific variables (e.g., master, node) (0 is equal to not a node)
+if NODE == 0
+    $osvariablefile = "../#{BOX_OS}/master"
+    $vagrantfilepath = "../Vagrantfile_master"
+else
+    $osvariablefile = "../#{BOX_OS}/node"
+    $vagrantfilepath = "../Vagrantfile_node"
+end
+
+$osprefile = File.expand_path("../#{BOX_OS}/pre", __FILE__)
+load $osprefile if File.exist?($osprefile)
+
+# Load the Vagrantfile_common file
+$vagrantfilecommon = File.expand_path('../Vagrantfile_common', __FILE__)
+load $vagrantfilecommon
+
+# Load the common os file if it exists
+$oscommonvariablefile = File.expand_path("../#{BOX_OS}/common", __FILE__)
+load $oscommonvariablefile if File.exist?($oscommonvariablefile)
+
+$osvariablefile = File.expand_path($osvariablefile, __FILE__)
+load $osvariablefile
+
+# Load the common Vagrantfile_TYPE file
+$vagrantfilepath = File.expand_path($vagrantfilepath, __FILE__)
+load $vagrantfilepath
