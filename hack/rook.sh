@@ -67,11 +67,6 @@ function rook_uninstall() {
     kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
 
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/common.yaml
-
-    # TODO: multinode cluster
-    # delete rook data for minikube
-    minikube ssh "sudo rm -rf /mnt/sda1/var/lib/rook; sudo rm -rf /var/lib/rook"
-    minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook; sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
   )
   print_red "========================== ok uninstall rook =========================="
 }
