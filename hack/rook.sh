@@ -63,10 +63,11 @@ function rook_uninstall() {
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/operator.yaml
 
     kubectl_wait_delete rook-ceph deployment/rook-ceph-operator 600
-    kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
-    kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
 
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/common.yaml
+
+	kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
+    kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
   )
   print_red "========================== ok uninstall rook =========================="
 }
