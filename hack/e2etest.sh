@@ -4,7 +4,8 @@
 function run() {
   print_red "========================== run test =========================="
   (
-    $build_out
+    $build_out1
+    $build_out2
   )
   print_red "========================== ok run test =========================="
 }

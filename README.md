@@ -29,8 +29,9 @@ HyperCloud를 위해 제공되는 (Java Client 와) 인스톨 파일 그리고 �
   - using Virtual Machine
 - Rook, CDI 설치
   - 현재 rook 의 cluster 설정은 테스트용으로 임의로 설정되어있습니다.
-- go-client 를 사용하여 정상 설치 확인 명령 날리는 example 코드
-  - (test framework 를 적용하여 단언문을 포함하는 테스트 코드로의 변환이 필요합니다.)
+- go-client 를 사용하여 정상 설치 확인 명령 날리는 example 코드 (test framework 를 적용하여 단언문을 포함하는 테스트 코드로의 변환이 필요하며, main package 및 main.go 파일을 하나만 두도록 변경해야 합니다.)
+  - pkg/test-installation : rook, cdi 관련 deployment 들이 모두 떠있는지 test
+  - pkg/test-pod-networking : pod to pod ping, pod to "google.com" ping 정상적으로 가는지 test
 
 ## gitlab-ci 파이프라인 관련 정보
 - ck3-4 팀환경의 172.22.4.101 (ck34-1) 노드를 사용하고 있습니다.

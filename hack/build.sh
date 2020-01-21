@@ -17,7 +17,11 @@ function build_test() {
   #TODO temporaily hardcoding to test simple case
    mkdir -p $testDir
 
-   cd $pkgDir && go build -o $build_out .
+   # 1st test case
+   cd $pkgDir1 && go build -o $build_out1 .
+
+  # 2nd test case
+   cd $pkgDir2 && go build -o $build_out2 .
   )
   print_red "========================== ok build test =========================="
 }
