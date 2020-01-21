@@ -3,9 +3,19 @@
 # Exit script when any commands failed
 set -eo pipefail
 
+#####################
+# define common variables
 srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
+
 templatesDir="${srcDir}/templates"
 deployDir="${srcDir}/_deploy"
+buildDir="${srcDir}/_build"
+pkgDir="${srcDir}/pkg/test-installation" # hardcoded temporarily!!!
+
+testDir="${buildDir}/test"
+
+build_out="${testDir}/out"
+######################
 
 # include
 . ${srcDir}/cluster_config

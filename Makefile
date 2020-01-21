@@ -24,6 +24,9 @@ clusterUp:
 clusterClean:
 	${HYPERCLOUD_STORAGE} clusterClean
 
+build-test:
+	${HYPERCLOUD_STORAGE} build
+
 test:
 	${HYPERCLOUD_STORAGE} test
 
@@ -31,6 +34,7 @@ help:
 	@echo "Usage: make [Target ...]"
 	@echo "  yaml           cluster_config로 부터 설치를 위한 yaml 파일을 생성합니다."
 	@echo "  install        생성된 yaml 파일로 hypercloud-storage를 설치합니다."
+	@echo "  build-test     hypercloud-storage를 test 하기위한 실행파일을 build 합니다."
 	@echo "  test           hypercloud-storage가 잘 설치되었는지 확인합니다. (end-to-end 테스트 수행)"
 	@echo "  uninstall      hypercloud-storage를 제거합니다."
 	@echo "  minikubeUp     테스트를 위한 싱글 노드 가상 환경을 만듭니다."
