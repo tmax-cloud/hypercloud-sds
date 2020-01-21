@@ -22,8 +22,17 @@ function uninstall() {
   print_red "Warning: 모든 물리 노드의 /var/lib/rook 디렉토리를 삭제해야 합니다."
 }
 
+function build() {
+  $(dirname "$0")/build.sh build_go
+  $(dirname "$0")/build.sh build_test
+  
+  echo "build finished"
+}
+
 function test() {
-  echo "e2e test ok"
+  $(dirname "$0")/e2etest.sh run
+
+  echo "e2e test finished"
 }
 
 function main() {
@@ -34,6 +43,9 @@ function main() {
   install)
     install
     ;;
+  build)
+	build
+	;;
   test)
     test
     ;;
@@ -57,6 +69,7 @@ function main() {
     echo "usage:" >&2
     echo "  $0 yaml" >&2
     echo "  $0 install" >&2
+	echo "  $0 build" >&2
     echo "  $0 test" >&2
     echo "  $0 uninstall" >&2
     echo "  $0 minikubeUp" >&2
