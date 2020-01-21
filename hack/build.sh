@@ -18,6 +18,8 @@ function build_test() {
  
    ls $pkgDir
 
+   source /etc/profile # to use go env, temporary!!! TODO
+
    cd $pkgDir && go build -o $build_out .
   )
   print_red "========================== ok build test =========================="
