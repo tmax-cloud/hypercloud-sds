@@ -32,10 +32,14 @@ import (
 /**
  * check whether installation was successful
  */
-// TODO testframework (ginkgo같은것) 사용 및 test assertion 추가 필요
-// TODO test 결과 저장 및 print out 필요
-// TODO shell script install 명령어에 있는 것이랑 중복되는데 2번 체크할 지, 아니면 하나로만 할 지 결정 필요
-// TODO 정상 설치 아닐 경우 error message 만 뿜는 것이 아니라 다른 로직 추가 필요
+//TODO
+// 0. go mod 대신 goDep 사용 고려
+// 1. testframework (ginkgo같은것) 사용 및 test assertion 추가 필요 (현재 코드는 test 가 아니라 그냥 client 한 번 돌려보는 것에 불과)
+// 2. test 결과 저장 및 print out 필요
+// 3. 현재 k8s cluster 기본 세팅 관련 test 와 rook & cdi install 관련 test 가 모두 들어있는데, 따로 (폴더?파일?케이스?) 구분해야 함
+// 3.1. 현재 make install 한 후에 make build-test 및 make test 를 진행하고 있는데, make install 은 사실 rook, cdi install 이고, k8s cluster 구성에 대한 test 는 이보다 앞서 진행해야 함
+// 3.2. k8s cluster 구성에 대한 test 는 추후 e2e test 로 busybox 를 사용한 pod network 통신 케이스가 반드시 필요함
+// 4. 정상 설치 아닐 경우 error message 만 뿜는 것이 아니라 다른 로직 추가 필요
 
 func main() {
 	var kubeconfig *string

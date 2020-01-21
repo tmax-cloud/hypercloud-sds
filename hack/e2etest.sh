@@ -12,6 +12,7 @@ function run() {
 function result() {
   print_red "========================== result of test =========================="
   (
+   #TODO use some nice tool
     ls
   )
   print_red "========================== result of test =========================="
