@@ -10,7 +10,7 @@ srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 templatesDir="${srcDir}/templates"
 deployDir="${srcDir}/_deploy"
 buildDir="${srcDir}/_build"
-pkgDir="${srcDir}/pkg/test-installation" # hardcoded temporarily!!!
+pkgDir="${srcDir}/pkg/test-installation" # TODO it is hardcoded to test temporarily!!!
 
 testDir="${buildDir}/test"
 

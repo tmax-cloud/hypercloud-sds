@@ -4,7 +4,9 @@
 function build_go() {
   print_red "========================== build go =========================="
   (
-  ls
+   #TODO if go is not installed, install and pre-set ??
+   
+   source /etc/profile #TODO this line is necessary to use go env, But this style is temporary!!!
   )
   print_red "========================== ok build go =========================="
 }
@@ -12,13 +14,8 @@ function build_go() {
 function build_test() {
   print_red "========================== build test =========================="
   (
-  # temporaily hardcoding to test simple case
+  #TODO temporaily hardcoding to test simple case
    mkdir -p $testDir
-   ls $testDir
- 
-   ls $pkgDir
-
-   source /etc/profile # to use go env, temporary!!! TODO
 
    cd $pkgDir && go build -o $build_out .
   )
