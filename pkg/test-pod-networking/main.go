@@ -103,13 +103,13 @@ func main() {
 	//TODO status-running check
 	// wait some reasonable sec until phase become running status.
 	// while문 같은 for문 사용 필요
-	err = waitTimeoutForPodStatus(clientset, pod_1_name, namespace, corev1.PodRunning, time.Second*10)
+	err = waitTimeoutForPodStatus(clientset, pod_1_name, namespace, corev1.PodRunning, time.Second*30)
 	if err != nil {
 		showError(err)
 		panic(err.Error())
 	}
 
-	err = waitTimeoutForPodStatus(clientset, pod_2_name, namespace, corev1.PodRunning, time.Second*10)
+	err = waitTimeoutForPodStatus(clientset, pod_2_name, namespace, corev1.PodRunning, time.Second*30)
 	if err != nil {
 		showError(err)
 		panic(err.Error())
@@ -131,7 +131,7 @@ func main() {
 	}
 
 	//TODO bug ? 간헐적으로 beta -> google.com failed
-	time.Sleep(time.Second)
+	time.Sleep(time.Second*10)
 
 	result = canPingFromPodToIpAddr(pod_2_name, namespace, pod_1_ip, clientset, config)
 	if result {
@@ -140,7 +140,7 @@ func main() {
 		fmt.Printf("ping from pod %s to pod %s is Unavailable\n", pod_2_name, pod_1_name)
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second*10)
 
 	googleAddress := "google.com"
 	result = canPingFromPodToIpAddr(pod_1_name, namespace, googleAddress, clientset, config)
@@ -150,7 +150,7 @@ func main() {
 		fmt.Printf("ping from pod %s to %s is Unavailable\n", pod_1_name, googleAddress)
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second*10)
 
 	result = canPingFromPodToIpAddr(pod_2_name, namespace, googleAddress, clientset, config)
 	if result {
