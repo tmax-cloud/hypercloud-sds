@@ -42,6 +42,8 @@ import (
 // 4. 정상 설치 아닐 경우 error message 만 뿜는 것이 아니라 다른 로직 추가 필요
 
 func main() {
+	fmt.Printf("\n\n [TEST] Check Rook, Cdi Deployment START \n\n")
+
 	var kubeconfig *string
 	if home := homeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -63,6 +65,7 @@ func main() {
 	}
 
 	// get # nodes
+	// TODO node status all-ready checks
 	nodes, err := clientset.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
@@ -76,8 +79,8 @@ func main() {
 	}
 	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 
-	//TODO 각 deployment 들 for 문으로 돌리기
-	//check desired deployment exists in rook-ceph namespace_rook_ceph
+	//TODO 각 deployment 들 list 로 만들고 for 문으로 돌리기
+	//check desired deployment exists in rook-ceph namespace
 	namespace_rook_ceph := "rook-ceph"
 	deployment_rook_ceph_operator := "rook-ceph-operator"
 	deployment_csi_cephfsplugin_provisioner := "csi-cephfsplugin-provisioner"
@@ -126,7 +129,7 @@ func main() {
 	}
 
 	// CDI
-	// check desired deployment exists in rook-ceph namespace_rook_ceph
+	// check desired deployment exists in cdi namespace
 	namespace_cdi := "cdi"
 	deployment_cdi_operator := "cdi-operator"
 	deployment_cdi_deployment := "cdi-deployment"
@@ -189,13 +192,16 @@ func main() {
 	} else {
 		fmt.Printf("Found deployment_cdi_operator %s in namespace %s\n", deployment_cdi_uploadproxy, namespace_cdi)
 	}
+
+	fmt.Printf("\n\n [TEST] Check Rook, Cdi Deployment SUCCESS \n\n")
 }
 
 //if err has been occured Warning printout
 func showError(err error) {
-	fmt.Println("=== WARNING ===")
+	fmt.Printf("\n\n [TEST] Check Rook, Cdi Deployment FAILED \n\n")
+	fmt.Println("=== WARNING ===\n")
 	fmt.Printf("=== ERROR IS === %s ===\n", err)
-	fmt.Println("=== WARNING ===")
+	fmt.Println("=== WARNING ===\n")
 }
 
 func homeDir() string {

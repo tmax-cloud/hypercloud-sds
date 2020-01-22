@@ -20,6 +20,8 @@ function cdi_install() {
     set -x
     kubectl create -f ${cdiDeployDir}/cdi-operator.yaml
     kubectl create -f ${cdiDeployDir}/cdi-cr.yaml
+
+    # TODO change to use go client ?
     kubectl_wait_avail cdi deployment/cdi-apiserver 300
     kubectl_wait_avail cdi deployment/cdi-deployment 300
     kubectl_wait_avail cdi deployment/cdi-operator 300

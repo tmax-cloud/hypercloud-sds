@@ -33,6 +33,8 @@ function rook_install() {
     kubectl create -f ${rookDeployDir}/cluster/operator.yaml
     kubectl create -f ${rookDeployDir}/cluster/cluster-test.yaml
     kubectl create -f ${rookDeployDir}/cluster/toolbox.yaml
+
+    # TODO change to use go client ?
     kubectl_wait_avail rook-ceph deployment/rook-ceph-operator 600
     kubectl_wait_avail rook-ceph deployment/csi-cephfsplugin-provisioner 600
     kubectl_wait_avail rook-ceph deployment/csi-rbdplugin-provisioner 600
@@ -66,7 +68,7 @@ function rook_uninstall() {
 
     kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/common.yaml
 
-	kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
+    kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
     kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
   )
   print_red "========================== ok uninstall rook =========================="

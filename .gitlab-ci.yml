@@ -1,6 +1,5 @@
 stages:
   - e2e_test
-  - deploy
 
 #TODO: 다양한 버전, 다양한 환경으로 e2e 테스트
 e2e_test:

@@ -10,11 +10,14 @@ srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 templatesDir="${srcDir}/templates"
 deployDir="${srcDir}/_deploy"
 buildDir="${srcDir}/_build"
-pkgDir="${srcDir}/pkg/test-installation" # TODO it is hardcoded to test temporarily!!!
+
+pkgDir1="${srcDir}/pkg/test-installation" # TODO it is hardcoded to test temporarily!!!
+pkgDir2="${srcDir}/pkg/test-pod-networking" # TODO it is hardcoded to test temporarily!!!
 
 testDir="${buildDir}/test"
 
-build_out="${testDir}/out"
+build_out1="${testDir}/out1" # TODO it is hardcoded to test temporarily!!!
+build_out2="${testDir}/out2"
 ######################
 
 # include
