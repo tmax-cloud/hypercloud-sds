@@ -9,7 +9,4 @@ import (
 func TestTest(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Test Suite")
-	//defer GinkgoRecover()
-	//RegisterFailHandler(tests.CDIFailHandler)
-	//RunSpecsWithDefaultAndCustomReporters(t, "Tests Suite", reporters.NewReporters())
 }
