@@ -24,12 +24,13 @@ function uninstall() {
 
 function build() {
   $(dirname "$0")/build.sh build_go
-  $(dirname "$0")/build.sh build_test
-  
+  $(dirname "$0")/build.sh build_prerequisites
+
   echo "build finished"
 }
 
 function test() {
+  $(dirname "$0")/e2etest.sh lint
   $(dirname "$0")/e2etest.sh run
 
   echo "e2e test finished"
@@ -44,8 +45,8 @@ function main() {
     install
     ;;
   build)
-	build
-	;;
+    build
+    ;;
   test)
     test
     ;;
@@ -69,7 +70,7 @@ function main() {
     echo "usage:" >&2
     echo "  $0 yaml" >&2
     echo "  $0 install" >&2
-	echo "  $0 build" >&2
+    echo "  $0 build" >&2
     echo "  $0 test" >&2
     echo "  $0 uninstall" >&2
     echo "  $0 minikubeUp" >&2

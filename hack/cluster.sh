@@ -34,7 +34,10 @@ function minikubeClean() {
 }
 
 function clusterUp() {
+  # vagrant global-status --prune check or ps -ef | vagrant check
   DISK_COUNT=2 DISK_SIZE_GB=5 NODE_COUNT=3 make --directory ${multinodeK8sDir} up -j4
+  print_red "========================== cluster created =========================="
+  echo "However, you may need to wait some seconds until nodes are ready"
 }
 
 function clusterClean() {
