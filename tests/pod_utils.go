@@ -72,8 +72,7 @@ func createPod(clientset *kubernetes.Clientset, podName string, namespace string
 
 func waitTimeoutForPodStatus(clientset *kubernetes.Clientset, podName string, namespace string,
 	desiredStatus corev1.PodPhase, timeout time.Duration) error {
-
-	var pollInterval = 3 * time.Second // retry every 3 s
+	var pollInterval = 3 * time.Second // It means to retry every 3 s
 	var pod *corev1.Pod
 
 	err := wait.PollImmediate(pollInterval, timeout, func() (bool, error) {
@@ -91,7 +90,7 @@ func waitTimeoutForPodStatus(clientset *kubernetes.Clientset, podName string, na
 	return nil
 }
 
-func getPodIp(clientset *kubernetes.Clientset, podName string, namespace string) (string, error) {
+func getPodIP(clientset *kubernetes.Clientset, podName string, namespace string) (string, error) {
 	out, err := clientset.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
 
 	return out.Status.PodIP, err
@@ -103,14 +102,13 @@ func getPodIp(clientset *kubernetes.Clientset, podName string, namespace string)
 //actualCmd := "ping -c 4 " + pod_1_ip + " | grep \"0% packet loss\" > /dev/null; echo $?"
 //pingCmd := []string{actualCmd}
 //result, err := framework.LookForStringInPodExec(namespace, pod_1_name, pingCmd, "0", 10)
-//result, err := framework.LookForStringInPodExec(namespace, pod_1_name, []string{"/bin/ping", "-c", "2", pod_2_ip}, "1", 10)
 
 // 아래 코드는 a4abhishek / Client-Go-Examples 의 github 참고
-func canPingFromPodToIpAddr(podName string, namespace string, destinationIpAddress string, clientset *kubernetes.Clientset,
+func canPingFromPodToIPAddr(podName string, namespace string, destinationIP string, clientset *kubernetes.Clientset,
 	config *restclient.Config) bool {
-	fmt.Printf("\n\n[TRYING TO PING FROM %s TO %s] \n\n", podName, destinationIpAddress)
+	fmt.Printf("\n\n[TRYING TO PING FROM %s TO %s] \n\n", podName, destinationIP)
 	//TODO 커맨드에 ping 명령어 이후 파이프라인(|)이랑 "> /dev/null" 먹지 않아서 조잡하게 코드 짰는데 확인 필요
-	command := []string{"/bin/ping", "-c", "2", destinationIpAddress}
+	command := []string{"/bin/ping", "-c", "2", destinationIP}
 
 	req := clientset.CoreV1().RESTClient().Post().
 		Resource("pods").
@@ -147,7 +145,8 @@ func canPingFromPodToIpAddr(podName string, namespace string, destinationIpAddre
 	})
 
 	if err != nil {
-		return false	}
+		return false
+	}
 
 	if !strings.Contains(stdout.String(), "0% packet loss") {
 		return false

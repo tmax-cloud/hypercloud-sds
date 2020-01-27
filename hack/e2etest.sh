@@ -1,6 +1,19 @@
 # include
 . $(dirname "$0")/common.sh
 
+func lint() {
+#  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.1
+# 'golangci-lint --version' check
+
+# cd srcDir
+# go fmt
+# golangci-lint run --timeout=30m \
+#  --disable-all --enable=deadcode  --enable=gocyclo --enable=golint --enable=varcheck \
+#  --enable=structcheck --enable=maligned --enable=errcheck --enable=dupl --enable=ineffassign \
+#  --enable=interfacer --enable=unconvert --enable=goconst --enable=gosec --enable=megacheck --enable=lll --enable=whitespace --enable=gomnd
+# => $? check
+
+}
 function run() {
   print_red "========================== run test =========================="
   (
