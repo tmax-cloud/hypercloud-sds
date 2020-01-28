@@ -36,6 +36,12 @@ function test() {
   echo "e2e test finished"
 }
 
+function testLint() {
+  $(dirname "$0")/e2etest.sh lint
+
+  echo "lint finished"
+}
+
 function main() {
   case "${1:-}" in
   yaml)
@@ -49,6 +55,9 @@ function main() {
     ;;
   test)
     test
+    ;;
+  testLint)
+    testLint
     ;;
   uninstall)
     uninstall
@@ -72,6 +81,7 @@ function main() {
     echo "  $0 install" >&2
     echo "  $0 build" >&2
     echo "  $0 test" >&2
+    echo "  $0 testLint" >&2
     echo "  $0 uninstall" >&2
     echo "  $0 minikubeUp" >&2
     echo "  $0 minikubeClean" >&2
