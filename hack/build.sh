@@ -32,6 +32,12 @@ function build_prerequisites() {
       exit 1
     fi
 
+    checkIfGinkgoInstalledCmd="ginkgo version"
+    if ! $checkIfGinkgoInstalledCmd; then
+      echo "ginkgo need to be installed first"
+      exit 1
+    fi
+
     # dependent packages install
     pkgDownloadCmd="go get ./..."
     cd $testDir && $pkgDownloadCmd

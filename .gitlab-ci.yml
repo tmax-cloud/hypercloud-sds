@@ -12,6 +12,6 @@ e2e_test:
     - make build-test 
     - make test
   after_script:
-    - make uninstall
+    - make uninstall    # TODO clusterClean 을 하는데, 굳이 CI pipeline 내에 uninstall 명령이 필요한가?
     - make uninstall    # 멱등성을 체크하기 위함
     - make clusterClean

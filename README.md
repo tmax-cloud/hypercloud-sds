@@ -24,14 +24,17 @@ HyperCloud를 위해 제공되는 (Java Client 와) 인스톨 파일 그리고 �
   - 필요한 테스트 시나리오 정리 후 구현
 - 폐쇄망 환경 고려
 
-## 현재 지원하는 기능 목록입니다. (20.01.21 기준)
+## 현재 지원하는 기능 목록입니다. (20.01.28 기준)
 - 4 node Kubernetes Cluster 구축 자동화
   - using Virtual Machine
 - Rook, CDI 설치
   - 현재 rook 의 cluster 설정은 테스트용으로 임의로 설정되어있습니다.
-- go-client 를 사용하여 정상 설치 확인 명령 날리는 example 코드 (test framework 를 적용하여 단언문을 포함하는 테스트 코드로의 변환이 필요하며, main package 및 main.go 파일을 하나만 두도록 변경해야 합니다.)
-  - pkg/test-installation : rook, cdi 관련 deployment 들이 모두 떠있는지 test
-  - pkg/test-pod-networking : pod to pod ping, pod to "google.com" ping 정상적으로 가는지 test
+- go-client 및 ginkgo framework 를 사용한 정상 설치 테스트
+  - tests/*.go
+    - node, pod 가 조회되는지
+    - rook 의 deployment 들이 모두 ready status 인지
+    - cdi 의 deployment 들이 모두 ready status 인지
+    - pod to pod ping, pod to "google.com" ping 이 정상적으로 가는지 
 
 ## gitlab-ci 파이프라인 관련 정보
 - ck3-4 팀환경의 172.22.4.101 (ck34-1) 노드를 사용하고 있습니다.
@@ -44,6 +47,8 @@ HyperCloud를 위해 제공되는 (Java Client 와) 인스톨 파일 그리고 �
 - vboxmanage : 5.2.34
 - vagrant : 2.2.6
 - go : 1.13.6
+- ginkgo : 1.11.0
+- golangci-lint : v1.23.1
 - kubectl : v1.17.0 (Client), v1.17.1 (Server)
 - kubernetes go client :  v13.0 (for k8s version v1.15.x)
 - k8s-vagrant-multi-node : ..
