@@ -4,26 +4,45 @@
 function build_go() {
   print_red "========================== build go =========================="
   (
-   #TODO if go is not installed, install and pre-set ??
-   
-   source /etc/profile #TODO this line is necessary to use go env, But this style is temporary!!!
+    #TODO if go is not installed, install and pre-set ??
+    checkIfGoInstalledCmd="go version"
+
+    if ! $checkIfGoInstalledCmd; then
+      echo "go need to be installed first"
+      exit 1
+    fi
+
+    source /etc/profile #TODO this line is necessary to use go env, But this style is temporary!!!
+
+    echo "enable module mode on for run go file outside of \$GOPATH"
+    enableModuleMode="GO111MODULE=on"
+    export $enableModuleMode
   )
   print_red "========================== ok build go =========================="
 }
 
-function build_test() {
-  print_red "========================== build test =========================="
+function build_prerequisites() {
+  print_red "========================== build prerequisites =========================="
   (
-  #TODO temporaily hardcoding to test simple case
-   mkdir -p $testDir
+    checkIfGoLintInstalledCmd="golangci-lint --version"
 
-   # 1st test case
-   cd $pkgDir1 && go build -o $build_out1 .
+    if ! $checkIfGoLintInstalledCmd; then
+      echo "golangci-lint need to be installed first by following command"
+      echo "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b \$(go env GOPATH)/bin v1.23.1"
+      exit 1
+    fi
 
-  # 2nd test case
-   cd $pkgDir2 && go build -o $build_out2 .
+    checkIfGinkgoInstalledCmd="ginkgo version"
+    if ! $checkIfGinkgoInstalledCmd; then
+      echo "ginkgo need to be installed first"
+      exit 1
+    fi
+
+    # dependent packages install
+    pkgDownloadCmd="go get ./..."
+    cd $testDir && $pkgDownloadCmd
   )
-  print_red "========================== ok build test =========================="
+  print_red "========================== ok build prerequisites =========================="
 }
 
 function main() {
@@ -31,13 +50,13 @@ function main() {
   build_go)
     build_go
     ;;
-  build_test)
-    build_test
+  build_prerequisites)
+    build_prerequisites
     ;;
   *)
     echo "usage:" >&2
     echo "  $0 build_go" >&2
-    echo "  $0 build_test" >&2
+    echo "  $0 build_prerequisites" >&2
     echo "  $0 help" >&2
     ;;
   esac
