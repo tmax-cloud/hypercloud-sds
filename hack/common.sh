@@ -7,15 +7,19 @@ set -eo pipefail
 # define common variables
 srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 
+# shellcheck disable=SC2034
 templatesDir="${srcDir}/templates"
+# shellcheck disable=SC2034
 deployDir="${srcDir}/_deploy"
+# shellcheck disable=SC2034
 buildDir="${srcDir}/_build"
-
+# shellcheck disable=SC2034
 testDir="${srcDir}/tests"
 ######################
 
 # include
-. ${srcDir}/cluster_config
+# shellcheck disable=SC1090
+. "${srcDir}"/cluster_config
 
 function kubectl_wait_avail() {
   namespace=$1
@@ -25,11 +29,11 @@ function kubectl_wait_avail() {
   echo "Waiting for available ${waitFor}..."
 
   for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
-    if kubectl describe -n ${namespace} ${waitFor} &>/dev/null; then break; fi
+    if kubectl describe -n "${namespace}" "${waitFor}" &>/dev/null; then break; fi
     sleep 1
   done
 
-  kubectl wait -n ${namespace} --for=condition=available ${waitFor} --timeout=${timeoutSecond}s
+  kubectl wait -n "${namespace}" --for=condition=available "${waitFor}" --timeout="${timeoutSecond}"s
 }
 
 function kubectl_wait_delete() {
@@ -40,7 +44,7 @@ function kubectl_wait_delete() {
   echo "Waiting for deleting ${waitFor}..."
 
   for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
-    if ! kubectl describe -n ${namespace} ${waitFor} &>/dev/null; then break; fi
+    if ! kubectl describe -n "${namespace}" "${waitFor}" &>/dev/null; then break; fi
     sleep 1
   done
 }

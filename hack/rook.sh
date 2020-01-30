@@ -1,5 +1,7 @@
-# include
-. $(dirname "$0")/common.sh
+#!/bin/bash
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 
 rookDeployDir="${deployDir}/rook"
 
@@ -9,18 +11,18 @@ function rook_yaml() {
   csiDockerRegistry=${dockerRegistry:-quay.io/k8scsi}
   cephDockerRegistry=${dockerRegistry:-ceph}
 
-  mkdir -p ${rookDeployDir}
-  cp -r ${templatesDir}/rook ${deployDir}
+  mkdir -p "${rookDeployDir}"
+  cp -r "${templatesDir}"/rook "${deployDir}"
 
-  sed -i -- "s|{{.rookDockerRegistry}}|${rookDockerRegistry}|g" ${rookDeployDir}/cluster/operator.yaml.in
-  sed -i -- "s|{{.cephCsiDockerRegistry}}|${cephCsiDockerRegistry}|g" ${rookDeployDir}/cluster/operator.yaml.in
-  sed -i -- "s|{{.csiDockerRegistry}}|${csiDockerRegistry}|g" ${rookDeployDir}/cluster/operator.yaml.in
-  sed -i -- "s|{{.cephDockerRegistry}}|${cephDockerRegistry}|g" ${rookDeployDir}/cluster/cluster-test.yaml.in
-  sed -i -- "s|{{.rookDockerRegistry}}|${rookDockerRegistry}|g" ${rookDeployDir}/cluster/toolbox.yaml.in
+  sed -i -- "s|{{.rookDockerRegistry}}|${rookDockerRegistry}|g" "${rookDeployDir}"/cluster/operator.yaml.in
+  sed -i -- "s|{{.cephCsiDockerRegistry}}|${cephCsiDockerRegistry}|g" "${rookDeployDir}"/cluster/operator.yaml.in
+  sed -i -- "s|{{.csiDockerRegistry}}|${csiDockerRegistry}|g" "${rookDeployDir}"/cluster/operator.yaml.in
+  sed -i -- "s|{{.cephDockerRegistry}}|${cephDockerRegistry}|g" "${rookDeployDir}"/cluster/cluster-test.yaml.in
+  sed -i -- "s|{{.rookDockerRegistry}}|${rookDockerRegistry}|g" "${rookDeployDir}"/cluster/toolbox.yaml.in
 
-  mv ${rookDeployDir}/cluster/operator.yaml.in ${rookDeployDir}/cluster/operator.yaml
-  mv ${rookDeployDir}/cluster/cluster-test.yaml.in ${rookDeployDir}/cluster/cluster-test.yaml
-  mv ${rookDeployDir}/cluster/toolbox.yaml.in ${rookDeployDir}/cluster/toolbox.yaml
+  mv "${rookDeployDir}"/cluster/operator.yaml.in "${rookDeployDir}"/cluster/operator.yaml
+  mv "${rookDeployDir}"/cluster/cluster-test.yaml.in "${rookDeployDir}"/cluster/cluster-test.yaml
+  mv "${rookDeployDir}"/cluster/toolbox.yaml.in "${rookDeployDir}"/cluster/toolbox.yaml
 }
 
 function rook_install() {
@@ -29,10 +31,10 @@ function rook_install() {
     set -x
 
     # Deploy cluster
-    kubectl create -f ${rookDeployDir}/cluster/common.yaml
-    kubectl create -f ${rookDeployDir}/cluster/operator.yaml
-    kubectl create -f ${rookDeployDir}/cluster/cluster-test.yaml
-    kubectl create -f ${rookDeployDir}/cluster/toolbox.yaml
+    kubectl create -f "${rookDeployDir}"/cluster/common.yaml
+    kubectl create -f "${rookDeployDir}"/cluster/operator.yaml
+    kubectl create -f "${rookDeployDir}"/cluster/cluster-test.yaml
+    kubectl create -f "${rookDeployDir}"/cluster/toolbox.yaml
 
     # TODO change to use go client ?
     kubectl_wait_avail rook-ceph deployment/rook-ceph-operator 600
@@ -40,10 +42,10 @@ function rook_install() {
     kubectl_wait_avail rook-ceph deployment/csi-rbdplugin-provisioner 600
 
     # Deploy rbd, cephfs
-    kubectl create -f ${rookDeployDir}/rbd/storageclass-test.yaml
-    kubectl create -f ${rookDeployDir}/rbd/snapshotclass.yaml
-    kubectl create -f ${rookDeployDir}/cephfs/storageclass.yaml
-    kubectl create -f ${rookDeployDir}/cephfs/filesystem-test.yaml
+    kubectl create -f "${rookDeployDir}"/rbd/storageclass-test.yaml
+    kubectl create -f "${rookDeployDir}"/rbd/snapshotclass.yaml
+    kubectl create -f "${rookDeployDir}"/cephfs/storageclass.yaml
+    kubectl create -f "${rookDeployDir}"/cephfs/filesystem-test.yaml
 
     # TODO: wait ceph -s
   )
@@ -56,17 +58,17 @@ function rook_uninstall() {
     set +eo pipefail
     set -x
 
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cephfs/filesystem-test.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cephfs/storageclass.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/rbd/snapshotclass.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/rbd/storageclass-test.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/toolbox.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/cluster-test.yaml
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/operator.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cephfs/filesystem-test.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cephfs/storageclass.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/rbd/snapshotclass.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/rbd/storageclass-test.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cluster/toolbox.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cluster/cluster-test.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cluster/operator.yaml
 
     kubectl_wait_delete rook-ceph deployment/rook-ceph-operator 600
 
-    kubectl delete --ignore-not-found=true -f ${rookDeployDir}/cluster/common.yaml
+    kubectl delete --ignore-not-found=true -f "${rookDeployDir}"/cluster/common.yaml
 
     kubectl_wait_delete rook-ceph deployment/csi-cephfsplugin-provisioner 600
     kubectl_wait_delete rook-ceph deployment/csi-rbdplugin-provisioner 600
@@ -95,4 +97,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"

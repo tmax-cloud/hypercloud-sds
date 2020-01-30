@@ -1,5 +1,7 @@
-# include
-. $(dirname "$0")/common.sh
+#!/bin/bash
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 
 multinodeK8sDir="${srcDir}/hack/k8s-vagrant-multi-node"
 
@@ -25,7 +27,7 @@ function minikubeUp() {
   waitMinikubeSsh
 
   # Rook에서 사용할 디렉토리를 마운트
-  minikube ssh "sudo mkdir -p /mnt/sda1/${PWD}; sudo mkdir -p $(dirname $PWD); sudo ln -s /mnt/sda1/${PWD} $(dirname $PWD)/"
+  minikube ssh "sudo mkdir -p /mnt/sda1/${PWD}; sudo mkdir -p $(dirname "$PWD"); sudo ln -s /mnt/sda1/${PWD} $(dirname "$PWD")/"
   minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook;sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
 }
 
@@ -34,14 +36,14 @@ function minikubeClean() {
 }
 
 function clusterUp() {
-  # vagrant global-status --prune check or ps -ef | vagrant check
-  DISK_COUNT=2 DISK_SIZE_GB=5 NODE_COUNT=3 make --directory ${multinodeK8sDir} up -j4
+  # TODO vagrant global-status --prune check or ps -ef | vagrant check
+  DISK_COUNT=2 DISK_SIZE_GB=5 NODE_COUNT=3 make --directory "${multinodeK8sDir}" up -j4
   print_red "========================== cluster created =========================="
   echo "However, you may need to wait some seconds until nodes are ready"
 }
 
 function clusterClean() {
-  DISK_COUNT=2 DISK_SIZE_GB=5 NODE_COUNT=3 make --directory ${multinodeK8sDir} clean -j4
+  DISK_COUNT=2 DISK_SIZE_GB=5 NODE_COUNT=3 make --directory "${multinodeK8sDir}" clean -j4
 }
 
 function main() {
@@ -68,4 +70,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"

@@ -1,25 +1,28 @@
-# include
-. $(dirname "$0")/common.sh
+#!/bin/bash
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 
 cdiDeployDir="${deployDir}/cdi"
 
 function cdi_yaml() {
   cdiDockerRegistry=${dockerRegistry:-kubevirt}
 
-  mkdir -p ${cdiDeployDir}
+  mkdir -p "${cdiDeployDir}"
+  # shellcheck disable=SC2086
   cp -r ${templatesDir}/cdi ${deployDir}
 
-  sed -i -- "s|{{.cdiDockerRegistry}}|${cdiDockerRegistry}|g" ${cdiDeployDir}/cdi-operator.yaml.in
+  sed -i -- "s|{{.cdiDockerRegistry}}|${cdiDockerRegistry}|g" "${cdiDeployDir}"/cdi-operator.yaml.in
 
-  mv ${cdiDeployDir}/cdi-operator.yaml.in ${cdiDeployDir}/cdi-operator.yaml
+  mv "${cdiDeployDir}"/cdi-operator.yaml.in "${cdiDeployDir}"/cdi-operator.yaml
 }
 
 function cdi_install() {
   print_red "========================== install cdi =========================="
   (
     set -x
-    kubectl create -f ${cdiDeployDir}/cdi-operator.yaml
-    kubectl create -f ${cdiDeployDir}/cdi-cr.yaml
+    kubectl create -f "${cdiDeployDir}"/cdi-operator.yaml
+    kubectl create -f "${cdiDeployDir}"/cdi-cr.yaml
 
     # TODO change to use go client ?
     kubectl_wait_avail cdi deployment/cdi-apiserver 300
@@ -36,12 +39,12 @@ function cdi_uninstall() {
   (
     set +eo pipefail
     set -x
-    kubectl delete --ignore-not-found=true --wait=true -f ${cdiDeployDir}/cdi-cr.yaml
+    kubectl delete --ignore-not-found=true --wait=true -f "${cdiDeployDir}"/cdi-cr.yaml
     kubectl_wait_delete cdi deployment/cdi-apiserver 300
     kubectl_wait_delete cdi deployment/cdi-deployment 300
     kubectl_wait_delete cdi deployment/cdi-uploadproxy 300
 
-    kubectl delete --ignore-not-found=true -f ${cdiDeployDir}/cdi-operator.yaml
+    kubectl delete --ignore-not-found=true -f "${cdiDeployDir}"/cdi-operator.yaml
     kubectl_wait_delete cdi deployment/cdi-operator 300
   )
   print_red "========================== ok uninstall cdi =========================="
@@ -68,4 +71,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"
