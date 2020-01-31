@@ -14,6 +14,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 )
 
+//TODO infra check, rook installation check, cdi installation check, pod2pod network check 모두 다른 _test.go 파일로 분리
 var _ = Describe("TEST", func() {
 	var (
 		clientset *kubernetes.Clientset
