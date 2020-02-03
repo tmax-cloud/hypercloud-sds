@@ -1,5 +1,7 @@
-# include
-. $(dirname "$0")/common.sh
+#!/bin/bash
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 
 function build_go() {
   print_red "========================== build go =========================="
@@ -12,11 +14,12 @@ function build_go() {
       exit 1
     fi
 
+    # shellcheck disable=SC1091
     source /etc/profile #TODO this line is necessary to use go env, But this style is temporary!!!
 
     echo "enable module mode on for run go file outside of \$GOPATH"
     enableModuleMode="GO111MODULE=on"
-    export $enableModuleMode
+    export enableModuleMode
   )
   print_red "========================== ok build go =========================="
 }
@@ -40,7 +43,9 @@ function build_prerequisites() {
 
     # dependent packages install
     pkgDownloadCmd="go get ./..."
-    cd $testDir && $pkgDownloadCmd
+
+    # shellcheck disable=SC2031
+    cd "$testDir" && $pkgDownloadCmd
   )
   print_red "========================== ok build prerequisites =========================="
 }
@@ -62,4 +67,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"

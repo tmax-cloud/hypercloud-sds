@@ -2,11 +2,12 @@ package tests
 
 import (
 	"flag"
+	"os"
+	"path/filepath"
+
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"os"
-	"path/filepath"
 )
 
 func homeDir() string {
@@ -16,6 +17,7 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
+// TODO rook, cdi client 를 clientSet 과 더불어 사용, 재사용하기 위해서는 해당 코드에서 flag 등록하는 부분의 변경이 필요한 것으로 보임
 func getClientSet() (*kubernetes.Clientset, *restclient.Config) {
 	var kubeconfig *string
 	if home := homeDir(); home != "" {

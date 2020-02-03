@@ -1,11 +1,13 @@
-# include
-. $(dirname "$0")/common.sh
+#!/bin/bash
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 
 function lint() {
   print_red "========================== run lint =========================="
   lint="golangci-lint run --timeout=30m --disable-all --enable=deadcode  --enable=gocyclo --enable=golint --enable=varcheck --enable=structcheck --enable=maligned --enable=errcheck --enable=dupl --enable=ineffassign --enable=interfacer --enable=unconvert --enable=goconst --enable=gosec --enable=megacheck --enable=lll --enable=whitespace --enable=gomnd"
   (
-    cd $testDir && $lint
+    cd "$testDir" && $lint
   )
   print_red "========================== ok run lint =========================="
 }
@@ -13,7 +15,7 @@ function lint() {
 function run() {
   print_red "========================== run test =========================="
   (
-    cd $testDir && ginkgo
+    cd "$testDir" && ginkgo
   )
   print_red "========================== ok run test =========================="
 }
@@ -35,4 +37,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"

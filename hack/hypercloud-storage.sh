@@ -1,41 +1,30 @@
 #!/bin/bash
-
-# include
-. $(dirname "$0")/common.sh
-
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh"
 function yaml() {
-  $(dirname "$0")/rook.sh yaml
-  $(dirname "$0")/cdi.sh yaml
-
+  "$(dirname "$0")/rook.sh" yaml
+  "$(dirname "$0")/cdi.sh" yaml
   echo "Generated yaml in ./_deploy"
 }
-
 function install() {
-  $(dirname "$0")/rook.sh install
-  $(dirname "$0")/cdi.sh install
+  "$(dirname "$0")/rook.sh" install
+  "$(dirname "$0")/cdi.sh" install
 }
-
 function uninstall() {
-  $(dirname "$0")/cdi.sh uninstall
-  $(dirname "$0")/rook.sh uninstall
-
+  "$(dirname "$0")/cdi.sh" uninstall
+  "$(dirname "$0")/rook.sh" uninstall
   print_red "Warning: 모든 물리 노드의 /var/lib/rook 디렉토리를 삭제해야 합니다."
 }
-
 function build() {
-  $(dirname "$0")/build.sh build_go
-  $(dirname "$0")/build.sh build_prerequisites
-
+  "$(dirname "$0")/build.sh" build_go
+  "$(dirname "$0")/build.sh" build_prerequisites
   echo "build finished"
 }
-
 function test() {
-  $(dirname "$0")/e2etest.sh lint
-  $(dirname "$0")/e2etest.sh run
-
+  "$(dirname "$0")/e2etest.sh" lint
+  "$(dirname "$0")/e2etest.sh" run
   echo "e2e test finished"
 }
-
 function main() {
   case "${1:-}" in
   yaml)
@@ -54,16 +43,16 @@ function main() {
     uninstall
     ;;
   minikubeUp)
-    $(dirname "$0")/cluster.sh minikubeUp
+    "$(dirname "$0")/cluster.sh" minikubeUp
     ;;
   minikubeClean)
-    $(dirname "$0")/cluster.sh minikubeClean
+    "$(dirname "$0")/cluster.sh" minikubeClean
     ;;
   clusterUp)
-    $(dirname "$0")/cluster.sh clusterUp
+    "$(dirname "$0")/cluster.sh" clusterUp
     ;;
   clusterClean)
-    $(dirname "$0")/cluster.sh clusterClean
+    "$(dirname "$0")/cluster.sh" clusterClean
     ;;
   *)
     set +x
@@ -81,5 +70,4 @@ function main() {
     ;;
   esac
 }
-
-main $1
+main "$1"

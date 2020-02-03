@@ -2,6 +2,7 @@
 HyperCloud를 위해 제공되는 (Java Client 와) 인스톨 파일 그리고 정상 각 모듈의 설치 확인을 위한 테스트 스크립트를 포함하는 프로젝트입니다.
 
 ## 기능 별 가이드 문서
+- [hypercloud-storage Install 가이드](docs/installation.md)
 - [hypercloud-storage CICD](docs/cicd.md)
 - [CDI](docs/cdi.md)
 
