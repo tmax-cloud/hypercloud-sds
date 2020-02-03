@@ -41,7 +41,7 @@
     - `minikubeUp` : 노드 1개
     - `clusterUp` : 노드 4개
 
-6) `hypercloud-storage/_deploy/rook/cluster/cluster-test.yaml `파일을 열고 사용하고자하는 **rook cluster 환경에 맡게 환경변수들을 수정합니다.** [rook 가이드 참고](./rook.md)
+6) `hypercloud-storage/_deploy/rook/cluster/cluster-test.yaml `파일을 열고 사용하고자하는 **rook cluster 환경에 맞게 환경변수들을 수정합니다.** [rook 가이드 참고](./rook.md)
     * replication 개수 등 기타 환경변수도 수정하고 싶은 경우, _deploy/ 디렉토리 아래의 *.yaml 파일들을 수정하면 아래 7. `make install` 시 반영되어 설치됩니다.
 
 7) `make install` 을 입력합니다.
