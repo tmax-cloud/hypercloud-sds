@@ -15,6 +15,7 @@ function lint() {
 function run() {
   print_red "========================== run test =========================="
   (
+  #TODO test_to_be 디렉토리 완성되고나면, testDir 랑 ginkgo -> go test 로 변경 필요
     cd "$testDir" && ginkgo
   )
   print_red "========================== ok run test =========================="
