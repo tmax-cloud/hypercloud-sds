@@ -10,7 +10,7 @@ spec:
       url: "docker://kubevirt/fedora-cloud-registry-disk-demo"
   pvc:
     accessModes:
-      - ReadWriteOnce
+      - ReadWriteMany
     resources:
       requests:
         storage: 5Gi

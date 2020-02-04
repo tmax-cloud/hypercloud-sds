@@ -23,7 +23,7 @@ var _ = Describe("TEST", func() {
 
 	BeforeSuite(func() { //TODO BeforeEach 로 clientSet 사용 시,
 		// flag.go 의 Happens only if flags are declared with identical names 에러 발생
-		clientset, config = getClientSet()
+		clientset, config = GetClientSet()
 	})
 
 	// TODO Temporary codes for nodes & pods check

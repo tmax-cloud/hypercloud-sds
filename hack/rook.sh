@@ -47,6 +47,9 @@ function rook_install() {
     kubectl create -f "${rookDeployDir}"/cephfs/storageclass.yaml
     kubectl create -f "${rookDeployDir}"/cephfs/filesystem-test.yaml
 
+    # set default sc
+    kubectl patch storageclass csi-cephfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
     # TODO: wait ceph -s
   )
   print_red "========================== ok install rook =========================="

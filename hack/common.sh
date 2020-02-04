@@ -14,7 +14,8 @@ deployDir="${srcDir}/_deploy"
 # shellcheck disable=SC2034
 buildDir="${srcDir}/_build"
 # shellcheck disable=SC2034
-testDir="${srcDir}/tests"
+#testDir="${srcDir}/tests"
+testDir="${srcDir}/ginkgotest"
 ######################
 
 # include
