@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"testing"
@@ -7,13 +7,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestGinkgotest(t *testing.T) {
-	RegisterFailHandler(Fail)
-	_, _ = CreateK8sHelper(t)
-	RunSpecs(t, "Ginkgotest Suite")
-}
-
 var (
 	hyperStorageHelper *HyperHelper
-	//config    *restclient.Config
 )
+
+func TestGinkgotest(t *testing.T) {
+	RegisterFailHandler(Fail)
+	_, err := CreateK8sHelper(t)
+	if err != nil {
+		panic(err)
+	}
+
+	RunSpecs(t, "Ginkgotest Suite")
+}

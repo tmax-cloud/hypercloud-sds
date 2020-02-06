@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"fmt"
