@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"bytes"
@@ -13,26 +13,6 @@ import (
 	"strings"
 	"time"
 )
-
-func makeNamespaceSpec(namespace string) *corev1.Namespace {
-	namespaceSpec := &corev1.Namespace{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Namespace",
-			APIVersion: "v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-		},
-	}
-
-	return namespaceSpec
-}
-
-func createNamespace(clientset *kubernetes.Clientset, nsSpec *corev1.Namespace) error {
-	_, err := clientset.CoreV1().Namespaces().Create(nsSpec)
-
-	return err
-}
 
 func makePodSpec(podName string, namespace string) *corev1.Pod {
 	//TODO need to be clean

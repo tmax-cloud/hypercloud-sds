@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ var _ = Describe("Test CDI Module", func() {
 	Describe("[[TEST][e2e][0002] DataVolume Create -> Get -> Delete", func() {
 		It("Create -> Get -> Delete", func() {
 			const (
-				namespace                           = "test-0002-create-dv"
+				namespacePrefix                     = "test-0002-create-dv-"
 				dvName                              = "test-0002-dv"
 				dvSize                              = "5Gi"
 				timeOutForCreatingDv                = 500 * time.Second
@@ -27,20 +27,20 @@ var _ = Describe("Test CDI Module", func() {
 				pollingIntervalForDeletingNamespace = 10 * time.Second
 			)
 			// create ns
-			nsSpec := makeNamespaceSpec(namespace)
-			err := createNamespace(hyperStorageHelper.Clientset, nsSpec)
+			nsSpec := makeNamespaceSpec(namespacePrefix)
+			generatedNs, err := createNamespace(hyperStorageHelper.Clientset, nsSpec)
 			Expect(err).ToNot(HaveOccurred())
-			fmt.Printf("namespace %s is created\n", namespace) // TODO fmt 대신 log 사용
+			fmt.Printf("namespace %s is created\n", generatedNs.Name) // TODO fmt 대신 log 사용
 
 			// create dv
-			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, namespace,
+			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, generatedNs.Name,
 				makeDataVolumeSpec(dvName, dvSize))
 			Expect(err).ToNot(HaveOccurred())
 			fmt.Printf("dv %s is creating\n", dvName)
 
 			// wait dv until succeeded
 			fmt.Println("wait until dv phase become succeeded for timeout")
-			err = dvutils.WaitForDataVolumePhaseWithTimeout(hyperStorageHelper.CdiClientset, namespace,
+			err = dvutils.WaitForDataVolumePhaseWithTimeout(hyperStorageHelper.CdiClientset, generatedNs.Name,
 				cdiv1.Succeeded, dv.Name, timeOutForCreatingDv)
 			Expect(err).ToNot(HaveOccurred())
 			fmt.Printf("dv %s is created\n", dvName)
@@ -50,16 +50,15 @@ var _ = Describe("Test CDI Module", func() {
 				Get(dv.Name, metav1.GetOptions{})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(out.Name).To(Equal(dvName))
-			Expect(out.Status.Phase).To(Equal(cdiv1.Succeeded)) // TODO delete처럼 wait 하면서 계속 get 여러 번 날리는 것으로 변경
+			Expect(out.Status.Phase).To(Equal(cdiv1.Succeeded))
 
 			// delete dv
-			//TODO delete 날리고 wait 해야 함
 			err = hyperStorageHelper.CdiClientset.CdiV1alpha1().DataVolumes(dv.Namespace).
 				Delete(dv.Name, &metav1.DeleteOptions{})
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
 				_, err := hyperStorageHelper.CdiClientset.CdiV1alpha1().DataVolumes(dv.Namespace).
-					Get(namespace, metav1.GetOptions{})
+					Get(generatedNs.Name, metav1.GetOptions{})
 				if err != nil || errors.IsNotFound(err) {
 					return true
 				}
@@ -71,16 +70,16 @@ var _ = Describe("Test CDI Module", func() {
 			//delete ns
 			//TODO MUST DELETE NAMESPACE regardless of any above assertions !!!!!!!!!!!!!!
 			// 현재는 위의 모든 assertion 이 true 일 때만, 아래 라인을 타고 namespace 를 delete 하고 있음
-			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(namespace, &metav1.DeleteOptions{})
+			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(generatedNs.Name, &metav1.DeleteOptions{})
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
-				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
+				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(generatedNs.Name, metav1.GetOptions{})
 				if err != nil || errors.IsNotFound(err) {
 					return true
 				}
 
 				if ns.Status.Phase == corev1.NamespaceTerminating {
-					fmt.Printf("Namespace %s is still in phase %s\n", namespace, ns.Status.Phase)
+					fmt.Printf("Namespace %s is still in phase %s\n", generatedNs.Name, ns.Status.Phase)
 					return false
 				}
 				return false

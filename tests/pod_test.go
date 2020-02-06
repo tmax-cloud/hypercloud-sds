@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 var _ = Describe("Test Pod Network", func() {
 	Describe("[TEST][e2e][0001] Pod Networking", func() {
 		const (
-			namespace                           = "test-pod-networking"
+			namespacePrefix                     = "test-pod-networking-"
 			pod1Name                            = "alpha"
 			pod2Name                            = "beta"
 			timeoutForCreatingPod               = time.Second * 60
@@ -24,19 +24,19 @@ var _ = Describe("Test Pod Network", func() {
 		)
 
 		It("[TEST - 10] Check ping from one pod to another pod by ip address", func() {
-			nsSpec := makeNamespaceSpec(namespace)
+			nsSpec := makeNamespaceSpec(namespacePrefix)
 
-			err := createNamespace(hyperStorageHelper.Clientset, nsSpec)
+			generatedNs, err := createNamespace(hyperStorageHelper.Clientset, nsSpec)
 			Expect(err).ToNot(HaveOccurred())
-			fmt.Printf("namespace %s is created\n", namespace)
+			fmt.Printf("namespace %s is created\n", generatedNs.Name)
 
 			// create pod busybox named alpha
-			pod1, err := createPod(hyperStorageHelper.Clientset, pod1Name, namespace)
+			pod1, err := createPod(hyperStorageHelper.Clientset, pod1Name, generatedNs.Name)
 			Expect(err).ToNot(HaveOccurred())
 			fmt.Printf("pod %s is created\n", pod1Name)
 
 			// create pod busybox named beta
-			pod2, err := createPod(hyperStorageHelper.Clientset, pod2Name, namespace)
+			pod2, err := createPod(hyperStorageHelper.Clientset, pod2Name, generatedNs.Name)
 			Expect(err).ToNot(HaveOccurred())
 			fmt.Printf("pod %s is created\n", pod2Name)
 
@@ -48,9 +48,9 @@ var _ = Describe("Test Pod Network", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			// after pod created
-			pod1Ip, err := getPodIP(hyperStorageHelper.Clientset, pod1.Name, namespace)
+			pod1Ip, err := getPodIP(hyperStorageHelper.Clientset, pod1.Name, generatedNs.Name)
 			Expect(err).ToNot(HaveOccurred())
-			pod2Ip, err := getPodIP(hyperStorageHelper.Clientset, pod2.Name, namespace)
+			pod2Ip, err := getPodIP(hyperStorageHelper.Clientset, pod2.Name, generatedNs.Name)
 			Expect(err).ToNot(HaveOccurred())
 
 			fmt.Printf("IP of %s is %s\n", pod1Name, pod1Ip)
@@ -58,38 +58,38 @@ var _ = Describe("Test Pod Network", func() {
 
 			// check each ping test case
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod1.Name, namespace, pod2Ip,
+				return canPingFromPodToIPAddr(pod1.Name, generatedNs.Name, pod2Ip,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, timeoutForPing, pollingIntervalForPing).Should(BeTrue())
 
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod2.Name, namespace, pod1Ip,
+				return canPingFromPodToIPAddr(pod2.Name, generatedNs.Name, pod1Ip,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, timeoutForPing, pollingIntervalForPing).Should(BeTrue())
 
 			googleAddress := "google.com"
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod1.Name, namespace, googleAddress,
+				return canPingFromPodToIPAddr(pod1.Name, generatedNs.Name, googleAddress,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, timeoutForPing, pollingIntervalForPing).Should(BeTrue())
 
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod2.Name, namespace, googleAddress,
+				return canPingFromPodToIPAddr(pod2.Name, generatedNs.Name, googleAddress,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, timeoutForPing, pollingIntervalForPing).Should(BeTrue())
 
 			//TODO MUST DELETE NAMESPACE regardless of any above assertions !!!!!!!!!!!!!!
 			// 현재는 위의 모든 assertion 이 true 일 때만, 아래 라인을 타고 namespace 를 delete 하고 있음
-			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(namespace, &metav1.DeleteOptions{})
+			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(generatedNs.Name, &metav1.DeleteOptions{})
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
-				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
+				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(generatedNs.Name, metav1.GetOptions{})
 				if err != nil || errors.IsNotFound(err) {
 					return true
 				}
 
 				if ns.Status.Phase == corev1.NamespaceTerminating {
-					fmt.Printf("Namespace %s is still in phase %s\n", namespace, ns.Status.Phase)
+					fmt.Printf("Namespace %s is still in phase %s\n", generatedNs.Name, ns.Status.Phase)
 					return false
 				}
 				return false

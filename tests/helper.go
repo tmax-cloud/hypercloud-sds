@@ -1,4 +1,4 @@
-package ginkgotest
+package tests
 
 import (
 	"flag"
@@ -6,6 +6,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	cdiclient "kubevirt.io/containerized-data-importer/pkg/client/clientset/versioned"
+	"os"
 	"path/filepath"
 
 	//rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
@@ -32,7 +33,12 @@ func CreateK8sHelper(t *testing.T) (*HyperHelper, error) {
 	executor := &exec.CommandExecutor{}
 
 	var kubeconfig *string
-	if home := homeDir(); home != "" {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	if home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"),
 			"(optional) absolute path to the kubeconfig file")
 	} else {

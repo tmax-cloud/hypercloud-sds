@@ -33,6 +33,7 @@ function rook_install() {
     # Deploy cluster
     kubectl create -f "${rookDeployDir}"/cluster/common.yaml
     kubectl create -f "${rookDeployDir}"/cluster/operator.yaml
+    # TODO wait ?
     kubectl create -f "${rookDeployDir}"/cluster/cluster-test.yaml
     kubectl create -f "${rookDeployDir}"/cluster/toolbox.yaml
 
