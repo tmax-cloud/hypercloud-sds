@@ -29,6 +29,8 @@ function minikubeUp() {
   # Rook에서 사용할 디렉토리를 마운트
   minikube ssh "sudo mkdir -p /mnt/sda1/${PWD}; sudo mkdir -p $(dirname "$PWD"); sudo ln -s /mnt/sda1/${PWD} $(dirname "$PWD")/"
   minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook;sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
+
+  kubectl patch storageclass standard '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 }
 
 function minikubeClean() {
