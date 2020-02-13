@@ -7,10 +7,10 @@ metadata:
 spec:
   source:
       http:
-         url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
+         url: "https://download.cirros-cloud.net/contrib/0.3.0/cirros-0.3.0-i386-disk.img"
   pvc:
     accessModes:
       - ReadWriteMany
     resources:
       requests:
-        storage: 1Gi
+        storage: 5Gi

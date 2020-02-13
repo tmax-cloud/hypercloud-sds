@@ -7,13 +7,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//TODO infra check, rook installation check, cdi installation check, pod2pod network check 모두 다른 _test.go 파일로 분리
 var _ = Describe("TEST", func() {
-
-	BeforeSuite(func() { //TODO BeforeEach 로 clientSet 사용 시,
-		hyperStorageHelper = HyperStorageHelper()
-		// flag.go 의 Happens only if flags are declared with identical names 에러 발생
-		//clientset, config = HyperStorageHelper().Clientset, HyperStorageConfig()
+	BeforeEach(func() {
+		nodes, err := hyperStorageHelper.Clientset.CoreV1().Nodes().List(metav1.ListOptions{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(len(nodes.Items)).NotTo(Equal(0)) // TODO should change to another assertion
 	})
 
 	// TODO Temporary codes for nodes & pods check
@@ -37,108 +35,101 @@ var _ = Describe("TEST", func() {
 
 	Describe("rook install check", func() {
 		const (
-			namespace                            = "rook-ceph"
-			deploymentRookCephOperator           = "rook-ceph-operator"
-			deploymentCsiCephfspluginProvisioner = "csi-cephfsplugin-provisioner"
-			deploymentCsiRbdpluginProvisioner    = "csi-rbdplugin-provisioner"
+			namespace = "rook-ceph"
 		)
 
 		Context("check if each deployment installed", func() {
 			It("[TEST - 03] deployment_rook_ceph_operator", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentRookCephOperator, metav1.GetOptions{})
+					Get(DeploymentRookCephOperator, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
 				//TODO fmt -> log 사용 및 관리 필요
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentRookCephOperator, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentRookCephOperator, namespace)
 			})
 		})
 		Context("check if each deployment installed", func() {
 			It("[TEST - 04] deployment_csi_cephfsplugin_provisioner", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCsiCephfspluginProvisioner, metav1.GetOptions{})
+					Get(DeploymentCsiCephfspluginProvisioner, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCsiCephfspluginProvisioner, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCsiCephfspluginProvisioner, namespace)
 			})
 		})
 
 		Context("check if each deployment installed", func() {
 			It("[TEST - 05] deployment_csi_rbdplugin_provisioner", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCsiRbdpluginProvisioner, metav1.GetOptions{})
+					Get(DeploymentCsiRbdpluginProvisioner, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCsiRbdpluginProvisioner, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCsiRbdpluginProvisioner, namespace)
 			})
 		})
 	})
 	Describe("cdi install check", func() {
 		const (
-			namespace                = "cdi"
-			deploymentCdiOperator    = "cdi-operator"
-			deploymentCdiDeployment  = "cdi-deployment"
-			deploymentCdiApiserver   = "cdi-apiserver"
-			deploymentCdiUploadproxy = "cdi-uploadproxy"
+			namespace = "cdi"
 		)
 
 		Context("check if each deployment installed", func() {
 			It("[TEST - 06] deployment_cdi_operator", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCdiOperator, metav1.GetOptions{})
+					Get(DeploymentCdiOperator, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCdiOperator, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCdiOperator, namespace)
 			})
 		})
 		Context("check if each deployment installed", func() {
 			It("[TEST - 07] deployment_cdi_deployment", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCdiDeployment, metav1.GetOptions{})
+					Get(DeploymentCdiDeployment, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCdiDeployment, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCdiDeployment, namespace)
 			})
 		})
 
 		Context("check if each deployment installed", func() {
 			It("[TEST - 08] deployment_cdi_apiserver", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCdiApiserver, metav1.GetOptions{})
+					Get(DeploymentCdiApiserver, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCdiApiserver, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCdiApiserver, namespace)
 			})
 		})
 
 		Context("check if each deployment installed", func() {
 			It("[TEST - 09] deployment_cdi_uploadproxy", func() {
 				out, err := hyperStorageHelper.Clientset.AppsV1().Deployments(namespace).
-					Get(deploymentCdiUploadproxy, metav1.GetOptions{})
+					Get(DeploymentCdiUploadproxy, metav1.GetOptions{})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(out.Status.ReadyReplicas).ShouldNot(BeNumerically("==", 0))
 				Expect(out.Status.UnavailableReplicas).Should(BeNumerically("==", 0))
 
-				fmt.Printf("Found deployment %s in namespace %s\n", deploymentCdiUploadproxy, namespace)
+				fmt.Printf("Found deployment %s in namespace %s\n", DeploymentCdiUploadproxy, namespace)
 			})
 		})
 	})

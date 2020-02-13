@@ -12,7 +12,6 @@ import (
 	//rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	"github.com/rook/rook/pkg/util/exec"
 	"k8s.io/client-go/kubernetes"
-	"testing"
 )
 
 type HyperHelper struct {
@@ -21,7 +20,6 @@ type HyperHelper struct {
 	//RookClientset    *rookclient.Clientset
 	CdiClientset     *cdiclient.Clientset
 	RunningInCluster bool
-	T                *testing.T
 }
 
 var (
@@ -29,9 +27,10 @@ var (
 	uniqueConfig             *restclient.Config
 )
 
-func CreateK8sHelper(t *testing.T) (*HyperHelper, error) {
+func CreateK8sHelper() (*HyperHelper, error) {
 	executor := &exec.CommandExecutor{}
 
+	// TODO home 에서 가져오지 말고 KUBECONFIG 환경변수로부터 가져오기 ("" 일 경우 하드코딩으로)
 	var kubeconfig *string
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -44,7 +43,7 @@ func CreateK8sHelper(t *testing.T) (*HyperHelper, error) {
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
-	flag.Parse() // TODO flag 에 붙이는 방식때문에 **반드시** 단 한 번 이 함수가 불려야 함
+	//flag.Parse() // TODO flag 에 붙이는 방식때문에 **반드시** 단 한 번 이 함수가 불려야 함
 
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -62,7 +61,7 @@ func CreateK8sHelper(t *testing.T) (*HyperHelper, error) {
 		return nil, fmt.Errorf("failed to get cdiclientset. %+v", err)
 	}
 
-	h := &HyperHelper{executor: executor, Clientset: clientset, CdiClientset: cdiclientset, T: t}
+	h := &HyperHelper{executor: executor, Clientset: clientset, CdiClientset: cdiclientset}
 
 	//TODO cluster 밖에서 명령 보내는 경우 고려 (현재는 InCluster인 경우만 하고 있음)
 
