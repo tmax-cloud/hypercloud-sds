@@ -12,18 +12,33 @@ import (
 var _ = Describe("Test Pod Network", func() {
 	Describe("[TEST][e2e][0001] Pod Networking", func() {
 		const (
-			namespacePrefix = "test-pod-networking-"
-			pod1Name        = "alpha"
-			pod2Name        = "beta"
+			pod1Name = "alpha"
+			pod2Name = "beta"
 		)
-
-		It("[TEST - 10] Check ping from one pod to another pod by ip address", func() {
-			nsSpec := makeNamespaceSpec(namespacePrefix)
-
-			testingNamespace, err := createNamespace(hyperStorageHelper.Clientset, nsSpec)
+		BeforeEach(func() {
+			// create testing namespace
+			testingNamespace, err = createNamespace(hyperStorageHelper.Clientset,
+				makeNamespaceSpec(Pod2PodTestingNamespacePrefix))
 			Expect(err).ToNot(HaveOccurred())
-			fmt.Printf("namespace %s is created\n", testingNamespace.Name)
-
+			fmt.Printf("Namespace %s is created for testing.\n", testingNamespace.Name) // TODO fmt 대신 log 사용
+		})
+		AfterEach(func() {
+			//delete testing namespace
+			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(testingNamespace.Name, &metav1.DeleteOptions{})
+			Expect(err).ToNot(HaveOccurred())
+			Eventually(func() bool {
+				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(testingNamespace.Name, metav1.GetOptions{})
+				if err != nil || errors.IsNotFound(err) {
+					return true
+				}
+				if ns.Status.Phase == corev1.NamespaceTerminating {
+					fmt.Printf("Namespace %s is still in phase %s\n", testingNamespace.Name, ns.Status.Phase)
+					return false
+				}
+				return false
+			}, TimeoutForDeletingNamespace, PollingIntervalForDeletingNamespace).Should(BeTrue())
+		})
+		It("[TEST - 10] Check ping from one pod to another pod by ip address", func() {
 			// create pod busybox named alpha
 			pod1, err := createPod(hyperStorageHelper.Clientset, pod1Name, testingNamespace.Name)
 			Expect(err).ToNot(HaveOccurred())
@@ -61,33 +76,15 @@ var _ = Describe("Test Pod Network", func() {
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, TimeoutForPing, PollingIntervalForPing).Should(BeTrue())
 
-			googleAddress := "google.com"
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod1.Name, testingNamespace.Name, googleAddress,
+				return canPingFromPodToIPAddr(pod1.Name, testingNamespace.Name, GoogleIPAddress,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, TimeoutForPing, PollingIntervalForPing).Should(BeTrue())
 
 			Eventually(func() bool {
-				return canPingFromPodToIPAddr(pod2.Name, testingNamespace.Name, googleAddress,
+				return canPingFromPodToIPAddr(pod2.Name, testingNamespace.Name, GoogleIPAddress,
 					hyperStorageHelper.Clientset, HyperStorageConfig())
 			}, TimeoutForPing, PollingIntervalForPing).Should(BeTrue())
-
-			//TODO MUST DELETE NAMESPACE regardless of any above assertions !!!!!!!!!!!!!!
-			// 현재는 위의 모든 assertion 이 true 일 때만, 아래 라인을 타고 namespace 를 delete 하고 있음
-			err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(testingNamespace.Name, &metav1.DeleteOptions{})
-			Expect(err).ToNot(HaveOccurred())
-			Eventually(func() bool {
-				ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(testingNamespace.Name, metav1.GetOptions{})
-				if err != nil || errors.IsNotFound(err) {
-					return true
-				}
-
-				if ns.Status.Phase == corev1.NamespaceTerminating {
-					fmt.Printf("Namespace %s is still in phase %s\n", testingNamespace.Name, ns.Status.Phase)
-					return false
-				}
-				return false
-			}, TimeoutForDeletingNamespace, PollingIntervalForDeletingNamespace).Should(BeTrue())
 		})
 	})
 })
