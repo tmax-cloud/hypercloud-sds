@@ -1,0 +1,41 @@
+# Helm에서 CRD에 대한 데이터가 삭제되지 않는 문제를 해결하기 위함
+# 참고: https://github.com/helm/charts/blob/d58247103fafd5930792bb1fd3ac240547523200/stable/prometheus-operator/templates/prometheus-operator/cleanup-crds.yaml#L33
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rook-pre-delete
+  # TODO: SA 만들어서 rook-ceph에서 수행하도록 변경
+  namespace: kube-system
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    app: rook-operator
+spec:
+  template:
+    metadata:
+      name: rook-pre-delete
+      labels:
+        app: rook-pre-delete
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: kubectl
+          image: {{ .Values.storage.images.hyperkube.repository }}:{{ .Values.storage.images.hyperkube.tag }}
+          imagePullPolicy: IfNotPresent
+          command:
+          - /bin/sh
+          - -c
+          - >
+              kubectl delete --all -n rook-ceph cephblockpools.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephclients.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephclusters.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephfilesystems.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephnfses.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephobjectstores.ceph.rook.io;
+              kubectl delete --all -n rook-ceph cephobjectstoreusers.ceph.rook.io;
+              kubectl delete --all -n rook-ceph objectbucketclaims.objectbucket.io;
+              kubectl delete --all -n rook-ceph objectbuckets.objectbucket.io;
+              kubectl delete --all -n rook-ceph volumes.rook.io;
+      restartPolicy: OnFailure

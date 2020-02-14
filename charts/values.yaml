@@ -1,0 +1,15 @@
+storage:
+  images:
+    rook:
+      repository: rook/ceph
+      tag: v1.2.4
+    ceph:
+      repository: ceph/ceph
+      tag: v14.2.6
+  replicas: 1
+  mon:
+    count: 1
+  nodes:
+    - hostname: minikube
+      directories:
+      - path: /mnt/sda1/var/lib/rook
