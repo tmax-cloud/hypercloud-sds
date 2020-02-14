@@ -34,7 +34,6 @@
       ```
 
     - TODO) rook cluster yaml 변경 방법 확인
-    - TODO) 현재 sample 용 cluster-test.yaml 의 csi-cephfs sc 를 default 로 설정 필요, reclaimPolicy 를 Delete 로 변경 필요
 
 5) `kubectl get nodes` 를 입력하여 사용 중인 kube cluster 환경에 정상적으로 접속할 수 있는 상태인지 확인합니다.
     - 단순 install 테스트를 위한 상황인 경우 `make minikubeUp` 혹은 `make clusterUp` 을 하면 테스트용 k8s cluster 를 해당 노드에 띄울 수 있습니다.
@@ -47,8 +46,7 @@
 7) `make install` 을 입력합니다.
     - `hypercloud-storage/_deploy/` 아래의 yaml 파일들을 정해진 순서대로 설치 (`kubectl create -f xxx.yaml`) 하며, 모든 deployment 들이 `status: Available` 이 될 때까지 기다립니다.
     - 해당 커맨드가 성공적으로 종료되면, rook 과 cdi 의 사용이 가능합니다.
-    - TODO) default storage 세팅 필요
-    - TODO) (cluster_config 에 registry url이 입력된 경우) cdi configmap 변경 [cdi 가이드 참고](./cdi.md)
+    - (cluster_config 에 registry url이 입력된 경우) cdi configmap 변경 필요 [cdi 가이드 참고](./cdi.md)
 
   - 최종적으로 다음과 같이 출력되는지 확인합니다.
 
