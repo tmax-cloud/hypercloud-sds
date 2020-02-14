@@ -24,16 +24,19 @@ var (
 var _ = Describe("Test CDI Module", func() {
 	BeforeEach(func() {
 		// create testing namespace
-		testingNamespace, err = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(NamespacePrefix))
+		testingNamespace, err = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(CdiTestingNamespacePrefix))
 		Expect(err).ToNot(HaveOccurred())
 		fmt.Printf("Namespace %s is created for testing.\n", testingNamespace.Name) // TODO fmt 대신 log 사용
 
 		// TODO storage-v1 만 확인해도 괜찮은지?
 		// TODO RWM, RWO sc 구분하여 변수로 저장 후 다른 테스트에서 사용
+		// TODO reclaimPolicy Retain 과 Delete sc 구분
+		// TODO dynamic sc 구분
+		// TODO 현재 사용 가능 여부 구분
 		scList, err = hyperStorageHelper.Clientset.StorageV1().StorageClasses().List(metav1.ListOptions{})
 
 		for _, scItem = range scList.Items {
-			fmt.Printf("Current storageclass list is : %s \n", scItem.Name)
+			fmt.Printf("One of %d existing storageclasses is : %s \n", len(scList.Items), scItem.Name)
 		}
 	})
 
@@ -133,7 +136,7 @@ var _ = Describe("Test CDI Module", func() {
 
 func waitDataVolumeGetReadyThenDelete(dv *cdiv1alpha1.DataVolume, hyperStorageHelper *HyperHelper) error {
 	// wait dv until succeeded
-	fmt.Println("wait until dv phase become succeeded for timeout")
+	fmt.Printf("wait until dv phase become succeeded for timeout %s\n", TimeOutForCreatingDv.String())
 	err := dvutils.WaitForDataVolumePhaseWithTimeout(hyperStorageHelper.CdiClientset, dv.Namespace,
 		cdiv1alpha1.Succeeded, dv.Name, TimeOutForCreatingDv)
 	Expect(err).ToNot(HaveOccurred())

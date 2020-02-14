@@ -3,8 +3,11 @@ package tests
 import "time"
 
 const (
-	NamespacePrefix      = "test-cdi-"
-	DataVolumeNamePrefix = "test-dv-"
+	Pod2PodTestingNamespacePrefix = "test-pod-networking-"
+	GoogleIPAddress               = "google.com"
+
+	CdiTestingNamespacePrefix = "test-cdi-"
+	DataVolumeNamePrefix      = "test-dv-"
 
 	DataVolumeSize = "5Gi" // TODO 각 테스트별로 변경할 수 있도록
 
