@@ -8,7 +8,7 @@
 
 ## 사용 예
 
-> [kubevirt/cdi github official example page](https://github.com/kubevirt/containerized-data-importer/tree/master/manifests/example) <br><br>
+> [kubevirt/cdi github official example page](https://github.com/kubevirt/containerized-data-importer/tree/master/manifests/example) <br>
 * 모든 example 은 해당 환경의 default storage class 를 사용하는 예로 구성되어있으며, 특정 storage class 사용을 원하는 경우, `spec.pvc.storageClassName` 에 원하는 `storage class name` 를 적어서 `kubectl create -f xxx.yaml` 하시면 됩니다.
 
   * [create datavolume import from http](./examples/datavolume-import-from-http.yaml)
@@ -17,9 +17,7 @@
   * [create datavolume import from registry with block-mode-pvc](./examples/datavolume-import-from-registry-image-block.yaml)
   * [create datavolume clone from pvc](./examples/datavolume-clone-from-pvc.yaml)
 
-## **Appendix**
-
-### a. configmap 변경 방법
+## configmap 변경 방법
 
 * 추후 cdi 를 사용하여 dataVolume 을 생성할 때, private repository 로부터 특정 이미지(데이터)를 pull 하여 생성하고자 할 경우 다음과 같이 cdi 모듈 내부에서 사용하는 configmap 의 등록이 필요합니다.
   * `kubectl edit configmaps cdi-insecure-registries -n cdi` 명령어를 입력하여 yaml edit 창을 open 합니다.
@@ -52,7 +50,7 @@
       uid: aebe00c9-5bfc-4911-8170-25e23b144e29
     ```
 
-### b. cdiconfig 변경 (configmap 과 다른 resource)
+## cdiconfig 변경 (주의: cdiconfig 와 configmap 은 다른 resource입니다.)
 
 > cdi 모듈 내부적으로 임시로 create 하는 pod 과 pvc 가 존재하는데, <br>
 >해당 pvc 는 CDIConfig 의 status.scratchSpaceStorageClass 에 적힌 storageClass 로 provisioning 하여 생성됩니다. <br>
@@ -73,8 +71,3 @@ spec:
 ````
 
 으로 변경하여 CDIConfig 의 status.scratchSpaceStorageClass 를 변경할 수 있습니다.
-***
-
-### c. trouble shooting guide
-
-* TODO

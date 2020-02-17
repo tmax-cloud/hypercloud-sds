@@ -1,3 +1,4 @@
+# [Helm 적용 이후 변경될 예정입니다.]
 # HyperCloud Storage 설치 가이드
 
 - rook (v1.2.0) 모듈을 설치한 이후 cdi (v1.11.0) 모듈을 설치합니다.
