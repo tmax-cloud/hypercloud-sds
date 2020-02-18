@@ -2,9 +2,19 @@ stages:
   - e2e_test
 
 #TODO: 다양한 버전, 다양한 환경으로 e2e 테스트
-e2e_test:
+.e2e_template:
   stage: e2e_test
   script:
-    - echo "hi"
+    - ./hack/cluster.sh clusterUp
   after_script:
-    - echo "bye"
+    - ./hack/cluster.sh clusterClean
+
+e2e_test_centos_1node_1_17_3:
+  extends: .e2e_template
+  before_script:
+    - export BOX_OS=centos NODE_COUNT=1 KUBERNETES_VERSION=1.17.3
+
+e2e_test_centos_3node_1_15_3:
+  extends: .e2e_template
+  before_script:
+    - export BOX_OS=centos NODE_COUNT=3 KUBERNETES_VERSION=1.15.3
