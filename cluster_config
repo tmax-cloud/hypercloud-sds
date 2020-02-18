@@ -1,3 +1,0 @@
-# 이미지를 받아올 registry를 지정합니다. 비워두면 public network에서 가져옵니다.
-# ex: dockerRegistry=192.168.50.207:5000
-dockerRegistry=

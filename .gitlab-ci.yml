@@ -5,13 +5,6 @@ stages:
 e2e_test:
   stage: e2e_test
   script:
-    - make clusterClean
-    - make clusterUp
-    - make yaml
-    - make install
-    - make build-test 
-    - make test
+    - echo "hi"
   after_script:
-    - make uninstall    # TODO clusterClean 을 하는데, 굳이 CI pipeline 내에 uninstall 명령이 필요한가?
-    - make uninstall    # 멱등성을 체크하기 위함
-    - make clusterClean
+    - echo "bye"
