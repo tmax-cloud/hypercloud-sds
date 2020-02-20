@@ -3,47 +3,10 @@
 # Exit script when any commands failed
 set -eo pipefail
 
-#####################
 # define common variables
 srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 multinodeK8sDir="${srcDir}/hack/k8s-vagrant-multi-node"
 clusterConfigDir="$multinodeK8sDir"/.created-cluster-config
-
-#####################
-# util functions
-function kubectl_wait_avail() {
-  namespace=$1
-  waitFor=$2
-  timeoutSecond=$3
-
-  echo "Waiting for available ${waitFor}..."
-
-  for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
-    if kubectl describe -n "${namespace}" "${waitFor}" &>/dev/null; then break; fi
-    sleep 1
-  done
-
-  kubectl wait -n "${namespace}" --for=condition=available "${waitFor}" --timeout="${timeoutSecond}"s
-}
-
-function kubectl_wait_delete() {
-  namespace=$1
-  waitFor=$2
-  timeoutSecond=$3
-
-  echo "Waiting for deleting ${waitFor}..."
-
-  for ((seconds = 0; seconds <= timeoutSecond; seconds = seconds + 1)); do
-    if ! kubectl describe -n "${namespace}" "${waitFor}" &>/dev/null; then break; fi
-    sleep 1
-  done
-}
-
-function print_red() {
-  msg=$1
-
-  echo -e "\e[0;31;47m${msg}\e[0m"
-}
 
 function sourceConfigFromFile() {
   if [ ! -f "$clusterConfigDir" ]; then
@@ -73,7 +36,7 @@ function waitMinikubeSsh() {
   echo ERROR: ssh did not come up >&2
   exit 1
 }
-#####################
+
 # main features
 function clusterUp() {
   checkWhetherClusterIsRunning
@@ -88,7 +51,7 @@ function clusterUp() {
   echo "create $os-$nodeCount-worker-node-cluster with k8s version : $k8sVersion"
 
   DISK_COUNT=2 DISK_SIZE_GB=5 make --directory "${multinodeK8sDir}" up -j2
-  print_red "========================== cluster created =========================="
+  echo "========================== cluster created =========================="
   echo "However, you may need to wait a few seconds until nodes are ready"
   kubectl get nodes
 }
@@ -105,21 +68,22 @@ function clusterClean() {
 function minikubeUp() {
   # TODO: minikube version
   # TODO: multinode cluster
-  minikube start --vm-driver=virtualbox
+  # TODO virtualbox driver does not support memory, cpu options
+  minikube start --vm-driver=virtualbox --memory='4096mb' --cpus=2 --disk-size='20000mb' --kubernetes-version="$KUBERNETES_VERSION"
   waitMinikubeSsh
 
-  # Rook에서 사용할 디렉토리를 마운트
-  minikube ssh "sudo mkdir -p /mnt/sda1/${PWD}; sudo mkdir -p $(dirname "$PWD"); sudo ln -s /mnt/sda1/${PWD} $(dirname "$PWD")/"
-  minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook;sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
+  # wait until nodes ready
+  sleep 30
+  kubectl get nodes
 
-  kubectl patch storageclass standard '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+  # TODO 여기서 이 명령을 내리는 게 맞는지 ?
+  kubectl patch storageclass standard -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 }
 
 function minikubeClean() {
   minikube delete
 }
 
-#####################
 # main logic
 case "$1" in
 minikubeUp)

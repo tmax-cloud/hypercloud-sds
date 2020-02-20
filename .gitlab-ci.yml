@@ -1,20 +1,44 @@
 stages:
   - e2e_test
 
-#TODO: 다양한 버전, 다양한 환경으로 e2e 테스트
-.e2e_template:
+.e2e_on_cluster_template:
   stage: e2e_test
   script:
     - ./hack/cluster.sh clusterUp
+    - echo test # TODO go test
   after_script:
     - ./hack/cluster.sh clusterClean
 
+.e2e_on_minikube_template:
+  stage: e2e_test
+  script:
+    - ./hack/cluster.sh minikubeUp
+    - minikube ssh "sudo mkdir -p /var/lib/rook; sudo mkdir -p /mnt/sda1/var/lib/rook"
+    - helm install hypercloud-storage ./charts
+    - ./charts/hack.sh wait_hypercloud_storage_available #TODO 추후 변경
+    - echo test # TODO go test
+  after_script:
+    - helm delete hypercloud-storage
+    - ./charts/hack.sh wait_hypercloud_storage_deleted #TODO 추후 변경
+    - minikube ssh "sudo rm -rf /mnt/sda1/var/lib/rook; sudo rm -rf /var/lib/rook"
+    - ./hack/cluster.sh minikubeClean
+
 e2e_test_centos_1node_1_17_3:
-  extends: .e2e_template
+  extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=centos NODE_COUNT=1 KUBERNETES_VERSION=1.17.3
 
 e2e_test_centos_3node_1_15_3:
-  extends: .e2e_template
+  extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=centos NODE_COUNT=3 KUBERNETES_VERSION=1.15.3
+
+e2e_test_minikube_1_15_3:
+  extends: .e2e_on_minikube_template
+  before_script:
+    - export KUBERNETES_VERSION=1.15.3
+
+e2e_test_minikube_1_17_3:
+  extends: .e2e_on_minikube_template
+  before_script:
+    - export KUBERNETES_VERSION=1.17.3

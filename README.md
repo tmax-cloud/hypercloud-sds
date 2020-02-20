@@ -1,6 +1,11 @@
 # Hypercloud-storage
 Hypercloud Storage에서는 고가용성 스토리지(Rook), 백업(Velero), 데이터 업로드(CDI)를 지원하는 프로젝트입니다.
 
+## Prerequisites
+
+- helm v3
+- kubectl v1.16
+
 ## Quick Start
 1. (TODO: 바이너리 다운로드 내용)
 2. (TODO: helm 3.0 설치 내용)
