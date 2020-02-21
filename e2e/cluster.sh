@@ -3,10 +3,9 @@
 # Exit script when any commands failed
 set -eo pipefail
 
-# define common variables
-srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
-multinodeK8sDir="${srcDir}/hack/k8s-vagrant-multi-node"
-clusterConfigDir="$multinodeK8sDir"/.created-cluster-config
+e2eDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+multinodeK8sDir="${e2eDir}/k8s-vagrant-multi-node"
+clusterConfigDir="${e2eDir}"/cluster-config
 
 function sourceConfigFromFile() {
   if [ ! -f "$clusterConfigDir" ]; then
