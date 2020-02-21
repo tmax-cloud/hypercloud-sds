@@ -69,7 +69,7 @@ function minikubeUp() {
   # TODO: minikube version
   # TODO: multinode cluster
   # TODO virtualbox driver does not support memory, cpu options
-  minikube start --vm-driver=virtualbox --memory='4096mb' --cpus=2 --disk-size='20000mb' --kubernetes-version="$KUBERNETES_VERSION"
+  minikube start --vm-driver=virtualbox --memory='4096mb' --cpus=2 --disk-size='40000mb' --kubernetes-version="$KUBERNETES_VERSION"
   waitMinikubeSsh
 
   # wait until nodes ready
