@@ -5,11 +5,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/storage/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cdiv1alpha1 "kubevirt.io/containerized-data-importer/pkg/apis/core/v1alpha1"
 	dvutils "kubevirt.io/containerized-data-importer/tests/utils"
+	"time"
 )
 
 var (
@@ -17,27 +19,32 @@ var (
 	err              error
 	testID           string
 	testDvName       string
-	scList           *v1.StorageClassList
-	scItem           v1.StorageClass
+	scList           *storagev1.StorageClassList
+	scItem           storagev1.StorageClass
 )
 
+const (
+	CdiTestingNamespacePrefix = "test-cdi-"
+	DataVolumeNamePrefix      = "test-dv-"
+
+	DataVolumeSize = "5Gi" // TODO 각 테스트별로 변경할 수 있도록
+
+	TimeOutForCreatingDv  = 500 * time.Second
+	TimeoutForDeletingDv  = 300 * time.Second
+	TimeOutForCreatingPvc = 60 * time.Second
+
+	StorageClassCephfs = "csi-cephfs"
+
+	SampleRegistryURL = "docker://kubevirt/fedora-cloud-registry-disk-demo"
+	SampleHTTPURL     = "https://download.cirros-cloud.net/contrib/0.3.0/cirros-0.3.0-i386-disk.img"
+)
+
+// TODO fmt 대신 log 사용
 var _ = Describe("Test CDI Module", func() {
 	BeforeEach(func() {
 		// create testing namespace
 		testingNamespace, err = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(CdiTestingNamespacePrefix))
 		Expect(err).ToNot(HaveOccurred())
-		fmt.Printf("Namespace %s is created for testing.\n", testingNamespace.Name) // TODO fmt 대신 log 사용
-
-		// TODO storage-v1 만 확인해도 괜찮은지?
-		// TODO RWM, RWO sc 구분하여 변수로 저장 후 다른 테스트에서 사용
-		// TODO reclaimPolicy Retain 과 Delete sc 구분
-		// TODO dynamic sc 구분
-		// TODO 현재 사용 가능 여부 구분
-		scList, err = hyperStorageHelper.Clientset.StorageV1().StorageClasses().List(metav1.ListOptions{})
-
-		for _, scItem = range scList.Items {
-			fmt.Printf("One of %d existing storageclasses is : %s \n", len(scList.Items), scItem.Name)
-		}
 	})
 
 	AfterEach(func() {
@@ -164,4 +171,48 @@ func waitDataVolumeGetReadyThenDelete(dv *cdiv1alpha1.DataVolume, hyperStorageHe
 	}, TimeoutForDeletingDv, PollingIntervalDefault).Should(BeTrue())
 
 	return err
+}
+
+func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolumeSource) *cdiv1alpha1.DataVolume {
+	return &cdiv1alpha1.DataVolume{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "cdi.kubevirt.io/v1alpha1",
+			APIVersion: "DataVolume",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+		Spec: cdiv1alpha1.DataVolumeSpec{
+			Source: *source,
+			PVC: &corev1.PersistentVolumeClaimSpec{
+				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany}, // TODO 변수로 받기
+				Resources: corev1.ResourceRequirements{
+					Requests: corev1.ResourceList{
+						corev1.ResourceStorage: resource.MustParse(size),
+					},
+				},
+			},
+		},
+	}
+}
+
+func makeDataVolumeSourceHTTP(url string) *cdiv1alpha1.DataVolumeSource {
+	return &cdiv1alpha1.DataVolumeSource{
+		HTTP: &cdiv1alpha1.DataVolumeSourceHTTP{URL: url},
+	}
+}
+
+func makeDataVolumeSourceRegistry(url string) *cdiv1alpha1.DataVolumeSource {
+	return &cdiv1alpha1.DataVolumeSource{
+		Registry: &cdiv1alpha1.DataVolumeSourceRegistry{URL: url},
+	}
+}
+
+func makeDataVolumeSourcePVC(namespace string, name string) *cdiv1alpha1.DataVolumeSource {
+	return &cdiv1alpha1.DataVolumeSource{
+		PVC: &cdiv1alpha1.DataVolumeSourcePVC{
+			Namespace: namespace,
+			Name:      name,
+		},
+	}
 }
