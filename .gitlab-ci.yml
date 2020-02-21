@@ -7,7 +7,7 @@ stages:
 .e2e_on_cluster_template:
   stage: e2e_test
   script:
-    - ./hack/cluster.sh clusterUp
+    - ./e2e/cluster.sh clusterUp
     - echo "helm install"
     - echo "wait until helm install"
     - echo "go setting"
@@ -15,7 +15,7 @@ stages:
   after_script:
     - echo "helm uninstall"
     - echo "wait until helm uninstall"
-    - ./hack/cluster.sh clusterClean
+    - ./e2e/cluster.sh clusterClean
 
 .e2e_on_minikube_template:
   stage: e2e_test
@@ -43,11 +43,6 @@ stages:
 #  extends: .e2e_on_cluster_template
 #  before_script:
 #    - export BOX_OS=centos NODE_COUNT=3 KUBERNETES_VERSION=1.15.3
-
-e2e_test_minikube_1_15_3:
-  extends: .e2e_on_minikube_template
-  before_script:
-    - export KUBERNETES_VERSION=1.15.3
 
 e2e_test_minikube_1_17_3:
   extends: .e2e_on_minikube_template

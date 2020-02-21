@@ -4,7 +4,7 @@ shopt -s inherit_errexit
 
 srcDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 
-. "${srcDir}/hack/util.sh"
+. "${srcDir}/e2e/util.sh"
 
 function install() {
   minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook" && helm install hypercloud-storage .
