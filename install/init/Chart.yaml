@@ -1,0 +1,9 @@
+apiVersion: v2
+description: A Helm chart for Hypercloud Storage Init
+name: hypercloud-storage-init
+version: v1.0.0
+dependencies:
+  - name: cdi-init
+    version: 1.0.0
+  - name: rook-ceph-init
+    version: 1.0.0

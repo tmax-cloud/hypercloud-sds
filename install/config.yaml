@@ -1,0 +1,31 @@
+rook-ceph-init:
+  image:
+    repository: rook/ceph
+    tag: v1.2.4
+rook-ceph-core:
+  filestorage:
+    metaReplicas: 3
+    dataReplicas: 3
+    reclaimPolicy: Delete
+  blockstorage:
+    replicas: 3
+    reclaimPolicy: Delete
+  cephSpec:
+    cephVersion:
+      image:  ceph/ceph:v14.2.6
+    mon:
+      count: 3
+    storage:
+      useAllNodes: true
+      useAllDevices: false
+      directories:
+      - path: /var/lib/rook
+cdi-init:
+  verbosity: 1
+  image:
+    repositoryPrefix: kubevirt
+    tag: v1.13.0
+    pullPolicy: IfNotPresent
+cdi-core:
+  image:
+    pullPolicy: IfNotPresent

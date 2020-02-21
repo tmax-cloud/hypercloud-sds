@@ -1,4 +1,0 @@
-apiVersion: v2
-description: A Helm chart for Hypercloud Storage
-name: hypercloud-storage
-version: v1.0.0
