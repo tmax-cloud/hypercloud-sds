@@ -1,6 +1,6 @@
 # hypercloud-etcd
 
-본 프로젝트는 k8s의 etcd를 백업하는 방법에 대해 다룹니다.
+본 문서는 k8s의 etcd를 백업하는 방법에 대해 다룹니다.
 
 
 ## What To Do
