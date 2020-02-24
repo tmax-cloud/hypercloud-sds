@@ -6,6 +6,7 @@ installDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 isMinikube=false
 if [ "${2:-}" = '--minikube' ]; then
   isMinikube=true
+  MNT_PATH=$(minikube ssh "sudo lsblk -n -o MOUNTPOINT" | grep /mnt/ | tr -d '[\n\r]')
 fi
 
 function wait_condition {
@@ -37,7 +38,7 @@ function helm_template {
 
 function install {
   if $isMinikube; then
-    minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook && sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
+    minikube ssh "sudo mkdir -p $MNT_PATH/var/lib/rook && sudo ln -s $MNT_PATH/var/lib/rook /var/lib/rook"
   fi
 
   echo "========== Install hypercloud-storage-init... =========="
@@ -71,7 +72,7 @@ function uninstall {
   wait_condition "! kubectl get ns | grep rook-ceph" 180
 
   if $isMinikube; then
-    minikube ssh "sudo rm -rf /var/lib/rook && sudo rm -rf /mnt/sda1/var/lib/rook"
+    minikube ssh "sudo rm -rf /var/lib/rook && sudo rm -rf $MNT_PATH/var/lib/rook"
   fi
 }
 
