@@ -1,0 +1,43 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: etcd-backup
+  namespace: kube-system
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: etcd-backup
+            image: {registry_endpoint}/k8s.gcr.io/etcd:3.3.10
+            env:
+            - name: ETCDCTL_API
+              value: "3"
+            command: ["/bin/sh"]
+            args: ["-c", "etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H-%M-%S_%Z).db"]
+            volumeMounts:
+            - mountPath: /etc/kubernetes/pki/etcd
+              name: etcd-certs
+              readOnly: true
+            - mountPath: /backup
+              name: backup
+          restartPolicy: OnFailure
+          nodeSelector:
+            kubernetes.io/hostname: {master_node}
+          tolerations:
+          - effect: NoSchedule
+            operator: Exists
+          hostNetwork: true
+          volumes:
+          - name: etcd-certs
+            # etcdctl 인증 파일들의 위치는 hostPath /etc/kubernetes/pki/etcd 디렉토리
+            hostPath:
+              path: /etc/kubernetes/pki/etcd
+              type: DirectoryOrCreate
+          - name: backup
+            # etcd backup의 위치는 host의 /mnt/backup 디렉토리
+            hostPath:
+              path: /mnt/backup
+              type: DirectoryOrCreate
