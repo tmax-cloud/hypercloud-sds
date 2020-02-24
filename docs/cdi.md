@@ -13,8 +13,8 @@
 
   * [create datavolume import from http](./examples/datavolume-import-from-http.yaml)
   * [create datavolume import *.tar file from http](./examples/datavolume-import-from-http-archive-type.yaml)
-  * [create datavolume import from registry](./examples/datavolume-import-from-registry-image.yaml)
-  * [create datavolume import from registry with block-mode-pvc](./examples/datavolume-import-from-registry-image-block.yaml)
+  * [create datavolume import from registry](./examples/datavolume-import-from-registry.yaml)
+  * [create datavolume import from registry with block-mode-pvc](./examples/datavolume-import-from-registry-block.yaml)
   * [create datavolume clone from pvc](./examples/datavolume-clone-from-pvc.yaml)
 
 ## configmap 변경 방법

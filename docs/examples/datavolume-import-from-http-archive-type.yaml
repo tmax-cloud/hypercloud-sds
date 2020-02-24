@@ -1,0 +1,17 @@
+# tar.gz 타입의 데이터를 http url 로부터 불러와 pvc 에 import 한 dv 를 생성하는 예입니다.
+# This example assumes you are using a default storage class
+apiVersion: cdi.kubevirt.io/v1alpha1
+kind: DataVolume
+metadata:
+  name: import-archive-datavolume
+spec:
+  source:
+    http:
+      url: "http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz" #This url is just an example. You should change this to your destination url
+  contentType: archive
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 500Mi
