@@ -20,34 +20,27 @@
 ## configmap 변경 방법
 
 * 추후 cdi 를 사용하여 dataVolume 을 생성할 때, private repository 로부터 특정 이미지(데이터)를 pull 하여 생성하고자 할 경우 다음과 같이 cdi 모듈 내부에서 사용하는 configmap 의 등록이 필요합니다.
-  * `kubectl edit configmaps cdi-insecure-registries -n cdi` 명령어를 입력하여 yaml edit 창을 open 합니다.
-  * 다음과 같이 apiVersion, kind, metadata 와 같은 indent 로 data.url 란에 registry 정보를 입력합니다.
-    * 예) registry 주소가 192.168.1.1:5000 일 때
+  * `kubectl patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "my-private-registry-host:5000"}}'` 명령어를 입력하여 registry 정보를 등록합니다.
+  * `{"mykey": "my-private-registry-host:5000"}`를 원하는 key 와 registry 정보로 변경하면 되고 여러 registry 등록 가능합니다.
+  * 다음과 같이 `kubectl describe configmap -n cdi cdi-insecure-registries` 명령어를 입력하여 Data 하위에 registry 정보가 추가 된 것을 확인 할 수 있습니다.
 
     ```{yaml}
-    apiVersion: v1
-    data:
-      url: 192.168.1.1:5000
-    kind: ConfigMap
-    metadata:
-      annotations:
-        operator.cdi.kubevirt.io/lastAppliedConfiguration: `xxx`
-      creationTimestamp: "2019-12-20T04:05:12Z"
-      labels:
-        cdi.kubevirt.io: ""
-        operator.cdi.kubevirt.io/createVersion: v1.11.0
-      name: cdi-insecure-registries
-      namespace: cdi
-      ownerReferences:
-      - apiVersion: cdi.kubevirt.io/v1alpha1
-        blockOwnerDeletion: true
-        controller: true
-        kind: CDI
-        name: cdi
-        uid: 2655e870-69d7-4b3e-bfe1-d4eab78cbca5
-      resourceVersion: "46553577"
-      selfLink: /api/v1/namespaces/cdi/configmaps/di-insecure-registries
-      uid: aebe00c9-5bfc-4911-8170-25e23b144e29
+    Name:         cdi-insecure-registries
+    Namespace:    cdi
+    Labels:       cdi.kubevirt.io=
+                  operator.cdi.kubevirt.io/createVersion=v1.11.0
+    Annotations:  operator.cdi.kubevirt.io/lastAppliedConfiguration:
+                    {"kind":"ConfigMap","apiVersion":"v1","metadata":{"name":"cdi-insecure-registries","namespace":"cdi","creationTimestamp":null,"labels":{"c...
+        
+    Data
+    ====
+    url:
+    ----
+    192.168.1.1:5000
+    url2:
+    ----
+    192.168.1.2:5000
+    Events:  <none>
     ```
 
 ## cdiconfig 변경 (주의: cdiconfig 와 configmap 은 다른 resource입니다.)
