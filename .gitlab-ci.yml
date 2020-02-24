@@ -21,8 +21,7 @@ stages:
     - ./install/installer.sh install --minikube
     - ./install/installer.sh test
     - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
-    - export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin && export GO111MODULE=auto # go setting
-    - cd ./e2e && go get ./... && ginkgo # go test
+    - cd ./e2e && ginkgo # go test
   after_script:
     - ./install/installer.sh uninstall --minikube
     - ./e2e/cluster.sh minikubeClean
