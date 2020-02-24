@@ -8,10 +8,12 @@ stages:
   stage: e2e_test
   script:
     - ./e2e/cluster.sh clusterUp
+    - ./install/installer.sh install
+    - kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
+    - kubectl get po -n rook-ceph # TODO 추후 삭제
     - ./install/installer.sh test
+    - ./install/installer.sh uninstall
   after_script:
-    - echo "helm uninstall"
-    - echo "wait until helm uninstall"
     - ./e2e/cluster.sh clusterClean
 
 .e2e_on_minikube_template:
@@ -19,25 +21,30 @@ stages:
   script:
     - ./e2e/cluster.sh minikubeUp
     - ./install/installer.sh install --minikube
-    - ./install/installer.sh test
     - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
     - export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin && export GO111MODULE=auto # go setting
-    - cd ./e2e && go get ./... && ginkgo # go test
-  after_script:
+    - kubectl get po -n rook-ceph # TODO 추후 삭제
+    - ./install/installer.sh test
     - ./install/installer.sh uninstall --minikube
+  after_script:
     - ./e2e/cluster.sh minikubeClean
 
-#e2e_test_centos_1node_1_17_3:
-#  extends: .e2e_on_cluster_template
-#  before_script:
-#    - export BOX_OS=centos NODE_COUNT=1 KUBERNETES_VERSION=1.17.3
-#
-#e2e_test_centos_3node_1_15_3:
-#  extends: .e2e_on_cluster_template
-#  before_script:
-#    - export BOX_OS=centos NODE_COUNT=3 KUBERNETES_VERSION=1.15.3
-
-e2e_test_minikube_1_17_3:
-  extends: .e2e_on_minikube_template
+e2e_test_centos_2node_1_15_3:
+  extends: .e2e_on_cluster_template
   before_script:
-    - export KUBERNETES_VERSION=1.17.3
+    - export BOX_OS=centos NODE_COUNT=2 KUBERNETES_VERSION=1.15.3
+
+e2e_test_centos_2node_1_16_6:
+  extends: .e2e_on_cluster_template
+  before_script:
+    - export BOX_OS=centos NODE_COUNT=2 KUBERNETES_VERSION=1.16.7
+
+e2e_test_centos_3node_1_15_3:
+  extends: .e2e_on_cluster_template
+  before_script:
+    - export BOX_OS=centos NODE_COUNT=3 KUBERNETES_VERSION=1.15.3
+
+#e2e_test_minikube_1_17_3:
+#  extends: .e2e_on_minikube_template
+#  before_script:
+#    - export KUBERNETES_VERSION=1.17.3

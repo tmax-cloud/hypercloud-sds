@@ -42,17 +42,19 @@ function install {
 
   echo "========== Install hypercloud-storage-init... =========="
   helm_template $installDir/init apply
-  sleep 5
+  sleep 30
 
   echo "========== Install hypercloud-storage-core... =========="
   helm_template $installDir/core apply
 
   echo "========== Wait install =========="
-  wait_condition "kubectl get cephclusters.ceph.rook.io -n rook-ceph | grep Created" 600
+  wait_condition "kubectl get cephclusters.ceph.rook.io -n rook-ceph | grep Created" 360
+  wait_condition "kubectl get pod -n rook-ceph | grep osd" 120
+  wait_condition "kubectl get pod -n rook-ceph | grep mds" 120
   kubectl wait --for=condition=available deployment cdi-apiserver --timeout=30s -n cdi
-  kubectl wait --for=condition=available deployment cdi-deployment --timeout=30s -n cdi
   kubectl wait --for=condition=available deployment cdi-operator --timeout=30s -n cdi
   kubectl wait --for=condition=available deployment cdi-uploadproxy --timeout=30s -n cdi
+  kubectl wait --for=condition=available deployment cdi-deployment --timeout=60s -n cdi
 }
 
 function uninstall {
@@ -76,7 +78,7 @@ function uninstall {
 }
 
 function test {
-  echo "TODO: go test"
+  cd ./e2e && ginkgo # go test
 }
 
 case "${1:-}" in

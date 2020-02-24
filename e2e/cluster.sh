@@ -44,14 +44,18 @@ function clusterUp() {
   local os=${BOX_OS:?"need env BOX_OS"}
   local k8sVersion=${KUBERNETES_VERSION:?"need env KUBERNETES_VERSION"}
 
-  # temporarily save config for deleting later
+  # temporarily save cluster-config as file for deleting later
   echo "NODE_COUNT=$nodeCount BOX_OS=$os KUBERNETES_VERSION=$k8sVersion" >"$clusterConfigDir"
 
   echo "create $os-$nodeCount-worker-node-cluster with k8s version : $k8sVersion"
 
-  DISK_COUNT=2 DISK_SIZE_GB=5 make --directory "${multinodeK8sDir}" up -j2
+  DISK_COUNT=2 DISK_SIZE_GB=15 make --directory "${multinodeK8sDir}" up -j2
   echo "========================== cluster created =========================="
   echo "However, you may need to wait a few seconds until nodes are ready"
+  kubectl get nodes
+  sleep 30
+  kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule-
+  sleep 30
   kubectl get nodes
 }
 
