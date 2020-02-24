@@ -41,11 +41,11 @@ function install {
   fi
 
   echo "========== Install hypercloud-storage-init... =========="
-  helm_template $installDir/init apply
+  helm_template $installDir/hypercloud-storage-init apply
   sleep 5
 
   echo "========== Install hypercloud-storage-core... =========="
-  helm_template $installDir/core apply
+  helm_template $installDir/hypercloud-storage-core apply
 
   echo "========== Wait install =========="
   wait_condition "kubectl get cephclusters.ceph.rook.io -n rook-ceph | grep Created" 600
@@ -57,14 +57,14 @@ function install {
 
 function uninstall {
   echo "========== Uninstall hypercloud-storage-core... =========="
-  helm_template $installDir/core delete
+  helm_template $installDir/hypercloud-storage-core delete
 
   echo "========== Wait uninstall core =========="
   wait_condition "! kubectl get cephclusters.ceph.rook.io -n rook-ceph rook-ceph" 180
   wait_condition "! kubectl get cdis.cdi.kubevirt.io -n cdi cdi" 180
 
   echo "========== Uninstall hypercloud-storage-init... =========="
-  helm_template $installDir/init delete
+  helm_template $installDir/hypercloud-storage-init delete
 
   echo "========== Wait uninstall init =========="
   wait_condition "! kubectl get ns | grep cdi" 180

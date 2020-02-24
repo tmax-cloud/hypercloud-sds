@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cdi-core
+description: A Helm chart for containerized-data-importer core
+type: application
+version: 1.0.0
+appVersion: 1.13.0

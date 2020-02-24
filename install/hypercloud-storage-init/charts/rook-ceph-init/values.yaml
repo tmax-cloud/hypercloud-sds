@@ -1,0 +1,6 @@
+image:
+  repository: rook/ceph
+  tag: v1.2.4
+csi:
+  cephCsiImagePrefix: "quay.io/cephcsi2"
+  csiImagePrefix: "quay.io/k8scsi"

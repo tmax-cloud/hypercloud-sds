@@ -1,0 +1,360 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    cdi.kubevirt.io: ""
+  name: cdi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    operator.cdi.kubevirt.io: ""
+  name: cdi-operator-cluster
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  - roles
+  verbs:
+  - '*'
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+- apiGroups:
+  - cdi.kubevirt.io
+  - upload.cdi.kubevirt.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+- apiGroups:
+  - apiregistration.k8s.io
+  resources:
+  - apiservices
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+- apiGroups:
+  - cdi.kubevirt.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  - volumesnapshots
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims/finalizers
+  - pods/finalizers
+  - volumesnapshots/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - delete
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cdi.kubevirt.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    operator.cdi.kubevirt.io: ""
+  name: cdi-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cdi-operator-cluster
+subjects:
+- kind: ServiceAccount
+  name: cdi-operator
+  namespace: cdi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    operator.cdi.kubevirt.io: ""
+  name: cdi-operator
+  namespace: cdi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    cdi.kubevirt.io: ""
+  name: cdi-operator
+  namespace: cdi
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  - roles
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  - configmaps
+  - events
+  - secrets
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - deployments/finalizers
+  verbs:
+  - '*'
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  - routes/custom-host
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    cdi.kubevirt.io: ""
+  name: cdi-operator
+  namespace: cdi
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cdi-operator
+subjects:
+- kind: ServiceAccount
+  name: cdi-operator
+  namespace: cdi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdi-operator
+  namespace: cdi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cdi-operator
+      operator.cdi.kubevirt.io: ""
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        name: cdi-operator
+        operator.cdi.kubevirt.io: ""
+    spec:
+      containers:
+      - env:
+        - name: DEPLOY_CLUSTER_RESOURCES
+          value: "true"
+        - name: OPERATOR_VERSION
+          value: {{ .Values.image.tag }}
+        - name: CONTROLLER_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-controller:{{ .Values.image.tag }}
+        - name: IMPORTER_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-importer:{{ .Values.image.tag }}
+        - name: CLONER_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-cloner:{{ .Values.image.tag }}
+        - name: APISERVER_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-apiserver:{{ .Values.image.tag }}
+        - name: UPLOAD_SERVER_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-uploadserver:{{ .Values.image.tag }}
+        - name: UPLOAD_PROXY_IMAGE
+          value: {{ .Values.image.repositoryPrefix }}/cdi-uploadproxy:{{ .Values.image.tag }}
+        - name: VERBOSITY
+          value: {{ .Values.verbosity | quote }}
+        - name: PULL_POLICY
+          value: {{ .Values.image.pullPolicy }}
+        image: {{ .Values.image.repositoryPrefix }}/cdi-operator:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: cdi-operator
+        ports:
+        - containerPort: 60000
+          name: metrics
+          protocol: TCP
+        resources: {}
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: cdi-operator
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    operator.cdi.kubevirt.io: ""
+  name: cdi-operator-leader-election-helper
+  namespace: cdi
