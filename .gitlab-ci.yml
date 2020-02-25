@@ -9,7 +9,7 @@ stages:
   script:
     - ./e2e/cluster.sh clusterUp
     - ./install/installer.sh install
-    - kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
+    - kubectl patch storageclass csi-cephfs-sc -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
     - kubectl get po -n rook-ceph # TODO 추후 삭제
     - ./install/installer.sh test
     - ./install/installer.sh uninstall
@@ -21,7 +21,7 @@ stages:
   script:
     - ./e2e/cluster.sh minikubeUp
     - ./install/installer.sh install --minikube
-    - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
+    - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs-sc -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
     - kubectl get po -n rook-ceph # TODO 추후 삭제
     - ./install/installer.sh test
     - ./install/installer.sh uninstall --minikube
