@@ -19,9 +19,10 @@
 
 ## configmap 변경 방법
 
-* 추후 cdi 를 사용하여 dataVolume 을 생성할 때, private repository 로부터 특정 이미지(데이터)를 pull 하여 생성하고자 할 경우 다음과 같이 cdi 모듈 내부에서 사용하는 configmap 의 등록이 필요합니다.
-  * `kubectl patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "my-private-registry-host:5000"}}'` 명령어를 입력하여 registry 정보를 등록합니다.
-  * `{"mykey": "my-private-registry-host:5000"}`를 원하는 key 와 registry 정보로 변경하면 되고 여러 registry 등록 가능합니다.
+* 추후 cdi 를 사용하여 dataVolume 을 생성할 때, private repository 로부터 특정 이미지(데이터)를 pull 하여 생성하고자 할 경우 다음과 같이 cdi 모듈 내부에서 사용하는 configmap 에 사용하고자 하는 registry 의 url 등록이 필요합니다.
+  * `kubectl patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "my-private-registry-host:5000"}}'` 명령어를 입력하여 cdi-insecure-registries 이름을 가진 configmap 에 data 를 추가하는 방식을 통하여 registry 정보를 등록 할 수 있습니다.
+  * `{"mykey": "my-private-registry-host:5000"}`를 원하는 key 와 사용하고자 하는 registry url 로 변경하면 되고 위의 명령어를 통하여 여러개의 registry url 등록이 가능합니다. 
+    * ex) `kubectl patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"url": "192.168.1.1:5000"}}'`
   * 다음과 같이 `kubectl describe configmap -n cdi cdi-insecure-registries` 명령어를 입력하여 Data 하위에 registry 정보가 추가 된 것을 확인 할 수 있습니다.
 
     ```{yaml}
@@ -45,22 +46,12 @@
 
 ## cdiconfig 변경 (주의: cdiconfig 와 configmap 은 다른 resource입니다.)
 
-> cdi 모듈 내부적으로 임시로 create 하는 pod 과 pvc 가 존재하는데, <br>
->해당 pvc 는 CDIConfig 의 status.scratchSpaceStorageClass 에 적힌 storageClass 로 provisioning 하여 생성됩니다. <br>
->이 값은 `cdi-cr.yaml` 을 apply 할 당시의 k8s cluster 환경의 default storageClassName 을 fetch 하여 입력되며, <br>
->추후 이를 변경하고자 할 때는 다음과 같은 방식으로 변경 가능합니다.
+* cdi 모듈 내부적으로 임시로 create 하는 pod 과 pvc 가 존재하는데, 해당 pvc 는 CDIConfig 의 status.scratchSpaceStorageClass 에 적힌 storageClass 로 provisioning 하여 생성됩니다.
+  * 이 값은 `cdi-cr.yaml` 을 apply 할 당시의 k8s cluster 환경의 default storageClassName 을 fetch 하여 입력되며, 추후 이를 변경하고자 할 때는 다음과 같은 방식으로 변경 가능합니다.
+  * 이 값이 설정되어 있지 않을 경우, cluster 에 default storageClass 를 설정해주면 cdi 모듈은 자동으로 해당 default storageClass 를 사용하게 됩니다.
+  * 이 값이 설정되어 있지 않고 default storageClass 도 설정되어 있지 않으면 datavolume 생성 시 입력한 `spec.pvc.storageClassName` 값을 사용하게 됩니다.
+  * dynamic provisioning 이 가능한 storageClass 여야 합니다.
 
-* `kubectl edit cdiconfig {$CDIConfigName}` 명령으로 CDIconfig 의
-
-```
-spec: {}
-```
-
- 으로 적힌 부분을
-
-````
-spec:
-  scratchSpaceStorageClass: {$변경하길 원하는 storageClassName}
-````
-
-으로 변경하여 CDIConfig 의 status.scratchSpaceStorageClass 를 변경할 수 있습니다.
+* `kubectl patch cdiconfig {$CDIConfigName} --type merge -p '{"spec":{"scratchSpaceStorageClass": "{$storageClassName}"}}'` 명령어를 입력하여 scratchSpaceStoragClass 값을 수정 할 수 있습니다.
+  * `{$CDIConfigName}` 는 cdiconfig 이름으로 변경하고, `{$storageClassName}` 는 수정하고자 하는 storageClass 이름으로 변경하면 됩니다.
+    * ex) `kubectl patch cdiconfig config --type merge -p '{"spec":{"scratchSpaceStorageClass": "rook-ceph-block"}}'`
