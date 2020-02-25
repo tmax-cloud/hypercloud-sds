@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  cdi-init:
+  - apiVersion: v2
+    appVersion: 1.13.0
+    created: "2020-02-21T14:23:42.468180893+09:00"
+    description: A Helm chart for containerized-data-importer init
+    digest: 63a6057b86b7b31ab335b75cb68a124f358c1bcf5c2c61e26fa42f6a9e9edd8f
+    name: cdi-init
+    type: application
+    urls:
+    - package/cdi-init-1.0.0.tgz
+    version: 1.0.0
+generated: "2020-02-21T14:23:42.467849054+09:00"

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cdi-init
+description: A Helm chart for containerized-data-importer init
+type: application
+version: 1.0.0
+appVersion: 1.13.0

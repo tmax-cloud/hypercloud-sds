@@ -6,6 +6,7 @@ installDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 isMinikube=false
 if [ "${2:-}" = '--minikube' ]; then
   isMinikube=true
+  MNT_PATH=$(minikube ssh "sudo lsblk -n -o MOUNTPOINT" | grep /mnt/ | tr -d '[\n\r]')
 fi
 
 function wait_condition {
@@ -37,15 +38,15 @@ function helm_template {
 
 function install {
   if $isMinikube; then
-    minikube ssh "sudo mkdir -p /mnt/sda1/var/lib/rook && sudo ln -s /mnt/sda1/var/lib/rook /var/lib/rook"
+    minikube ssh "sudo mkdir -p $MNT_PATH/var/lib/rook && sudo ln -s $MNT_PATH/var/lib/rook /var/lib/rook"
   fi
 
   echo "========== Install hypercloud-storage-init... =========="
-  helm_template $installDir/init apply
+  helm_template $installDir/hypercloud-storage-init apply
   sleep 30
 
   echo "========== Install hypercloud-storage-core... =========="
-  helm_template $installDir/core apply
+  helm_template $installDir/hypercloud-storage-core apply
 
   echo "========== Wait install =========="
   wait_condition "kubectl get cephclusters.ceph.rook.io -n rook-ceph | grep Created" 360
@@ -58,21 +59,21 @@ function install {
 
 function uninstall {
   echo "========== Uninstall hypercloud-storage-core... =========="
-  helm_template $installDir/core delete
+  helm_template $installDir/hypercloud-storage-core delete
 
   echo "========== Wait uninstall core =========="
   wait_condition "! kubectl get cephclusters.ceph.rook.io -n rook-ceph rook-ceph" 180
   wait_condition "! kubectl get cdis.cdi.kubevirt.io -n cdi cdi" 180
 
   echo "========== Uninstall hypercloud-storage-init... =========="
-  helm_template $installDir/init delete
+  helm_template $installDir/hypercloud-storage-init delete
 
   echo "========== Wait uninstall init =========="
   wait_condition "! kubectl get ns | grep cdi" 180
   wait_condition "! kubectl get ns | grep rook-ceph" 180
 
   if $isMinikube; then
-    minikube ssh "sudo rm -rf /var/lib/rook && sudo rm -rf /mnt/sda1/var/lib/rook"
+    minikube ssh "sudo rm -rf /var/lib/rook && sudo rm -rf $MNT_PATH/var/lib/rook"
   fi
 }
 

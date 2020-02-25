@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  rook-ceph-core:
+  - apiVersion: v2
+    appVersion: 1.2.4
+    created: "2020-02-21T14:33:21.21319705+09:00"
+    description: A Helm chart for rook-ceph core
+    digest: bb8dc69e40bf339e4f7b0bbdbb076b292f74f049a0838bba3123c90cc0d90e2c
+    name: rook-ceph-core
+    type: application
+    urls:
+    - package/rook-ceph-core-1.0.0.tgz
+    version: 1.0.0
+generated: "2020-02-21T14:33:21.212300064+09:00"
