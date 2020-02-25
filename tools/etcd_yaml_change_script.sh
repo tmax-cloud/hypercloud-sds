@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if  [ "$#" -ne 2 ]; then
-	echo "usage : ./script.sh <registry_endpoint> <master_node>"
-	echo "example : ./script.sh 192.168.50.90:5000 master1"
+	echo "usage : ./etcd_yaml_change_script.sh <registry_endpoint> <master_node>"
+	echo "example : ./etcd_yaml_change_script.sh 192.168.50.90:5000 master1"
 	exit 0
 fi
 

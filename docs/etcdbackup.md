@@ -18,9 +18,9 @@
 
 ## How To
 
-1. Script를 수행시킵니다. (Command : ./script.sh {$registry_endpoint} {$master_node_name})
+1. Script를 수행시킵니다. (Command : ./tools/etcd_yaml_change_script.sh {$registry_endpoint} {$master_node_name})
     ```shell
-    $ ./script.sh 192.168.50.90:5000 master1
+    $ ./tools/etcd_yaml_change_script.sh 192.168.50.90:5000 master1
     ```
     - 이 작업은 `etcd_snapshot.yaml` 파일에 해당 환경의 registry endpoint와 master node의 이름을 설정해줍니다.
 
