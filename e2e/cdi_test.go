@@ -33,7 +33,7 @@ const (
 	TimeoutForDeletingDv  = 300 * time.Second
 	TimeOutForCreatingPvc = 60 * time.Second
 
-	StorageClassCephfs = "csi-cephfs"
+	StorageClassCephfs = "csi-cephfs-sc"
 
 	SampleRegistryURL = "docker://kubevirt/fedora-cloud-registry-disk-demo"
 	SampleHTTPURL     = "https://download.cirros-cloud.net/contrib/0.3.0/cirros-0.3.0-i386-disk.img"

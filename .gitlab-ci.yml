@@ -20,7 +20,7 @@ stages:
     - ./e2e/cluster.sh minikubeUp
     - ./install/installer.sh install --minikube
     - ./install/installer.sh test
-    - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
+    - kubectl patch storageclass standard -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"false"}}}' && kubectl patch storageclass csi-cephfs-sc -p '{"metadata"':' {"annotations":{"storageclass.kubernetes.io/is-default-class"':'"true"}}}' #TODO 추후 변경
     - cd ./e2e && ginkgo # go test
   after_script:
     - ./install/installer.sh uninstall --minikube
