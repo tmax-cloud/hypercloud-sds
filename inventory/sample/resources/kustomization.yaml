@@ -1,0 +1,6 @@
+commonLabels:
+  inventory: sample
+resources:
+- ../../base/resources
+patchesStrategicMerge:
+- rook-ceph.yaml

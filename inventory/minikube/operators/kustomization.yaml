@@ -1,0 +1,5 @@
+commonLabels:
+  inventory: minikube
+resources:
+- ../../base/operators
+patchesStrategicMerge:

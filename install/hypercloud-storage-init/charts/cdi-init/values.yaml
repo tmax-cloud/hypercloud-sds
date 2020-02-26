@@ -1,5 +1,0 @@
-verbosity: 1
-image:
-  repositoryPrefix: kubevirt
-  tag: v1.13.0
-  pullPolicy: IfNotPresent

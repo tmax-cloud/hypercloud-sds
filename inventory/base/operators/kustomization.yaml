@@ -1,0 +1,4 @@
+resources:
+- cdi/cdi-operator.yaml
+- rook-ceph/common.yaml
+- rook-ceph/operator.yaml

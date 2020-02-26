@@ -1,9 +1,0 @@
-apiVersion: v2
-description: A Helm chart for Hypercloud Storage Core
-name: hypercloud-storage-core
-version: v1.0.0
-dependencies:
-  - name: cdi-core
-    version: 1.0.0
-  - name: rook-ceph-core
-    version: 1.0.0
