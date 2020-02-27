@@ -54,7 +54,7 @@ function clusterUp() {
   echo "However, you may need to wait a few seconds until nodes are ready"
   kubectl get nodes
   sleep 30
-  kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule-
+  kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule- # make master node be worker
   sleep 30
   kubectl get nodes
 }
