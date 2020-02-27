@@ -78,7 +78,7 @@ function uninstall {
 }
 
 function test {
-  cd ./e2e && ginkgo # go test
+  cd $installDir/../e2e && ginkgo # go test
 }
 
 case "${1:-}" in
