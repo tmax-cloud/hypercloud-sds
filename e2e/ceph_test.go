@@ -30,17 +30,20 @@ var _ = Describe("Test Rook Ceph Module", func() {
 
 	BeforeEach(func() {
 		// Create testing namespace
-		testingNamespaceRook, errorRook = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(RookCephNamespacePrefix))
+		testingNamespaceRook, errorRook = createNamespace(hyperStorageHelper.Clientset,
+			makeNamespaceSpec(RookCephNamespacePrefix))
 		Expect(errorRook).ToNot(HaveOccurred())
 	})
 
 	AfterEach(func() {
 		// Delete testing namespace
-		errorRook = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(testingNamespaceRook.Name, &metav1.DeleteOptions{})
+		errorRook = hyperStorageHelper.Clientset.CoreV1().Namespaces().
+			Delete(testingNamespaceRook.Name, &metav1.DeleteOptions{})
 		Expect(errorRook).ToNot(HaveOccurred())
 
 		Eventually(func() bool {
-			ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(testingNamespaceRook.Name, metav1.GetOptions{})
+			ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().
+				Get(testingNamespaceRook.Name, metav1.GetOptions{})
 			if err != nil || errors.IsNotFound(err) {
 				return true
 			}
@@ -61,7 +64,8 @@ var _ = Describe("Test Rook Ceph Module", func() {
 
 			// Create PVC
 			pvc, err := createPvcInStorageClass(hyperStorageHelper.Clientset,
-				makePvcInStorageClassSpec(testPvcNameRook, testingNamespaceRook.Name, VolumeSize, CephFsSc, corev1.ReadWriteMany))
+				makePvcInStorageClassSpec(testPvcNameRook, testingNamespaceRook.Name, VolumeSize, CephFsSc,
+					corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 
 			Eventually(func() bool {
@@ -89,7 +93,8 @@ var _ = Describe("Test Rook Ceph Module", func() {
 			fmt.Printf("[TEST][e2e][%s] started\n", testIDRook)
 
 			pvc, err := createPvcInStorageClass(hyperStorageHelper.Clientset,
-				makePvcInStorageClassSpec(testPvcNameRook, testingNamespaceRook.Name, VolumeSize, RbdSc, corev1.ReadWriteOnce))
+				makePvcInStorageClassSpec(testPvcNameRook, testingNamespaceRook.Name, VolumeSize, RbdSc,
+					corev1.ReadWriteOnce))
 			Expect(err).ToNot(HaveOccurred())
 
 			Eventually(func() bool {

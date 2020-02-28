@@ -4,7 +4,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
-	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,8 +19,6 @@ var (
 	testID           string
 	testDvName       string
 	dataVolumeSize   string
-	scList           *storagev1.StorageClassList
-	scItem           storagev1.StorageClass
 )
 
 const (
@@ -85,7 +82,7 @@ var _ = Describe("Test CDI Module", func() {
 		It("Create DataVolume from http", func() {
 			testID = "0003"
 			testDvName = DataVolumeNamePrefix + testID
-			dataVolumeSize = "5Gi"
+			dataVolumeSize = "6Gi"
 			log.Printf("[TEST][e2e][%s] started\n", testID)
 
 			// create DV 를 from http
@@ -104,13 +101,14 @@ var _ = Describe("Test CDI Module", func() {
 			testID = "0004"
 			testDvName = DataVolumeNamePrefix + testID
 			pvcToBeClonedName := "pvctobecloned"
-			dataVolumeSize = "5Gi"
+			dataVolumeSize = "7Gi"
 			log.Printf("[TEST][e2e][%s] started\n", testID)
 
 			// create pvc-original with some sc
 			// TODO block sc 에 대해서도 테스트 추가
 			pvc, err := createPvcInStorageClass(hyperStorageHelper.Clientset,
-				makePvcInStorageClassSpec(pvcToBeClonedName, testingNamespace.Name, dataVolumeSize, StorageClassCephfs, corev1.ReadOnlyMany))
+				makePvcInStorageClassSpec(pvcToBeClonedName, testingNamespace.Name, dataVolumeSize, StorageClassCephfs,
+					corev1.ReadOnlyMany))
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
 				pvcOut, err := hyperStorageHelper.Clientset.CoreV1().PersistentVolumeClaims(testingNamespace.Name).
