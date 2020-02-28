@@ -10,20 +10,22 @@ import (
 	cdiv1alpha1 "kubevirt.io/containerized-data-importer/pkg/apis/core/v1alpha1"
 	dvutils "kubevirt.io/containerized-data-importer/tests/utils"
 	"log"
+	"strconv"
 	"time"
 )
 
 var (
-	testingNamespace *corev1.Namespace
-	err              error
-	testID           string
-	testDvName       string
-	dataVolumeSize   string
+	testingNamespaceCDI *corev1.Namespace
+	testIDCDI           int
+	testDvName          string
+	dataVolumeSize      string
 )
 
 const (
 	CdiTestingNamespacePrefix = "test-cdi-"
 	DataVolumeNamePrefix      = "test-dv-"
+
+	DataVolumeSize = "5Gi" // TODO >=5Gi && =<sc 가용량 을 get 하여 설정하도록
 
 	TimeOutForCreatingDv  = 500 * time.Second
 	TimeoutForDeletingDv  = 300 * time.Second
@@ -37,39 +39,42 @@ const (
 
 var _ = Describe("Test CDI Module", func() {
 	BeforeEach(func() {
+		testIDCDI++
+		//TODO glog+파일로거로 변경
+		log.Printf("========== [TEST][CDI][CASE-#%d] Started ==========\n", testIDCDI)
+
 		// create testing namespace
-		testingNamespace, err = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(CdiTestingNamespacePrefix))
+		testingNamespaceCDI, err = createNamespace(hyperStorageHelper.Clientset, makeNamespaceSpec(CdiTestingNamespacePrefix))
 		Expect(err).ToNot(HaveOccurred())
 	})
 
 	AfterEach(func() {
 		//delete testing namespace
-		err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(testingNamespace.Name, &metav1.DeleteOptions{})
+		err = hyperStorageHelper.Clientset.CoreV1().Namespaces().Delete(testingNamespaceCDI.Name, &metav1.DeleteOptions{})
 		Expect(err).ToNot(HaveOccurred())
 		Eventually(func() bool {
-			ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(testingNamespace.Name, metav1.GetOptions{})
+			ns, err := hyperStorageHelper.Clientset.CoreV1().Namespaces().Get(testingNamespaceCDI.Name, metav1.GetOptions{})
 			if err != nil || errors.IsNotFound(err) {
 				return true
 			}
 			if ns.Status.Phase == corev1.NamespaceTerminating {
-				log.Printf("Namespace %s is still in phase %s\n", testingNamespace.Name, ns.Status.Phase)
+				log.Printf("Namespace %s is still in phase %s\n", testingNamespaceCDI.Name, ns.Status.Phase)
 				return false
 			}
 			return false
 		}, TimeoutForDeletingNamespace, PollingIntervalForDeletingNamespace).Should(BeTrue())
-		log.Printf("\n %s DataVolume Create => Get => Delete\n", testID)
+		log.Printf("========== [TEST][CDI][CASE-#%d] Finished ==========\n", testIDCDI)
 	})
 
-	Describe("[[TEST][e2e][0002] DataVolume Create -> Get -> Delete]", func() {
+	Describe("[[TEST][CDI] DataVolume Create -> Get -> Delete]", func() {
 		It("Create DataVolume from registry", func() {
-			testID = "0002"
-			testDvName = DataVolumeNamePrefix + testID // TODO test 별로 매번 이렇게 set하지 않도록 변경
-			dataVolumeSize = "5Gi"
-			log.Printf("[TEST][e2e][%s] started\n", testID)
+			testDvName = DataVolumeNamePrefix + strconv.Itoa(testIDCDI)
+			dataVolumeSize = DataVolumeSize
 
 			// create dv
-			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespace.Name,
-				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceRegistry(SampleRegistryURL)))
+			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
+				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceRegistry(SampleRegistryURL),
+					corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -78,16 +83,14 @@ var _ = Describe("Test CDI Module", func() {
 		})
 	})
 
-	Describe("[[TEST][e2e][0003] DataVolume Create -> Get -> Delete]", func() {
+	Describe("[[TEST][CDI] DataVolume Create -> Get -> Delete]", func() {
 		It("Create DataVolume from http", func() {
-			testID = "0003"
-			testDvName = DataVolumeNamePrefix + testID
-			dataVolumeSize = "6Gi"
-			log.Printf("[TEST][e2e][%s] started\n", testID)
+			testDvName = DataVolumeNamePrefix + strconv.Itoa(testIDCDI)
+			dataVolumeSize = DataVolumeSize
 
 			// create DV 를 from http
-			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespace.Name,
-				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceHTTP(SampleHTTPURL)))
+			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
+				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceHTTP(SampleHTTPURL), corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -96,22 +99,20 @@ var _ = Describe("Test CDI Module", func() {
 		})
 	})
 
-	Describe("[[TEST][e2e][0004] DataVolume Create -> Get -> Delete]", func() {
+	Describe("[[TEST][CDI] DataVolume Create -> Get -> Delete]", func() {
 		It("Create DataVolume from pvc", func() {
-			testID = "0004"
-			testDvName = DataVolumeNamePrefix + testID
+			testDvName = DataVolumeNamePrefix + strconv.Itoa(testIDCDI)
 			pvcToBeClonedName := "pvctobecloned"
-			dataVolumeSize = "7Gi"
-			log.Printf("[TEST][e2e][%s] started\n", testID)
+			dataVolumeSize = DataVolumeSize
 
 			// create pvc-original with some sc
 			// TODO block sc 에 대해서도 테스트 추가
 			pvc, err := createPvcInStorageClass(hyperStorageHelper.Clientset,
-				makePvcInStorageClassSpec(pvcToBeClonedName, testingNamespace.Name, dataVolumeSize, StorageClassCephfs,
+				makePvcInStorageClassSpec(pvcToBeClonedName, testingNamespaceCDI.Name, dataVolumeSize, StorageClassCephfs,
 					corev1.ReadOnlyMany))
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
-				pvcOut, err := hyperStorageHelper.Clientset.CoreV1().PersistentVolumeClaims(testingNamespace.Name).
+				pvcOut, err := hyperStorageHelper.Clientset.CoreV1().PersistentVolumeClaims(testingNamespaceCDI.Name).
 					Get(pvc.Name, metav1.GetOptions{})
 				if err == nil && pvcOut.Status.Phase == corev1.ClaimBound {
 					log.Printf("Pvc %s is created and Bound\n", pvcOut.Name)
@@ -122,8 +123,9 @@ var _ = Describe("Test CDI Module", func() {
 			}, TimeOutForCreatingPvc, PollingIntervalDefault).Should(BeTrue())
 
 			//clone dv from pvc-original
-			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespace.Name,
-				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourcePVC(testingNamespace.Name, pvc.Name)))
+			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
+				makeDataVolumeSpec(testDvName, dataVolumeSize,
+					makeDataVolumeSourcePVC(testingNamespaceCDI.Name, pvc.Name), corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -131,7 +133,7 @@ var _ = Describe("Test CDI Module", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			// delete pvc-original
-			err = hyperStorageHelper.Clientset.CoreV1().PersistentVolumeClaims(testingNamespace.Name).
+			err = hyperStorageHelper.Clientset.CoreV1().PersistentVolumeClaims(testingNamespaceCDI.Name).
 				Delete(pvc.Name, &metav1.DeleteOptions{})
 			Expect(err).ToNot(HaveOccurred())
 			// TODO delete pv (optional if reclaimPolicy of sc is retain)
@@ -171,7 +173,8 @@ func waitDataVolumeGetReadyThenDelete(dv *cdiv1alpha1.DataVolume, hyperStorageHe
 	return err
 }
 
-func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolumeSource) *cdiv1alpha1.DataVolume {
+func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolumeSource,
+	accessMode corev1.PersistentVolumeAccessMode) *cdiv1alpha1.DataVolume {
 	return &cdiv1alpha1.DataVolume{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "cdi.kubevirt.io/v1alpha1",
@@ -183,7 +186,7 @@ func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolume
 		Spec: cdiv1alpha1.DataVolumeSpec{
 			Source: *source,
 			PVC: &corev1.PersistentVolumeClaimSpec{
-				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
+				AccessModes: []corev1.PersistentVolumeAccessMode{accessMode},
 				Resources: corev1.ResourceRequirements{
 					Requests: corev1.ResourceList{
 						corev1.ResourceStorage: resource.MustParse(size),

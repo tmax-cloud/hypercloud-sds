@@ -10,6 +10,7 @@ import (
 // 패키지 변수
 var (
 	hyperStorageHelper *HyperHelper
+	err                error
 )
 
 func init() {
