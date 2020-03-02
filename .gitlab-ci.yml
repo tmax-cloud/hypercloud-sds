@@ -1,3 +1,5 @@
+# CI pipeline 을 skip 하고 싶은 경우, push 할 커밋 제목에 다음과 같은 문자를 '포함' 시키면 됩니다.
+# `[ci skip]` 혹은 `[skip ci]` (대괄호와 띄어쓰기를 주의바라며, 대소문자는 상관없습니다)
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
