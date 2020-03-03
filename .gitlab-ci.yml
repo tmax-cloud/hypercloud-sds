@@ -35,7 +35,7 @@ e2e_test_centos_3node_1_15_3:
   before_script:
     - export BOX_OS=centos NODE_COUNT=2 KUBERNETES_VERSION=1.15.3
 
-#e2e_test_minikube_1_17_3:
-#  extends: .e2e_on_minikube_template
-#  before_script:
-#    - export KUBERNETES_VERSION=1.17.3
+e2e_test_minikube_1_15_3:
+  extends: .e2e_on_minikube_template
+  before_script:
+    - export KUBERNETES_VERSION=1.15.3
