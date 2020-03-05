@@ -1,6 +1,0 @@
-commonLabels:
-  inventory: minikube
-resources:
-- ../../base/resources
-patchesStrategicMerge:
-- rook-ceph.yaml

@@ -1,39 +1,18 @@
-# CI pipeline 을 skip 하고 싶은 경우, push 할 커밋 제목에 다음과 같은 문자를 '포함' 시키면 됩니다.
-# `[ci skip]` 혹은 `[skip ci]` (대괄호와 띄어쓰기를 주의바라며, 대소문자는 상관없습니다)
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-
 stages:
   - e2e_test
-
 .e2e_on_cluster_template:
   stage: e2e_test
   script:
-    - ./e2e/cluster.sh clusterUp
-    - ./installer.sh install sample
-    - kubectl get po -n rook-ceph # TODO 추후 삭제
-    - ./installer.sh test
-    - ./installer.sh uninstall sample
+    - ./hack/cluster.sh clusterUp
+    - make -C hcsctl && export PATH=$PATH:$(pwd)/hcsctl/build
+    - hcsctl install hack/inventory/sample
+    - hcsctl.test
+    - hcsctl uninstall hack/inventory/sample
   after_script:
-    - ./e2e/cluster.sh clusterClean
-
-.e2e_on_minikube_template:
-  stage: e2e_test
-  script:
-    - ./e2e/cluster.sh minikubeUp
-    - ./installer.sh install minikube
-    - kubectl get po -n rook-ceph # TODO 추후 삭제
-    - ./installer.sh test
-    - ./installer.sh uninstall minikube
-  after_script:
-    - ./e2e/cluster.sh minikubeClean
-
+    - ./hack/cluster.sh clusterClean
 e2e_test_centos_3node_1_15_3:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=centos NODE_COUNT=2 KUBERNETES_VERSION=1.15.3
-
-e2e_test_minikube_1_15_3:
-  extends: .e2e_on_minikube_template
-  before_script:
-    - export KUBERNETES_VERSION=1.15.3

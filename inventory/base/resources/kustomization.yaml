@@ -1,7 +1,0 @@
-resources:
-- cdi/cdi-cr.yaml
-- rook-ceph/cephfs-fs.yaml
-- rook-ceph/cephfs-sc.yaml
-- rook-ceph/cluster.yaml
-- rook-ceph/rbd-sc.yaml
-- rook-ceph/toolbox.yaml

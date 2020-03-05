@@ -2,7 +2,7 @@
 Hypercloud Storage에서는 고가용성 스토리지(Rook), 데이터 업로드(CDI)를 지원하는 프로젝트입니다.
 
 ## 문서
-- [설치 메뉴얼](install/README.md)
+- [hcsctl](hcsctl/README.md)
 - [고가용성 스토리지(Rook)](docs/rook.md)
 - [데이터 업로드(CDI)](docs/cdi.md)
 - [트러블슈팅](docs/troubleshooting.md) 

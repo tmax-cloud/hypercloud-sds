@@ -1,2 +1,3 @@
 *.swp
 ./e2e/cluster-config
+hcsctl/build

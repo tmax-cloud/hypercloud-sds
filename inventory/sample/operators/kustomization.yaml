@@ -1,5 +1,0 @@
-commonLabels:
-  inventory: sample
-resources:
-- ../../base/operators
-patchesStrategicMerge:
