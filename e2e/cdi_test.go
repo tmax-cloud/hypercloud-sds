@@ -74,7 +74,7 @@ var _ = Describe("Test CDI Module", func() {
 			// create dv
 			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
 				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceRegistry(SampleRegistryURL),
-					corev1.ReadWriteMany))
+					StorageClassCephfs, corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -90,7 +90,8 @@ var _ = Describe("Test CDI Module", func() {
 
 			// create DV 를 from http
 			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
-				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceHTTP(SampleHTTPURL), corev1.ReadWriteMany))
+				makeDataVolumeSpec(testDvName, dataVolumeSize, makeDataVolumeSourceHTTP(SampleHTTPURL), StorageClassCephfs,
+					corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -125,7 +126,7 @@ var _ = Describe("Test CDI Module", func() {
 			//clone dv from pvc-original
 			dv, err := dvutils.CreateDataVolumeFromDefinition(hyperStorageHelper.CdiClientset, testingNamespaceCDI.Name,
 				makeDataVolumeSpec(testDvName, dataVolumeSize,
-					makeDataVolumeSourcePVC(testingNamespaceCDI.Name, pvc.Name), corev1.ReadWriteMany))
+					makeDataVolumeSourcePVC(testingNamespaceCDI.Name, pvc.Name), StorageClassCephfs, corev1.ReadWriteMany))
 			Expect(err).ToNot(HaveOccurred())
 			log.Printf("dv %s is creating\n", testDvName)
 
@@ -173,7 +174,7 @@ func waitDataVolumeGetReadyThenDelete(dv *cdiv1alpha1.DataVolume, hyperStorageHe
 	return err
 }
 
-func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolumeSource,
+func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolumeSource, storageClassName string,
 	accessMode corev1.PersistentVolumeAccessMode) *cdiv1alpha1.DataVolume {
 	return &cdiv1alpha1.DataVolume{
 		TypeMeta: metav1.TypeMeta{
@@ -186,7 +187,8 @@ func makeDataVolumeSpec(name string, size string, source *cdiv1alpha1.DataVolume
 		Spec: cdiv1alpha1.DataVolumeSpec{
 			Source: *source,
 			PVC: &corev1.PersistentVolumeClaimSpec{
-				AccessModes: []corev1.PersistentVolumeAccessMode{accessMode},
+				StorageClassName: &storageClassName,
+				AccessModes:      []corev1.PersistentVolumeAccessMode{accessMode},
 				Resources: corev1.ResourceRequirements{
 					Requests: corev1.ResourceList{
 						corev1.ResourceStorage: resource.MustParse(size),
