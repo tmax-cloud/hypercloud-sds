@@ -1,3 +1,9 @@
+# Rook Ceph Issues
+
+
+
+----------
+
 # Containerized Data Importer Issues
 
 > Containerized Data Importer (CDI) 는 pv 관리를 위한 k8s 의 add-on 으로써 kubevirt 로 vm 을 생성할 때, vm 에 mount 시킬 pvc 에 image 등의 data를 담아 생성할 수 있는 기능을 제공합니다.
@@ -26,17 +32,62 @@
 
 ## 이슈 분류
 
-- DataVolume 생성 시 해당 namespace 에 importer-pod 이 임시로 생성되며 data-import 후 삭제됩니다.
-- **이슈 케이스는 importer-pod 의 phase 에 따라 분류하였습니다.**
+- **이슈 케이스는 상황(주로 importer-pod 의 phase)에 따라 분류하였습니다.**
+  - DataVolume 생성 시 해당 namespace 에 importer-pod 이 임시로 생성되며 data-import 후 삭제됩니다.
+- 에러 상황에 해당하는 이슈를 검색하려면 `ctrl + F`로 `!{$키워드}` 를 검색하세요.
+  - 에러 **상황**을 나타내는 키워드를 검색하세요.
+  - 키워드 예시) `!importer pod`, `!pending`, `!crashloopbackoff`, `!storageclass`, `!webhook`, `!insecure registry`
 
 ----------
 
-### Issue #1
-> namespace, resourcequota 문제
+## Issue (1)
+> 원인 : 불명
+
+> !webhook
+> !cdi-apiserver pod
+> !apiserver pod
+> !version
+> !authentication 정보
+> !finalizer
+
+#### 상황
+- datavolume 생성 혹은 삭제 요청 시 다음과 같은 에러 발생
+```
+Internal error occurred: failed calling webhook "datavolume-mutate.cdi.kubevirt.io": Post https://cdi-api.cdi.svc:443/datavolume-mutate?timeout=30s
+```
+
+#### 테스트
+- cdi 에서 관리하는 cr 의 다른 CRUD api 가 모두 같은 에러로 실패하는지 확인합니다.
+  - 예) `kubectl get dv -A`, `kubectl describe dv`
+  - 실패하지 않고 성공한다면 **해당 이슈가 아닙니다.**
+- cdi namespace 에 pod 이 모두 `RUNNING` state 인지 확인합니다.
+  - `ERROR` 등의 다른 state 로 떠있는 pod 이 있다면 **해당 이슈가 아닙니다.**
+
+#### 해결방법
+- **아직 정확한 원인 및 해결방법을 찾지 못하였습니다.**
+  - 에러 상황은 kube-system ns 의 apiserver pod 에서 cdi ns 의 cdi-apiserver pod 으로 통신이 되지 않는 상황이지만 그 원인은 불명확합니다. 다음과 같은 문제가 원인일 수 있습니다:
+    - cdi ns 에 걸려있는 `NetworkPolicy` 문제
+    - cdi-apiserver pod 이 떠있는 `node 의 network 문제`
+    - cdi 설치 시 `버전 미통일 문제`
+    - cdi 에서 사용하는 `authentication 정보`가 삭제되었거나 만료된 문제
+    - [비슷한 이슈](https://github.com/kubevirt/containerized-data-importer/issues/1117)
+- 임시 해결방안은 cdi 모듈 전체를 제거 후 재설치하는 방안이 있습니다.
+  - cdi 모듈 전체 제거 시 namespace delete 중 stuck 이 걸릴 경우 다음 링크를 참고하여 제거하시면 됩니다.
+    - [namespace 강제 삭제 방법](https://success.docker.com/article/kubernetes-namespace-stuck-in-terminating)
+
+----------
+
+## Issue (2)
+> 원인 : namespace, resourcequota
+
+> !cdi-deployment pod
+> !limits.cpu
+> !importer pod
+> !v1.11
 
 #### 상황
 
-- dv 생성 요청 시 importer-pod 이 아예 생성되지 않은 경우 :
+- **dv 생성 요청 시 importer-pod 이 아예 생성되지 않은 경우**:
   - 해당 namespace 에 `kubectl get pod` 했을 시 pod 이 보이지 않으며, cdi-deployment pod 의 log 를 확인했을 때, 다음과 같은 형태의 에러 메시지가 있는 경우
 
 ```
@@ -67,12 +118,21 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
 
 ----------
 
-### Issue #2
-> image, registry 문제
+## Issue (3)
+> 원인 : image, registry
+
+> !importer pod
+> !crashloopbackoff
+> !namespace
+> !docker
+> !registry
+> !insecure registry
+> !configmap
+> !networkpolicy
 
 #### 상황
 
-- dv 의 source url 을 http 가 아닌 registry 로 적었으며, dv 생성 요청 시 해당 namespace 에 importer pod 은 생성되었으나 pod 의 Status 가 Error -> CrashLoopBackOff 를 반복하며 계속 restart 하는 경우
+- dv 의 source url 을 http 가 아닌 registry 로 적었으며, **dv 생성 요청 시 해당 namespace 에 importer pod 은 생성되었으나 pod 의 Status 가 Error -> CrashLoopBackOff 를 반복하며 계속 restart 하는 경우**
 
 #### 테스트
 
@@ -96,12 +156,19 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
 
 ----------
 
-### Issue #3
-> network, storage 문제
+## Issue (4)
+> 원인 : network, storage
+
+> !importer pod
+> !pending
+> !containercreating
+> !storageclass
+> !cdiconfig
+> !stuck
 
 #### 상황
 
-- dv 생성 요청 시 importer pod 이 Pending 혹은 ContainerCreating 상태로 stuck 된 경우
+- **dv 생성 요청 시 importer pod 이 Pending 혹은 ContainerCreating 상태로 stuck 된 경우**
 
 #### 테스트
 
