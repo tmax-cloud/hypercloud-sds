@@ -24,6 +24,8 @@
   - pod 에서 외부로의 통신 불가
   - pod to pod 통신 불가
   - NetworkPolicy 문제
+- namespace 문제
+  - resourceQuota 부족
 - cdi 모듈 자체 버그
   - namespace with resourceQuota 문제 ([v1.12에서 해결](https://github.com/kubevirt/containerized-data-importer/releases/tag/v1.12.0))
   - ingress with null http 문제 ([v1.12에서 해결](https://github.com/kubevirt/containerized-data-importer/releases/tag/v1.12.0))
@@ -117,8 +119,41 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
     - [limitRange 생성 방법](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
 
 ----------
-
 ## Issue (3)
+> 원인 : namespace, resourcequota
+
+> !importer pod
+> !v1.11
+> !resourceQuota !resourcequota !quota
+> !exceeded !exceeded quota
+
+#### 상황
+
+- **dv 생성 요청 시 importer-pod 이 아예 생성되지 않은 경우**:
+  - 해당 namespace 에 `kubectl get pod` 했을 시 pod 이 보이지 않으며, cdi-deployment pod 의 log 를 확인했을 때, 다음과 같은 형태의 에러 메시지가 있는 경우
+
+```
+import-controller.go:297] error processing pvc "hpcd-ccf03101/hpcd-d03451e2": scratch PVC API create errored: persistentvolumeclaims "hpcd-d03451e2-scratch" is forbidden: exceeded quota: hpcd-ccf03101-quota, requested: requests.storage=20Gi, used: requests.storage=82Gi, limited: requests.storage=100Gi
+```
+
+#### 테스트
+
+- dv 생성 요청한 namespace 에 resourceQuota 객체가 존재하는지, 현재 사용량은 어떻게 되는지 확인
+  - `kubectl -n {$Namespace} describe resourceQuota`
+
+#### 해결방법
+
+- 위의 테스트 결과 해당 이슈가 맞다면 해결하는 방법은 다음과 같습니다.
+  - 단순히 해당 namespace 에 사용가능한 resourceQuota 가 부족한 것이 원인이므로 resourceQuota 를 `kubectl edit` 을 통해 늘려주면 됩니다.
+  - **단, 사용량이 충분해보이는데도 생성되지 않는 경우가 cdi 모듈 특성 상 발생할 수 있습니다.**
+  - 예) requested: 30Gi, used: 60Gi, limited: 100Gi 인데도 같은 이슈가 발생합니다.
+    - cdi 모듈 특성 상 정상적인 작동을 위해서는 남은 disk size 가 requested size 의 **2배 이상**이 있어야 합니다.
+      - 이는 cdi 모듈이 data import 를 위하여 임시로 같은 크기의 pvc 를 하나 더 만들어 사용한 뒤 import 가 완료되면 삭제하는 특징을 지니고 있기 때문에 발생합니다.
+    - 따라서, requested size : 30Gi 이므로 60Gi 를 필요로 하는데, 남은 size 는 40Gi 이므로 에러가 발생합니다.
+
+----------
+
+## Issue (4)
 > 원인 : image, registry
 
 > !importer pod
@@ -156,7 +191,7 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
 
 ----------
 
-## Issue (4)
+## Issue (5)
 > 원인 : network, storage
 
 > !importer pod
