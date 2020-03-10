@@ -10,6 +10,25 @@
 
 ## Troubleshooting Issues
 
+### 주요 커맨드
+> 이슈 상황 파악에 용이하게 쓰일 기본적인 커맨드입니다.
+
+- `kubectl describe cdi`
+  - output 의 status.Observed Version, status.Operator Version, status.Target Version 을 통해 배포된 cdi 모듈의 version 을 확인할 수 있습니다.
+- `kubectl get pod -n cdi`
+  - cdi namespace 에 떠있는 pod 의 목록을 확인합니다.
+  - 일반적인 상황에서는 cdi-apiserver, cdi-deployment, cdi-operator, cdi-uploadproxy 의 4 개의 pod 이 떠있습니다.
+- `kubectl describe pod {$PodName} -n {$PodNamespace}`
+  - {$PodName} 이름을 갖는 pod 이 {$PodNamespace} 에 떠있을 때, 해당 pod 의 정보를 확인할 수 있습니다.
+- `kubectl logs {$PodName} {$ContainerName} -n {$PodNamespace}`
+  - {$PodName} 이름을 갖는 pod 이 {$PodNamespace} 에 떠있을 때, 해당 pod 의 {$ContainerName} 컨테이너의 로그를 확인할 수 있습니다.
+    - (pod 이 single container 만 가지고 있을 경우는 kubectl logs {$PodName} -n {$PodNamespace} 만으로 확인할 수 있습니다.
+  - Pod 의 status 가 ContainerCreating 혹은 CrashLoopBackoff 상태일 경우는 해당 커맨드로 로그를 확인하기 어려울 수 있습니다.
+- `kubectl get sc`
+  - kube cluster 환경에 등록되어있는 storageclass 목록을 확인합니다.
+  - storageclassName 뒤에 (default) 라고 적혀져 있는 storageclass 가 현재 default storageclass 입니다.
+    - kubernetes cluster 환경에 default sc 가 2개 이상일 경우 문제가 발생할 수 있으니 1개로 지정하기 바랍니다.
+
 ### 주요 원인 목록
 
 > cdi 설치 및 사용 중 발생하는 대부분 에러의 원인은 다음 중 하나입니다.
