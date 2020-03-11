@@ -192,6 +192,9 @@ import-controller.go:297] error processing pvc "hpcd-ccf03101/hpcd-d03451e2": sc
 
 - cdi-deployment pod 의 log 와 importer pod 의 log 확인 후 저장
 - sample pod 생성하여 같은 문제가 발생하는지 확인
+  - 1) busybox 이미지로 pod 을 importer pod 이 생성된 namespace, node 에 생성합니다.
+  - 2) 생성된 busybox pod 에 `kubectl exec -it` 로 붙어 해당 registry 로 ping 혹은 curl 이 되는지 확인합니다.
+  - 3) 서로 다른 namespace 와 서로 다른 node 에 busybox pod 2개를 생성하여 두 busybox pod 간에 통신이 되는지 확인합니다.
 - docker registry 에 정확한 버전의 cdi image 들이 모두 존재하는지 확인
 - dv 생성 요청시 명시한 image:tag 가 docker registry 에 있는지 확인 (curl GET 으로 확인)
 - 모든 node 에서 docker registry 에 접근 가능한지 확인
