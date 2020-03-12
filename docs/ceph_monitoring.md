@@ -11,7 +11,7 @@
 > 아래의 과정은 hyperCloud storage가 정상적으로 설치된 후 진행되어야 합니다.
 ### Prometheus operator deploy
 ```shell
-# 아래의 yaml 파일은 /doc/example에 존재합니다.
+# 아래의 yaml 파일은 /docs/examples에 존재합니다.
 $ kubectl apply -f prometheus-bundle.yaml
 
 # Prometheus operator의 생성을 확인합니다.
@@ -26,7 +26,7 @@ prometheus-operator-5b855c4d9d-rt5bw   1/1     Running   0          18s
 	- Prometheus CR를 통해 prometheus 관련 instances 설정 및 사용하고자 하는 serviceMonitor를 정의할 수 있습니다.
 ```shell
 # ServiceMonitor와 Prometheus에 대한 yaml deploy
-# 아래의 yaml파일들은 /doc/example에 존재합니다.
+# 아래의 yaml파일들은 /docs/examples에 존재합니다.
 $ kubectl create -f ceph-service-monitor.yaml
 $ kubectl create -f ceph-prometheus.yaml
 $ kubectl create -f ceph-prometheus-service.yaml
