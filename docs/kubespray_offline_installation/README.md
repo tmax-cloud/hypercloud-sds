@@ -1,7 +1,7 @@
 # How to create Kubernetes cluster in offline environment with Kubespray
 외부 인터넷이 접속 안 되는 환경에서는 Kubernetes cluster를 설치하려면 kubespray를 통해서 할 수 있습니다. kubespray offline 설치는 2가지 방식으로 할 수 있습니다.
 
-  1. [Private local environment](kubespray_offline.md)
+  1. [Private local environment](kubespray_offline_with_private_server.md)
      - Create package repository (install deb package)
      - Create Webserver (Download binary files)
      - Create Docker registry (Download images)

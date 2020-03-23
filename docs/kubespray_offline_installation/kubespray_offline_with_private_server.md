@@ -1,4 +1,4 @@
-# How to run kubespray in local environment
+# How to run kubespray in offline environment with private server
 > tested on ubuntu-server 18.04.3 LTS (bionic)
 
 ## Get kubespray
