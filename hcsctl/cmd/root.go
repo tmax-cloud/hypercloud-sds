@@ -94,3 +94,12 @@ func checkAndSetInventory(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
+
+func checkInventoryName(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+		return errors.New("inventoryName 이 주어지지 않았습니다. 다음 형식으로 입력하세요 : " +
+			"\n" + " - hcsctl create-inventory {$inventoryName}")
+	}
+
+	return nil
+}

@@ -20,7 +20,8 @@ var (
 // Apply run `kubectl apply -f *.yaml`
 func Apply(inventoryPath string) error {
 	glog.Info("Start Rook Apply")
-
+	// TODO 추가적으로 필요한 rook 관련 yaml 파일 추가
+	// TODO yaml 파일명 및 목록 고정해서 상수로 관리
 	err := rookApply(inventoryPath, "common.yaml")
 	if err != nil {
 		return err
