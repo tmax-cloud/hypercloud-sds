@@ -9,6 +9,8 @@ stages:
     - ./hack/cluster.sh clusterUp
     - make -C hcsctl && export PATH=$PATH:$(pwd)/hcsctl/build
     - hcsctl install hack/inventory/sample
+    - hcsctl ceph status
+    - hcsctl ceph exec ceph osd status
     - hcsctl.test
     - hcsctl uninstall hack/inventory/sample
   after_script:
