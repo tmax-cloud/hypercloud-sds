@@ -15,6 +15,7 @@ var (
 	deleteTimeout = 300 * time.Second
 )
 
+// Apply run `kubectl apply -f *.yaml`
 func Apply(inventoryPath string) error {
 	glog.Info("Start CDI Apply")
 
@@ -48,6 +49,7 @@ func isDeployed() (bool, error) {
 	return stdout.String() == "Deployed", nil
 }
 
+// Delete run `kubectl delete -f *.yaml`
 func Delete(inventoryPath string) error {
 	glog.Info("Start CDI Delete")
 

@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	CMD_TIMEOUT = 15 * time.Minute
+	cmdTIMEOUT = 15 * time.Minute
 )
 
+// Run execute kubectl command
 func Run(stdout, stderr io.Writer, arg ...string) error {
-	ctx, cancel:= context.WithTimeout(context.Background(), CMD_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTIMEOUT)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "kubectl", arg...)

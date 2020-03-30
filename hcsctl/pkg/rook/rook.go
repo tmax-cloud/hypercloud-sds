@@ -15,6 +15,7 @@ var (
 	deleteTimeout = 600 * time.Second
 )
 
+// Apply run `kubectl apply -f *.yaml`
 func Apply(inventoryPath string) error {
 	glog.Info("Start Rook Apply")
 
@@ -76,6 +77,7 @@ func isCreated() (bool, error) {
 	return stdout.String() == "Created", nil
 }
 
+// Delete run `kubectl delete -f *.yaml`
 func Delete(inventoryPath string) error {
 	glog.Info("Start Rook Delete")
 	err := rookDelete(inventoryPath, "toolbox.yaml")

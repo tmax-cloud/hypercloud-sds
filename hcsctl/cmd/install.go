@@ -10,7 +10,7 @@ var installCmd = &cobra.Command{
 	Use:     "install",
 	Short:   "해당 인벤토리를 기반으로 hypercloud-storage를 설치합니다.",
 	PreRunE: checkAndSetInventory,
-	Run: func(cmd *cobra.Command, args [] string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		err := rook.Apply(inventoryPath)
 		if err != nil {
 			panic(err)
