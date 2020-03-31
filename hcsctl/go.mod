@@ -14,5 +14,8 @@ require (
 	golang.org/x/net v0.0.0-20200320220750-118fecf932d8 // indirect
 	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
-	k8s.io/apimachinery v0.17.3
+	gopkg.in/yaml.v2 v2.2.8
+	k8s.io/api v0.18.0 // indirect
+	k8s.io/apimachinery v0.18.0
+	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
