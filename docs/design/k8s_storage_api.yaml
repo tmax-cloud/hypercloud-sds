@@ -1,0 +1,3426 @@
+---
+swagger: "2.0"
+info:
+  version: unversioned
+  title: Kubernetes
+security:
+- BearerToken: []
+paths:
+  /api/v1/namespaces/{namespace}/persistentvolumeclaims:
+    get:
+      tags:
+      - pvc
+      description: list or watch objects of kind PersistentVolumeClaim
+      operationId: listCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      - application/json;stream=watch
+      - application/vnd.kubernetes.protobuf;stream=watch
+      parameters:
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimList'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: list
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    post:
+      tags:
+      - pvc
+      description: create a PersistentVolumeClaim
+      operationId: createCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: post
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    delete:
+      tags:
+      - pvc
+      description: delete collection of PersistentVolumeClaim
+      operationId: deleteCoreV1CollectionNamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Status'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: deletecollection
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+  /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}:
+    get:
+      tags:
+      - pvc
+      description: read the specified PersistentVolumeClaim
+      operationId: readCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: exact
+        in: query
+        description: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: export
+        in: query
+        description: Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: get
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    put:
+      tags:
+      - pvc
+      description: replace the specified PersistentVolumeClaim
+      operationId: replaceCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: put
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    delete:
+      tags:
+      - pvc
+      description: delete a PersistentVolumeClaim
+      operationId: deleteCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: delete
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    patch:
+      tags:
+      - pvc
+      description: partially update the specified PersistentVolumeClaim
+      operationId: patchCoreV1NamespacedPersistentVolumeClaim
+      schemes:
+      - https
+      consumes:
+      - application/json-patch+json
+      - application/merge-patch+json
+      - application/strategic-merge-patch+json
+      - application/apply-patch+yaml
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. This field is required for apply requests (application/apply-patch) but optional for non-apply patch types (JsonPatch, MergePatch, StrategicMergePatch).
+        required: false
+        type: string
+        uniqueItems: true
+      - name: force
+        in: query
+        description: Force is going to "force" Apply requests. It means user will re-acquire conflicting fields owned by other people. Force flag must be unset for non-apply patch requests.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: patch
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+  /api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}/status:
+    get:
+      tags:
+      - pvc
+      description: read status of the specified PersistentVolumeClaim
+      operationId: readCoreV1NamespacedPersistentVolumeClaimStatus
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: get
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    put:
+      tags:
+      - pvc
+      description: replace status of the specified PersistentVolumeClaim
+      operationId: replaceCoreV1NamespacedPersistentVolumeClaimStatus
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: put
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+    patch:
+      tags:
+      - pvc
+      description: partially update status of the specified PersistentVolumeClaim
+      operationId: patchCoreV1NamespacedPersistentVolumeClaimStatus
+      schemes:
+      - https
+      consumes:
+      - application/json-patch+json
+      - application/merge-patch+json
+      - application/strategic-merge-patch+json
+      - application/apply-patch+yaml
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolumeClaim
+        required: true
+        type: string
+        uniqueItems: true
+      - name: namespace
+        in: path
+        description: object name and auth scope, such as for teams and projects
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. This field is required for apply requests (application/apply-patch) but optional for non-apply patch types (JsonPatch, MergePatch, StrategicMergePatch).
+        required: false
+        type: string
+        uniqueItems: true
+      - name: force
+        in: query
+        description: Force is going to "force" Apply requests. It means user will re-acquire conflicting fields owned by other people. Force flag must be unset for non-apply patch requests.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: patch
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolumeClaim
+        version: v1
+  /api/v1/persistentvolumes:
+    get:
+      tags:
+      - pv
+      description: list or watch objects of kind PersistentVolume
+      operationId: listCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      - application/json;stream=watch
+      - application/vnd.kubernetes.protobuf;stream=watch
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeList'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: list
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    post:
+      tags:
+      - pv
+      description: create a PersistentVolume
+      operationId: createCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: post
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    delete:
+      tags:
+      - pv
+      description: delete collection of PersistentVolume
+      operationId: deleteCoreV1CollectionPersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Status'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: deletecollection
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+  /api/v1/persistentvolumes/{name}:
+    get:
+      tags:
+      - pv
+      description: read the specified PersistentVolume
+      operationId: readCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: exact
+        in: query
+        description: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: export
+        in: query
+        description: Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: get
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    put:
+      tags:
+      - pv
+      description: replace the specified PersistentVolume
+      operationId: replaceCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: put
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    delete:
+      tags:
+      - pv
+      description: delete a PersistentVolume
+      operationId: deleteCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: delete
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    patch:
+      tags:
+      - pv
+      description: partially update the specified PersistentVolume
+      operationId: patchCoreV1PersistentVolume
+      schemes:
+      - https
+      consumes:
+      - application/json-patch+json
+      - application/merge-patch+json
+      - application/strategic-merge-patch+json
+      - application/apply-patch+yaml
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. This field is required for apply requests (application/apply-patch) but optional for non-apply patch types (JsonPatch, MergePatch, StrategicMergePatch).
+        required: false
+        type: string
+        uniqueItems: true
+      - name: force
+        in: query
+        description: Force is going to "force" Apply requests. It means user will re-acquire conflicting fields owned by other people. Force flag must be unset for non-apply patch requests.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: patch
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+  /api/v1/persistentvolumes/{name}/status:
+    get:
+      tags:
+      - pv
+      description: read status of the specified PersistentVolume
+      operationId: readCoreV1PersistentVolumeStatus
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: get
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    put:
+      tags:
+      - pv
+      description: replace status of the specified PersistentVolume
+      operationId: replaceCoreV1PersistentVolumeStatus
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: put
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+    patch:
+      tags:
+      - pv
+      description: partially update status of the specified PersistentVolume
+      operationId: patchCoreV1PersistentVolumeStatus
+      schemes:
+      - https
+      consumes:
+      - application/json-patch+json
+      - application/merge-patch+json
+      - application/strategic-merge-patch+json
+      - application/apply-patch+yaml
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the PersistentVolume
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. This field is required for apply requests (application/apply-patch) but optional for non-apply patch types (JsonPatch, MergePatch, StrategicMergePatch).
+        required: false
+        type: string
+        uniqueItems: true
+      - name: force
+        in: query
+        description: Force is going to "force" Apply requests. It means user will re-acquire conflicting fields owned by other people. Force flag must be unset for non-apply patch requests.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: patch
+      x-kubernetes-group-version-kind:
+        group: ""
+        kind: PersistentVolume
+        version: v1
+  /apis/storage.k8s.io/v1/storageclasses:
+    get:
+      tags:
+      - storage_v1
+      description: list or watch objects of kind StorageClass
+      operationId: listStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      - application/json;stream=watch
+      - application/vnd.kubernetes.protobuf;stream=watch
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClassList'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: list
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+    post:
+      tags:
+      - storage_v1
+      description: create a StorageClass
+      operationId: createStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: post
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+    delete:
+      tags:
+      - storage_v1
+      description: delete collection of StorageClass
+      operationId: deleteStorageV1CollectionStorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: allowWatchBookmarks
+        in: query
+        description: allowWatchBookmarks requests watch events with type "BOOKMARK". Servers that do not implement bookmarks may ignore this flag and bookmarks are sent at the server's discretion. Clients should not assume bookmarks are returned at any specific interval, nor may they assume the server will send any BOOKMARK event during a session. If this is not a watch, this field is ignored. If the feature gate WatchBookmarks is not enabled in apiserver, this field is ignored.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: continue
+        in: query
+        description: |-
+          The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server, the server will respond with a 410 ResourceExpired error together with a continue token. If the client needs a consistent list, it must restart their list without the continue field. Otherwise, the client may send another list request with the token received with the 410 error, the server will respond with a list starting from the next key, but from the latest snapshot, which is inconsistent from the previous list results - objects that are created, modified, or deleted after the first list request will be included in the response, as long as their keys are after the "next key".
+
+          This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: labelSelector
+        in: query
+        description: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: limit
+        in: query
+        description: |-
+          limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+
+          The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: resourceVersion
+        in: query
+        description: 'When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it''s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: timeoutSeconds
+        in: query
+        description: Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: watch
+        in: query
+        description: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Status'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: deletecollection
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+  /apis/storage.k8s.io/v1/storageclasses/{name}:
+    get:
+      tags:
+      - storage_v1
+      description: read the specified StorageClass
+      operationId: readStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the StorageClass
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - name: exact
+        in: query
+        description: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: export
+        in: query
+        description: Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: get
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+    put:
+      tags:
+      - storage_v1
+      description: replace the specified StorageClass
+      operationId: replaceStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the StorageClass
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint.
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: put
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+    delete:
+      tags:
+      - storage_v1
+      description: delete a StorageClass
+      operationId: deleteStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - '*/*'
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the StorageClass
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: false
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: gracePeriodSeconds
+        in: query
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+        required: false
+        type: integer
+        uniqueItems: true
+      - name: orphanDependents
+        in: query
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+        required: false
+        type: boolean
+        uniqueItems: true
+      - name: propagationPolicy
+        in: query
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+        required: false
+        type: string
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: delete
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+    patch:
+      tags:
+      - storage_v1
+      description: partially update the specified StorageClass
+      operationId: patchStorageV1StorageClass
+      schemes:
+      - https
+      consumes:
+      - application/json-patch+json
+      - application/merge-patch+json
+      - application/strategic-merge-patch+json
+      - application/apply-patch+yaml
+      produces:
+      - application/json
+      - application/yaml
+      - application/vnd.kubernetes.protobuf
+      parameters:
+      - name: name
+        in: path
+        description: name of the StorageClass
+        required: true
+        type: string
+        uniqueItems: true
+      - name: pretty
+        in: query
+        description: If 'true', then the output is pretty printed.
+        required: false
+        type: string
+        uniqueItems: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch'
+      - name: dryRun
+        in: query
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        required: false
+        type: string
+        uniqueItems: true
+      - name: fieldManager
+        in: query
+        description: fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. This field is required for apply requests (application/apply-patch) but optional for non-apply patch types (JsonPatch, MergePatch, StrategicMergePatch).
+        required: false
+        type: string
+        uniqueItems: true
+      - name: force
+        in: query
+        description: Force is going to "force" Apply requests. It means user will re-acquire conflicting fields owned by other people. Force flag must be unset for non-apply patch requests.
+        required: false
+        type: boolean
+        uniqueItems: true
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+        "401":
+          description: Unauthorized
+      x-kubernetes-action: patch
+      x-kubernetes-group-version-kind:
+        group: storage.k8s.io
+        kind: StorageClass
+        version: v1
+securityDefinitions:
+  BearerToken:
+    description: Bearer Token authentication
+    type: apiKey
+    name: authorization
+    in: header
+definitions:
+  io.k8s.api.core.v1.PersistentVolumeClaim:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta'
+      spec:
+        description: 'Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims'
+        $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimSpec'
+      status:
+        description: 'Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims'
+        $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimStatus'
+    description: PersistentVolumeClaim is a user's request for and claim to a persistent volume
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: PersistentVolumeClaim
+      version: v1
+  io.k8s.api.core.v1.PersistentVolumeClaimList:
+    type: object
+    required:
+    - items
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      items:
+        type: array
+        description: 'A list of persistent volume claims. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims'
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaim'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta'
+    description: PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: PersistentVolumeClaimList
+      version: v1
+  io.k8s.api.core.v1.PersistentVolumeClaimSpec:
+    type: object
+    properties:
+      accessModes:
+        type: array
+        description: 'AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1'
+        items:
+          type: string
+      dataSource:
+        description: This field requires the VolumeSnapshotDataSource alpha feature gate to be enabled and currently VolumeSnapshot is the only supported data source. If the provisioner can support VolumeSnapshot data source, it will create a new volume and data will be restored to the volume at the same time. If the provisioner does not support VolumeSnapshot data source, volume will not be created and the failure will be reported as an event. In the future, we plan to support more data source types and the behavior of the provisioner may change.
+        $ref: '#/definitions/io.k8s.api.core.v1.TypedLocalObjectReference'
+      resources:
+        description: 'Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
+        $ref: '#/definitions/io.k8s.api.core.v1.ResourceRequirements'
+      selector:
+        description: A label query over volumes to consider for binding.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector'
+      storageClassName:
+        type: string
+        description: 'Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
+      volumeMode:
+        type: string
+        description: volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec. This is a beta feature.
+      volumeName:
+        type: string
+        description: VolumeName is the binding reference to the PersistentVolume backing this claim.
+    description: PersistentVolumeClaimSpec describes the common attributes of storage devices and allows a Source for provider-specific attributes
+  io.k8s.api.core.v1.PersistentVolumeClaimStatus:
+    type: object
+    properties:
+      accessModes:
+        type: array
+        description: 'AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1'
+        items:
+          type: string
+      capacity:
+        type: object
+        description: Represents the actual resources of the underlying volume.
+        additionalProperties:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.api.resource.Quantity'
+      conditions:
+        type: array
+        description: Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimCondition'
+        x-kubernetes-patch-strategy: merge
+        x-kubernetes-patch-merge-key: type
+      phase:
+        type: string
+        description: Phase represents the current phase of PersistentVolumeClaim.
+    description: PersistentVolumeClaimStatus is the current status of a persistent volume claim.
+  io.k8s.api.core.v1.PersistentVolumeClaimCondition:
+    type: object
+    required:
+    - status
+    - type
+    properties:
+      lastProbeTime:
+        description: Last time we probed the condition.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Time'
+      lastTransitionTime:
+        description: Last time the condition transitioned from one status to another.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Time'
+      message:
+        type: string
+        description: Human-readable message indicating details about last transition.
+      reason:
+        type: string
+        description: Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports "ResizeStarted" that means the underlying persistent volume is being resized.
+      status:
+        type: string
+      type:
+        type: string
+    description: PersistentVolumeClaimCondition contails details about state of pvc
+  io.k8s.api.core.v1.PersistentVolume:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta'
+      spec:
+        description: 'Spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes'
+        $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeSpec'
+      status:
+        description: 'Status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes'
+        $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolumeStatus'
+    description: 'PersistentVolume (PV) is a storage resource provisioned by an administrator. It is analogous to a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes'
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: PersistentVolume
+      version: v1
+  io.k8s.api.core.v1.PersistentVolumeList:
+    type: object
+    required:
+    - items
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      items:
+        type: array
+        description: 'List of persistent volumes. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes'
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.PersistentVolume'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta'
+    description: PersistentVolumeList is a list of PersistentVolume items.
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: PersistentVolumeList
+      version: v1
+  io.k8s.api.core.v1.PersistentVolumeSpec:
+    type: object
+    properties:
+      accessModes:
+        type: array
+        description: 'AccessModes contains all ways the volume can be mounted. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes'
+        items:
+          type: string
+      awsElasticBlockStore:
+        description: 'AWSElasticBlockStore represents an AWS Disk resource that is attached to a kubelet''s host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore'
+        $ref: '#/definitions/io.k8s.api.core.v1.AWSElasticBlockStoreVolumeSource'
+      azureDisk:
+        description: AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+        $ref: '#/definitions/io.k8s.api.core.v1.AzureDiskVolumeSource'
+      azureFile:
+        description: AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+        $ref: '#/definitions/io.k8s.api.core.v1.AzureFilePersistentVolumeSource'
+      capacity:
+        type: object
+        description: 'A description of the persistent volume''s resources and capacity. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity'
+        additionalProperties:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.api.resource.Quantity'
+      cephfs:
+        description: CephFS represents a Ceph FS mount on the host that shares a pod's lifetime
+        $ref: '#/definitions/io.k8s.api.core.v1.CephFSPersistentVolumeSource'
+      cinder:
+        description: 'Cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md'
+        $ref: '#/definitions/io.k8s.api.core.v1.CinderPersistentVolumeSource'
+      claimRef:
+        description: 'ClaimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim. Expected to be non-nil when bound. claim.VolumeName is the authoritative bind between PV and PVC. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#binding'
+        $ref: '#/definitions/io.k8s.api.core.v1.ObjectReference'
+      csi:
+        description: CSI represents storage that is handled by an external CSI driver (Beta feature).
+        $ref: '#/definitions/io.k8s.api.core.v1.CSIPersistentVolumeSource'
+      fc:
+        description: FC represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod.
+        $ref: '#/definitions/io.k8s.api.core.v1.FCVolumeSource'
+      flexVolume:
+        description: FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
+        $ref: '#/definitions/io.k8s.api.core.v1.FlexPersistentVolumeSource'
+      flocker:
+        description: Flocker represents a Flocker volume attached to a kubelet's host machine and exposed to the pod for its usage. This depends on the Flocker control service being running
+        $ref: '#/definitions/io.k8s.api.core.v1.FlockerVolumeSource'
+      gcePersistentDisk:
+        description: 'GCEPersistentDisk represents a GCE Disk resource that is attached to a kubelet''s host machine and then exposed to the pod. Provisioned by an admin. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk'
+        $ref: '#/definitions/io.k8s.api.core.v1.GCEPersistentDiskVolumeSource'
+      glusterfs:
+        description: 'Glusterfs represents a Glusterfs volume that is attached to a host and exposed to the pod. Provisioned by an admin. More info: https://examples.k8s.io/volumes/glusterfs/README.md'
+        $ref: '#/definitions/io.k8s.api.core.v1.GlusterfsPersistentVolumeSource'
+      hostPath:
+        description: 'HostPath represents a directory on the host. Provisioned by a developer or tester. This is useful for single-node development and testing only! On-host storage is not supported in any way and WILL NOT WORK in a multi-node cluster. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath'
+        $ref: '#/definitions/io.k8s.api.core.v1.HostPathVolumeSource'
+      iscsi:
+        description: ISCSI represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. Provisioned by an admin.
+        $ref: '#/definitions/io.k8s.api.core.v1.ISCSIPersistentVolumeSource'
+      local:
+        description: Local represents directly-attached storage with node affinity
+        $ref: '#/definitions/io.k8s.api.core.v1.LocalVolumeSource'
+      mountOptions:
+        type: array
+        description: 'A list of mount options, e.g. ["ro", "soft"]. Not validated - mount will simply fail if one is invalid. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options'
+        items:
+          type: string
+      nfs:
+        description: 'NFS represents an NFS mount on the host. Provisioned by an admin. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs'
+        $ref: '#/definitions/io.k8s.api.core.v1.NFSVolumeSource'
+      nodeAffinity:
+        description: NodeAffinity defines constraints that limit what nodes this volume can be accessed from. This field influences the scheduling of pods that use this volume.
+        $ref: '#/definitions/io.k8s.api.core.v1.VolumeNodeAffinity'
+      persistentVolumeReclaimPolicy:
+        type: string
+        description: 'What happens to a persistent volume when released from its claim. Valid options are Retain (default for manually created PersistentVolumes), Delete (default for dynamically provisioned PersistentVolumes), and Recycle (deprecated). Recycle must be supported by the volume plugin underlying this PersistentVolume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#reclaiming'
+      photonPersistentDisk:
+        description: PhotonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
+        $ref: '#/definitions/io.k8s.api.core.v1.PhotonPersistentDiskVolumeSource'
+      portworxVolume:
+        description: PortworxVolume represents a portworx volume attached and mounted on kubelets host machine
+        $ref: '#/definitions/io.k8s.api.core.v1.PortworxVolumeSource'
+      quobyte:
+        description: Quobyte represents a Quobyte mount on the host that shares a pod's lifetime
+        $ref: '#/definitions/io.k8s.api.core.v1.QuobyteVolumeSource'
+      rbd:
+        description: 'RBD represents a Rados Block Device mount on the host that shares a pod''s lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md'
+        $ref: '#/definitions/io.k8s.api.core.v1.RBDPersistentVolumeSource'
+      scaleIO:
+        description: ScaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes.
+        $ref: '#/definitions/io.k8s.api.core.v1.ScaleIOPersistentVolumeSource'
+      storageClassName:
+        type: string
+        description: Name of StorageClass to which this persistent volume belongs. Empty value means that this volume does not belong to any StorageClass.
+      storageos:
+        description: 'StorageOS represents a StorageOS volume that is attached to the kubelet''s host machine and mounted into the pod More info: https://examples.k8s.io/volumes/storageos/README.md'
+        $ref: '#/definitions/io.k8s.api.core.v1.StorageOSPersistentVolumeSource'
+      volumeMode:
+        type: string
+        description: volumeMode defines if a volume is intended to be used with a formatted filesystem or to remain in raw block state. Value of Filesystem is implied when not included in spec. This is a beta feature.
+      vsphereVolume:
+        description: VsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
+        $ref: '#/definitions/io.k8s.api.core.v1.VsphereVirtualDiskVolumeSource'
+    description: PersistentVolumeSpec is the specification of a persistent volume.
+  io.k8s.api.core.v1.PersistentVolumeStatus:
+    type: object
+    properties:
+      message:
+        type: string
+        description: A human-readable message indicating details about why the volume is in this state.
+      phase:
+        type: string
+        description: 'Phase indicates if a volume is available, bound to a claim, or released by a claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase'
+      reason:
+        type: string
+        description: Reason is a brief CamelCase string that describes any failure and is meant for machine parsing and tidy display in the CLI.
+    description: PersistentVolumeStatus is the current status of a persistent volume.
+  io.k8s.api.core.v1.AWSElasticBlockStoreVolumeSource:
+    type: object
+    required:
+    - volumeID
+    properties:
+      fsType:
+        type: string
+        description: 'Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore'
+      partition:
+        type: integer
+        format: int32
+        description: 'The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).'
+      readOnly:
+        type: boolean
+        description: 'Specify "true" to force and set the ReadOnly property in VolumeMounts to "true". If omitted, the default is "false". More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore'
+      volumeID:
+        type: string
+        description: 'Unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore'
+    description: |-
+      Represents a Persistent Disk resource in AWS.
+
+      An AWS EBS disk must exist before mounting to a container. The disk must also be in the same AWS zone as the kubelet. An AWS EBS disk can only be mounted as read/write once. AWS EBS volumes support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.AzureDiskVolumeSource:
+    type: object
+    required:
+    - diskName
+    - diskURI
+    properties:
+      cachingMode:
+        type: string
+        description: 'Host Caching mode: None, Read Only, Read Write.'
+      diskName:
+        type: string
+        description: The Name of the data disk in the blob storage
+      diskURI:
+        type: string
+        description: The URI the data disk in the blob storage
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+      kind:
+        type: string
+        description: 'Expected values Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared'
+      readOnly:
+        type: boolean
+        description: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+    description: AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+  io.k8s.api.core.v1.AzureFilePersistentVolumeSource:
+    type: object
+    required:
+    - secretName
+    - shareName
+    properties:
+      readOnly:
+        type: boolean
+        description: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+      secretName:
+        type: string
+        description: the name of secret that contains Azure Storage Account Name and Key
+      secretNamespace:
+        type: string
+        description: the namespace of the secret that contains Azure Storage Account Name and Key default is the same as the Pod
+      shareName:
+        type: string
+        description: Share Name
+    description: AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+  io.k8s.api.core.v1.CinderPersistentVolumeSource:
+    type: object
+    required:
+    - volumeID
+    properties:
+      fsType:
+        type: string
+        description: 'Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md'
+      readOnly:
+        type: boolean
+        description: 'Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md'
+      secretRef:
+        description: 'Optional: points to a secret object containing parameters used to connect to OpenStack.'
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      volumeID:
+        type: string
+        description: 'volume id used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md'
+    description: Represents a cinder volume resource in Openstack. A Cinder volume must exist before mounting to a container. The volume must also be in the same region as the kubelet. Cinder volumes support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.CSIPersistentVolumeSource:
+    type: object
+    required:
+    - driver
+    - volumeHandle
+    properties:
+      controllerExpandSecretRef:
+        description: ControllerExpandSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerExpandVolume call. This is an alpha field and requires enabling ExpandCSIVolumes feature gate. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      controllerPublishSecretRef:
+        description: ControllerPublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI ControllerPublishVolume and ControllerUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      driver:
+        type: string
+        description: Driver is the name of the driver to use for this volume. Required.
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs".
+      nodePublishSecretRef:
+        description: NodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      nodeStageSecretRef:
+        description: NodeStageSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodeStageVolume and NodeStageVolume and NodeUnstageVolume calls. This field is optional, and may be empty if no secret is required. If the secret object contains more than one secret, all secrets are passed.
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      readOnly:
+        type: boolean
+        description: 'Optional: The value to pass to ControllerPublishVolumeRequest. Defaults to false (read/write).'
+      volumeAttributes:
+        type: object
+        description: Attributes of the volume to publish.
+        additionalProperties:
+          type: string
+      volumeHandle:
+        type: string
+        description: VolumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
+    description: Represents storage that is managed by an external CSI volume driver (Beta feature)
+  io.k8s.api.core.v1.FCVolumeSource:
+    type: object
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+      lun:
+        type: integer
+        format: int32
+        description: 'Optional: FC target lun number'
+      readOnly:
+        type: boolean
+        description: 'Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.'
+      targetWWNs:
+        type: array
+        description: 'Optional: FC target worldwide names (WWNs)'
+        items:
+          type: string
+      wwids:
+        type: array
+        description: 'Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.'
+        items:
+          type: string
+    description: Represents a Fibre Channel volume. Fibre Channel volumes can only be mounted as read/write once. Fibre Channel volumes support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.FlexPersistentVolumeSource:
+    type: object
+    required:
+    - driver
+    properties:
+      driver:
+        type: string
+        description: Driver is the name of the driver to use for this volume.
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+      options:
+        type: object
+        description: 'Optional: Extra command options if any.'
+        additionalProperties:
+          type: string
+      readOnly:
+        type: boolean
+        description: 'Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.'
+      secretRef:
+        description: 'Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.'
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+    description: FlexPersistentVolumeSource represents a generic persistent volume resource that is provisioned/attached using an exec based plugin.
+  io.k8s.api.core.v1.FlexVolumeSource:
+    type: object
+    required:
+    - driver
+    properties:
+      driver:
+        type: string
+        description: Driver is the name of the driver to use for this volume.
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+      options:
+        type: object
+        description: 'Optional: Extra command options if any.'
+        additionalProperties:
+          type: string
+      readOnly:
+        type: boolean
+        description: 'Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.'
+      secretRef:
+        description: 'Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.'
+        $ref: '#/definitions/io.k8s.api.core.v1.LocalObjectReference'
+    description: FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
+  io.k8s.api.core.v1.FlockerVolumeSource:
+    type: object
+    properties:
+      datasetName:
+        type: string
+        description: Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated
+      datasetUUID:
+        type: string
+        description: UUID of the dataset. This is unique identifier of a Flocker dataset
+    description: Represents a Flocker volume mounted by the Flocker agent. One and only one of datasetName and datasetUUID should be set. Flocker volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.core.v1.GCEPersistentDiskVolumeSource:
+    type: object
+    required:
+    - pdName
+    properties:
+      fsType:
+        type: string
+        description: 'Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk'
+      partition:
+        type: integer
+        format: int32
+        description: 'The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk'
+      pdName:
+        type: string
+        description: 'Unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk'
+      readOnly:
+        type: boolean
+        description: 'ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk'
+    description: |-
+      Represents a Persistent Disk resource in Google Compute Engine.
+
+      A GCE PD must exist before mounting to a container. The disk must also be in the same GCE project and zone as the kubelet. A GCE PD can only be mounted as read/write once or read-only many times. GCE PDs support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.GlusterfsPersistentVolumeSource:
+    type: object
+    required:
+    - endpoints
+    - path
+    properties:
+      endpoints:
+        type: string
+        description: 'EndpointsName is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod'
+      endpointsNamespace:
+        type: string
+        description: 'EndpointsNamespace is the namespace that contains Glusterfs endpoint. If this field is empty, the EndpointNamespace defaults to the same namespace as the bound PVC. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod'
+      path:
+        type: string
+        description: 'Path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod'
+      readOnly:
+        type: boolean
+        description: 'ReadOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod'
+    description: Represents a Glusterfs mount that lasts the lifetime of a pod. Glusterfs volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.core.v1.HostPathVolumeSource:
+    type: object
+    required:
+    - path
+    properties:
+      path:
+        type: string
+        description: 'Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath'
+      type:
+        type: string
+        description: 'Type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath'
+    description: Represents a host path mapped into a pod. Host path volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.core.v1.ISCSIPersistentVolumeSource:
+    type: object
+    required:
+    - iqn
+    - lun
+    - targetPortal
+    properties:
+      chapAuthDiscovery:
+        type: boolean
+        description: whether support iSCSI Discovery CHAP authentication
+      chapAuthSession:
+        type: boolean
+        description: whether support iSCSI Session CHAP authentication
+      fsType:
+        type: string
+        description: 'Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi'
+      initiatorName:
+        type: string
+        description: Custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
+      iqn:
+        type: string
+        description: Target iSCSI Qualified Name.
+      iscsiInterface:
+        type: string
+        description: iSCSI Interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
+      lun:
+        type: integer
+        format: int32
+        description: iSCSI Target Lun number.
+      portals:
+        type: array
+        description: iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+        items:
+          type: string
+      readOnly:
+        type: boolean
+        description: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
+      secretRef:
+        description: CHAP Secret for iSCSI target and initiator authentication
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      targetPortal:
+        type: string
+        description: iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+    description: ISCSIPersistentVolumeSource represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.LocalVolumeSource:
+    type: object
+    required:
+    - path
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. It applies only when the Path is a block device. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default value is to auto-select a fileystem if unspecified.
+      path:
+        type: string
+        description: The full path to the volume on the node. It can be either a directory or block device (disk, partition, ...).
+    description: Local represents directly-attached storage with node affinity (Beta feature)
+  io.k8s.api.core.v1.NFSVolumeSource:
+    type: object
+    required:
+    - path
+    - server
+    properties:
+      path:
+        type: string
+        description: 'Path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs'
+      readOnly:
+        type: boolean
+        description: 'ReadOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs'
+      server:
+        type: string
+        description: 'Server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs'
+    description: Represents an NFS mount that lasts the lifetime of a pod. NFS volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.core.v1.VolumeNodeAffinity:
+    type: object
+    properties:
+      required:
+        description: Required specifies hard node constraints that must be met.
+        $ref: '#/definitions/io.k8s.api.core.v1.NodeSelector'
+    description: VolumeNodeAffinity defines constraints that limit what nodes this volume can be accessed from.
+  io.k8s.api.core.v1.NodeSelector:
+    type: object
+    required:
+    - nodeSelectorTerms
+    properties:
+      nodeSelectorTerms:
+        type: array
+        description: Required. A list of node selector terms. The terms are ORed.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.NodeSelectorTerm'
+    description: A node selector represents the union of the results of one or more label queries over a set of nodes; that is, it represents the OR of the selectors represented by the node selector terms.
+  io.k8s.api.core.v1.NodeSelectorRequirement:
+    type: object
+    required:
+    - key
+    - operator
+    properties:
+      key:
+        type: string
+        description: The label key that the selector applies to.
+      operator:
+        type: string
+        description: Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+      values:
+        type: array
+        description: An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+        items:
+          type: string
+    description: A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+  io.k8s.api.core.v1.NodeSelectorTerm:
+    type: object
+    properties:
+      matchExpressions:
+        type: array
+        description: A list of node selector requirements by node's labels.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.NodeSelectorRequirement'
+      matchFields:
+        type: array
+        description: A list of node selector requirements by node's fields.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.NodeSelectorRequirement'
+    description: A null or empty node selector term matches no objects. The requirements of them are ANDed. The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+  io.k8s.api.core.v1.PhotonPersistentDiskVolumeSource:
+    type: object
+    required:
+    - pdID
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+      pdID:
+        type: string
+        description: ID that identifies Photon Controller persistent disk
+    description: Represents a Photon Controller persistent disk resource.
+  io.k8s.api.core.v1.PortworxVolumeSource:
+    type: object
+    required:
+    - volumeID
+    properties:
+      fsType:
+        type: string
+        description: FSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs". Implicitly inferred to be "ext4" if unspecified.
+      readOnly:
+        type: boolean
+        description: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+      volumeID:
+        type: string
+        description: VolumeID uniquely identifies a Portworx volume
+    description: PortworxVolumeSource represents a Portworx volume resource.
+  io.k8s.api.core.v1.QuobyteVolumeSource:
+    type: object
+    required:
+    - registry
+    - volume
+    properties:
+      group:
+        type: string
+        description: Group to map volume access to Default is no group
+      readOnly:
+        type: boolean
+        description: ReadOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false.
+      registry:
+        type: string
+        description: Registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes
+      tenant:
+        type: string
+        description: Tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin
+      user:
+        type: string
+        description: User to map volume access to Defaults to serivceaccount user
+      volume:
+        type: string
+        description: Volume is a string that references an already created Quobyte volume by name.
+    description: Represents a Quobyte mount that lasts the lifetime of a pod. Quobyte volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.core.v1.RBDPersistentVolumeSource:
+    type: object
+    required:
+    - image
+    - monitors
+    properties:
+      fsType:
+        type: string
+        description: 'Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd'
+      image:
+        type: string
+        description: 'The rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+      keyring:
+        type: string
+        description: 'Keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+      monitors:
+        type: array
+        description: 'A collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+        items:
+          type: string
+      pool:
+        type: string
+        description: 'The rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+      readOnly:
+        type: boolean
+        description: 'ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+      secretRef:
+        description: 'SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      user:
+        type: string
+        description: 'The rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it'
+    description: Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD volumes support ownership management and SELinux relabeling.
+  io.k8s.api.core.v1.ScaleIOPersistentVolumeSource:
+    type: object
+    required:
+    - gateway
+    - secretRef
+    - system
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Default is "xfs"
+      gateway:
+        type: string
+        description: The host address of the ScaleIO API Gateway.
+      protectionDomain:
+        type: string
+        description: The name of the ScaleIO Protection Domain for the configured storage.
+      readOnly:
+        type: boolean
+        description: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+      secretRef:
+        description: SecretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      sslEnabled:
+        type: boolean
+        description: Flag to enable/disable SSL communication with Gateway, default false
+      storageMode:
+        type: string
+        description: Indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned.
+      storagePool:
+        type: string
+        description: The ScaleIO Storage Pool associated with the protection domain.
+      system:
+        type: string
+        description: The name of the storage system as configured in ScaleIO.
+      volumeName:
+        type: string
+        description: The name of a volume already created in the ScaleIO system that is associated with this volume source.
+    description: ScaleIOPersistentVolumeSource represents a persistent ScaleIO volume
+  io.k8s.api.core.v1.VsphereVirtualDiskVolumeSource:
+    type: object
+    required:
+    - volumePath
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+      storagePolicyID:
+        type: string
+        description: Storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName.
+      storagePolicyName:
+        type: string
+        description: Storage Policy Based Management (SPBM) profile name.
+      volumePath:
+        type: string
+        description: Path that identifies vSphere volume vmdk
+    description: Represents a vSphere volume resource.
+  io.k8s.api.core.v1.StorageOSPersistentVolumeSource:
+    type: object
+    properties:
+      fsType:
+        type: string
+        description: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+      readOnly:
+        type: boolean
+        description: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+      secretRef:
+        description: SecretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
+        $ref: '#/definitions/io.k8s.api.core.v1.ObjectReference'
+      volumeName:
+        type: string
+        description: VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
+      volumeNamespace:
+        type: string
+        description: VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
+    description: Represents a StorageOS persistent volume resource.
+  io.k8s.api.core.v1.CephFSPersistentVolumeSource:
+    type: object
+    required:
+    - monitors
+    properties:
+      monitors:
+        type: array
+        description: 'Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it'
+        items:
+          type: string
+      path:
+        type: string
+        description: 'Optional: Used as the mounted root, rather than the full Ceph tree, default is /'
+      readOnly:
+        type: boolean
+        description: 'Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it'
+      secretFile:
+        type: string
+        description: 'Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it'
+      secretRef:
+        description: 'Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it'
+        $ref: '#/definitions/io.k8s.api.core.v1.SecretReference'
+      user:
+        type: string
+        description: 'Optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it'
+    description: Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
+  io.k8s.api.storage.v1.StorageClass:
+    type: object
+    required:
+    - provisioner
+    properties:
+      allowVolumeExpansion:
+        type: boolean
+        description: AllowVolumeExpansion shows whether the storage class allow volume expand
+      allowedTopologies:
+        type: array
+        description: Restrict the node topologies where volumes can be dynamically provisioned. Each volume plugin defines its own supported topology specifications. An empty TopologySelectorTerm list means there is no topology restriction. This field is only honored by servers that enable the VolumeScheduling feature.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.TopologySelectorTerm'
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta'
+      mountOptions:
+        type: array
+        description: Dynamically provisioned PersistentVolumes of this storage class are created with these mountOptions, e.g. ["ro", "soft"]. Not validated - mount of the PVs will simply fail if one is invalid.
+        items:
+          type: string
+      parameters:
+        type: object
+        description: Parameters holds the parameters for the provisioner that should create volumes of this storage class.
+        additionalProperties:
+          type: string
+      provisioner:
+        type: string
+        description: Provisioner indicates the type of the provisioner.
+      reclaimPolicy:
+        type: string
+        description: Dynamically provisioned PersistentVolumes of this storage class are created with this reclaimPolicy. Defaults to Delete.
+      volumeBindingMode:
+        type: string
+        description: VolumeBindingMode indicates how PersistentVolumeClaims should be provisioned and bound.  When unset, VolumeBindingImmediate is used. This field is only honored by servers that enable the VolumeScheduling feature.
+    description: |-
+      StorageClass describes the parameters for a class of storage for which PersistentVolumes can be dynamically provisioned.
+
+      StorageClasses are non-namespaced; the name of the storage class according to etcd is in ObjectMeta.Name.
+    x-kubernetes-group-version-kind:
+    - group: storage.k8s.io
+      kind: StorageClass
+      version: v1
+  io.k8s.api.storage.v1.StorageClassList:
+    type: object
+    required:
+    - items
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      items:
+        type: array
+        description: Items is the list of StorageClasses
+        items:
+          $ref: '#/definitions/io.k8s.api.storage.v1.StorageClass'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      metadata:
+        description: 'Standard list metadata More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta'
+    description: StorageClassList is a collection of storage classes.
+    x-kubernetes-group-version-kind:
+    - group: storage.k8s.io
+      kind: StorageClassList
+      version: v1
+  io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta:
+    type: object
+    properties:
+      continue:
+        type: string
+        description: continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message.
+      remainingItemCount:
+        type: integer
+        format: int64
+        description: remainingItemCount is the number of subsequent items in the list which are not included in this list response. If the list request contained label or field selectors, then the number of remaining items is unknown and the field will be left unset and omitted during serialization. If the list is complete (either because it is not chunking or because this is the last chunk), then there are no more remaining items and this field will be left unset and omitted during serialization. Servers older than v1.15 do not set this field. The intended use of the remainingItemCount is *estimating* the size of a collection. Clients should not rely on the remainingItemCount to be set or to be exact.
+      resourceVersion:
+        type: string
+        description: 'String that identifies the server''s internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+      selfLink:
+        type: string
+        description: |-
+          selfLink is a URL representing this object. Populated by the system. Read-only.
+
+          DEPRECATED Kubernetes will stop propagating this field in 1.20 release and the field is planned to be removed in 1.21 release.
+    description: ListMeta describes metadata that synthetic resources must have, including lists and various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
+  io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta:
+    type: object
+    properties:
+      annotations:
+        type: object
+        description: 'Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations'
+        additionalProperties:
+          type: string
+      clusterName:
+        type: string
+        description: The name of the cluster which the object belongs to. This is used to distinguish resources with same name and namespace in different clusters. This field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.
+      creationTimestamp:
+        description: |-
+          CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+
+          Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Time'
+      deletionGracePeriodSeconds:
+        type: integer
+        format: int64
+        description: Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
+      deletionTimestamp:
+        description: |-
+          DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+
+          Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Time'
+      finalizers:
+        type: array
+        description: Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
+        items:
+          type: string
+        x-kubernetes-patch-strategy: merge
+      generateName:
+        type: string
+        description: |-
+          GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+
+          If this field is specified and the generated name exists, the server will NOT return a 409 - instead, it will either return 201 Created or 500 with Reason ServerTimeout indicating a unique name could not be found in the time allotted, and the client should retry (optionally after the time indicated in the Retry-After header).
+
+          Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+      generation:
+        type: integer
+        format: int64
+        description: A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
+      labels:
+        type: object
+        description: 'Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels'
+        additionalProperties:
+          type: string
+      managedFields:
+        type: array
+        description: ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
+        items:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ManagedFieldsEntry'
+      name:
+        type: string
+        description: 'Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+      namespace:
+        type: string
+        description: |-
+          Namespace defines the space within each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+
+          Must be a DNS_LABEL. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/namespaces
+      ownerReferences:
+        type: array
+        description: List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
+        items:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.OwnerReference'
+        x-kubernetes-patch-strategy: merge
+        x-kubernetes-patch-merge-key: uid
+      resourceVersion:
+        type: string
+        description: |-
+          An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+
+          Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+      selfLink:
+        type: string
+        description: |-
+          SelfLink is a URL representing this object. Populated by the system. Read-only.
+
+          DEPRECATED Kubernetes will stop propagating this field in 1.20 release and the field is planned to be removed in 1.21 release.
+      uid:
+        type: string
+        description: |-
+          UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+
+          Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
+    description: ObjectMeta is metadata that all persisted resources must have, which includes all objects users must create.
+  io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      dryRun:
+        type: array
+        description: 'When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed'
+        items:
+          type: string
+      gracePeriodSeconds:
+        type: integer
+        format: int64
+        description: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      orphanDependents:
+        type: boolean
+        description: 'Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object''s finalizers list. Either this field or PropagationPolicy may be set, but not both.'
+      preconditions:
+        description: Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Preconditions'
+      propagationPolicy:
+        type: string
+        description: 'Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: ''Orphan'' - orphan the dependents; ''Background'' - allow the garbage collector to delete the dependents in the background; ''Foreground'' - a cascading policy that deletes all dependents in the foreground.'
+    description: DeleteOptions may be provided when deleting an API object.
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: DeleteOptions
+      version: v1
+    - group: admission.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: admission.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: admissionregistration.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: admissionregistration.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: apiextensions.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: apiextensions.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: apiregistration.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: apiregistration.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: apps
+      kind: DeleteOptions
+      version: v1
+    - group: apps
+      kind: DeleteOptions
+      version: v1beta1
+    - group: apps
+      kind: DeleteOptions
+      version: v1beta2
+    - group: auditregistration.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: authentication.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: authentication.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: authorization.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: authorization.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: autoscaling
+      kind: DeleteOptions
+      version: v1
+    - group: autoscaling
+      kind: DeleteOptions
+      version: v2beta1
+    - group: autoscaling
+      kind: DeleteOptions
+      version: v2beta2
+    - group: batch
+      kind: DeleteOptions
+      version: v1
+    - group: batch
+      kind: DeleteOptions
+      version: v1beta1
+    - group: batch
+      kind: DeleteOptions
+      version: v2alpha1
+    - group: certificates.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: coordination.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: coordination.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: discovery.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: discovery.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: events.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: extensions
+      kind: DeleteOptions
+      version: v1beta1
+    - group: flowcontrol.apiserver.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: imagepolicy.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: networking.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: networking.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: node.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: node.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: policy
+      kind: DeleteOptions
+      version: v1beta1
+    - group: rbac.authorization.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: rbac.authorization.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: rbac.authorization.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: scheduling.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: scheduling.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: scheduling.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+    - group: settings.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: storage.k8s.io
+      kind: DeleteOptions
+      version: v1
+    - group: storage.k8s.io
+      kind: DeleteOptions
+      version: v1alpha1
+    - group: storage.k8s.io
+      kind: DeleteOptions
+      version: v1beta1
+  io.k8s.apimachinery.pkg.apis.meta.v1.Status:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+      code:
+        type: integer
+        format: int32
+        description: Suggested HTTP return code for this status, 0 if not set.
+      details:
+        description: Extended data associated with the reason.  Each reason may define its own extended details. This field is optional and the data returned is not guaranteed to conform to any schema except that defined by the reason type.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.StatusDetails'
+      kind:
+        type: string
+        description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      message:
+        type: string
+        description: A human-readable description of the status of this operation.
+      metadata:
+        description: 'Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta'
+      reason:
+        type: string
+        description: A machine-readable description of why this operation is in the "Failure" status. If this value is empty there is no information available. A Reason clarifies an HTTP status code but does not override it.
+      status:
+        type: string
+        description: 'Status of the operation. One of: "Success" or "Failure". More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
+    description: Status is a return value for calls that don't return other objects.
+    x-kubernetes-group-version-kind:
+    - group: ""
+      kind: Status
+      version: v1
+  io.k8s.apimachinery.pkg.apis.meta.v1.StatusCause:
+    type: object
+    properties:
+      field:
+        type: string
+        description: |-
+          The field of the resource that has caused this error, as named by its JSON serialization. May include dot and postfix notation for nested attributes. Arrays are zero-indexed.  Fields may appear more than once in an array of causes due to fields having multiple errors. Optional.
+
+          Examples:
+            "name" - the field "name" on the current resource
+            "items[0].name" - the field "name" on the first array entry in "items"
+      message:
+        type: string
+        description: A human-readable description of the cause of the error.  This field may be presented as-is to a reader.
+      reason:
+        type: string
+        description: A machine-readable description of the cause of the error. If this value is empty there is no information available.
+    description: StatusCause provides more information about an api.Status failure, including cases when multiple errors are encountered.
+  io.k8s.apimachinery.pkg.apis.meta.v1.StatusDetails:
+    type: object
+    properties:
+      causes:
+        type: array
+        description: The Causes array includes more details associated with the StatusReason failure. Not all StatusReasons may provide detailed causes.
+        items:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.StatusCause'
+      group:
+        type: string
+        description: The group attribute of the resource associated with the status StatusReason.
+      kind:
+        type: string
+        description: 'The kind attribute of the resource associated with the status StatusReason. On some operations may differ from the requested resource Kind. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      name:
+        type: string
+        description: The name attribute of the resource associated with the status StatusReason (when there is a single name which can be described).
+      retryAfterSeconds:
+        type: integer
+        format: int32
+        description: If specified, the time in seconds before the operation should be retried. Some errors may indicate the client must take an alternate action - for those errors this field may indicate how long to wait before taking the alternate action.
+      uid:
+        type: string
+        description: 'UID of the resource. (when there is a single resource which can be described). More info: http://kubernetes.io/docs/user-guide/identifiers#uids'
+    description: StatusDetails is a set of additional properties that MAY be set by the server to provide additional information about a response. The Reason field of a Status object defines what attributes will be set. Clients must ignore fields that do not match the defined type of each attribute, and should assume that any attribute may be empty, invalid, or under defined.
+  io.k8s.apimachinery.pkg.apis.meta.v1.Patch:
+    type: object
+    description: Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
+  io.k8s.apimachinery.pkg.apis.meta.v1.Preconditions:
+    type: object
+    properties:
+      resourceVersion:
+        type: string
+        description: Specifies the target ResourceVersion
+      uid:
+        type: string
+        description: Specifies the target UID.
+    description: Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
+  io.k8s.api.core.v1.TypedLocalObjectReference:
+    type: object
+    required:
+    - kind
+    - name
+    properties:
+      apiGroup:
+        type: string
+        description: APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+      kind:
+        type: string
+        description: Kind is the type of resource being referenced
+      name:
+        type: string
+        description: Name is the name of resource being referenced
+    description: TypedLocalObjectReference contains enough information to let you locate the typed referenced object inside the same namespace.
+  io.k8s.api.core.v1.ResourceRequirements:
+    type: object
+    properties:
+      limits:
+        type: object
+        description: 'Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+        additionalProperties:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.api.resource.Quantity'
+      requests:
+        type: object
+        description: 'Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+        additionalProperties:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.api.resource.Quantity'
+    description: ResourceRequirements describes the compute resource requirements.
+  io.k8s.apimachinery.pkg.api.resource.Quantity:
+    type: string
+    description: |-
+      Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+
+      The serialization format is:
+
+      <quantity>        ::= <signedNumber><suffix>
+        (Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+      <digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+        (International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+      <decimalSI>       ::= m | "" | k | M | G | T | P | E
+        (Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+      <decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber>
+
+      No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+
+      When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+
+      Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+        a. No precision is lost
+        b. No fractional digits will be emitted
+        c. The exponent (or suffix) is as large as possible.
+      The sign will be omitted unless the number is negative.
+
+      Examples:
+        1.5 will be serialized as "1500m"
+        1.5Gi will be serialized as "1536Mi"
+
+      Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+
+      Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+
+      This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+  io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector:
+    type: object
+    properties:
+      matchExpressions:
+        type: array
+        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+        items:
+          $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelectorRequirement'
+      matchLabels:
+        type: object
+        description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+        additionalProperties:
+          type: string
+    description: A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+  io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelectorRequirement:
+    type: object
+    required:
+    - key
+    - operator
+    properties:
+      key:
+        type: string
+        description: key is the label key that the selector applies to.
+        x-kubernetes-patch-strategy: merge
+        x-kubernetes-patch-merge-key: key
+      operator:
+        type: string
+        description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+      values:
+        type: array
+        description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+        items:
+          type: string
+    description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+  io.k8s.apimachinery.pkg.apis.meta.v1.Time:
+    type: string
+    format: date-time
+    description: Time is a wrapper around time.Time which supports correct marshaling to YAML and JSON.  Wrappers are provided for many of the factory methods that the time package offers.
+  io.k8s.apimachinery.pkg.apis.meta.v1.OwnerReference:
+    type: object
+    required:
+    - apiVersion
+    - kind
+    - name
+    - uid
+    properties:
+      apiVersion:
+        type: string
+        description: API version of the referent.
+      blockOwnerDeletion:
+        type: boolean
+        description: If true, AND if the owner has the "foregroundDeletion" finalizer, then the owner cannot be deleted from the key-value store until this reference is removed. Defaults to false. To set this field, a user needs "delete" permission of the owner, otherwise 422 (Unprocessable Entity) will be returned.
+      controller:
+        type: boolean
+        description: If true, this reference points to the managing controller.
+      kind:
+        type: string
+        description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      name:
+        type: string
+        description: 'Name of the referent. More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+      uid:
+        type: string
+        description: 'UID of the referent. More info: http://kubernetes.io/docs/user-guide/identifiers#uids'
+    description: OwnerReference contains enough information to let you identify an owning object. An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.
+  io.k8s.apimachinery.pkg.apis.meta.v1.ManagedFieldsEntry:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
+      fieldsType:
+        type: string
+        description: 'FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"'
+      fieldsV1:
+        description: FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.FieldsV1'
+      manager:
+        type: string
+        description: Manager is an identifier of the workflow managing these fields.
+      operation:
+        type: string
+        description: Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
+      time:
+        description: Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
+        $ref: '#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Time'
+    description: ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.
+  io.k8s.apimachinery.pkg.apis.meta.v1.FieldsV1:
+    type: object
+    description: |-
+      FieldsV1 stores a set of fields in a data structure like a Trie, in JSON format.
+
+      Each key is either a '.' representing the field itself, and will always map to an empty set, or a string representing a sub-field or item. The string will follow one of these four formats: 'f:<name>', where <name> is the name of a field in a struct, or key in a map 'v:<value>', where <value> is the exact json formatted value of a list item 'i:<index>', where <index> is position of a item in a list 'k:<keys>', where <keys> is a map of  a list item's key fields to their unique values If a key maps to an empty Fields value, the field that key represents is part of the set.
+
+      The exact format is defined in sigs.k8s.io/structured-merge-diff
+  io.k8s.api.core.v1.ObjectReference:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+        description: API version of the referent.
+      fieldPath:
+        type: string
+        description: 'If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object.'
+      kind:
+        type: string
+        description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+      name:
+        type: string
+        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+      namespace:
+        type: string
+        description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+      resourceVersion:
+        type: string
+        description: 'Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+      uid:
+        type: string
+        description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+    description: ObjectReference contains enough information to let you inspect or modify the referred object.
+  io.k8s.api.core.v1.TopologySelectorTerm:
+    type: object
+    properties:
+      matchLabelExpressions:
+        type: array
+        description: A list of topology selector requirements by labels.
+        items:
+          $ref: '#/definitions/io.k8s.api.core.v1.TopologySelectorLabelRequirement'
+    description: A topology selector term represents the result of label queries. A null or empty topology selector term matches no objects. The requirements of them are ANDed. It provides a subset of functionality as NodeSelectorTerm. This is an alpha feature and may change in the future.
+  io.k8s.api.core.v1.TopologySelectorLabelRequirement:
+    type: object
+    required:
+    - key
+    - values
+    properties:
+      key:
+        type: string
+        description: The label key that the selector applies to.
+      values:
+        type: array
+        description: An array of string values. One value must match the label to be selected. Each entry in Values is ORed.
+        items:
+          type: string
+    description: A topology selector requirement is a selector that matches given label. This is an alpha feature and may change in the future.
+  io.k8s.api.core.v1.SecretReference:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Name is unique within a namespace to reference a secret resource.
+      namespace:
+        type: string
+        description: Namespace defines the space within which the secret name must be unique.
+    description: SecretReference represents a Secret Reference. It has enough information to retrieve secret in any namespace
+  io.k8s.api.core.v1.LocalObjectReference:
+    type: object
+    properties:
+      name:
+        type: string
+        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+    description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
