@@ -28,7 +28,7 @@ e2e_test_centos_3node_1_15_3_flannel:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=centos NODE_COUNT=2 KUBE_NETWORK=flannel KUBERNETES_VERSION=1.15.3
-e2e_test_ubuntu_3node_1_17_4:
-  extends: .e2e_on_cluster_template
-  before_script:
-    - export BOX_OS=ubuntu NODE_COUNT=2 KUBERNETES_VERSION=1.17.4
+#e2e_test_ubuntu_3node_1_17_4:
+#  extends: .e2e_on_cluster_template
+#  before_script:
+#    - export BOX_OS=ubuntu NODE_COUNT=2 KUBERNETES_VERSION=1.17.4
