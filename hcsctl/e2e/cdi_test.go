@@ -27,9 +27,9 @@ const (
 
 	DataVolumeSize = "5Gi" // TODO >=5Gi && =<sc 가용량 을 get 하여 설정하도록
 
-	TimeOutForCreatingDv  = 500 * time.Second
-	TimeoutForDeletingDv  = 300 * time.Second
-	TimeOutForCreatingPvc = 60 * time.Second
+	TimeOutForCreatingDv  = 500 * time.Second *2
+	TimeoutForDeletingDv  = 300 * time.Second *2
+	TimeOutForCreatingPvc = 60 * time.Second *2
 
 	StorageClassCephfs = "csi-cephfs-sc"
 

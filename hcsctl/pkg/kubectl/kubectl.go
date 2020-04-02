@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	cmdTIMEOUT = 15 * time.Minute
+	cmdTIMEOUT = 15 * time.Minute *2
 )
 
 // Run execute kubectl command

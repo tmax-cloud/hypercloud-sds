@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	applyTimeout  = 300 * time.Second
-	deleteTimeout = 300 * time.Second
+	applyTimeout  = 300 * time.Second *2
+	deleteTimeout = 300 * time.Second *2
 )
 
 // Apply run `kubectl apply -f *.yaml`
