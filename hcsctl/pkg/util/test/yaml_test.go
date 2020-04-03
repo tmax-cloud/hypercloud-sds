@@ -15,6 +15,7 @@ func TestGetCephClusterName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CephCluster Name: ", val)
 	}
@@ -24,6 +25,7 @@ func TestGetCephClusterMgr(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CephCluster spec.mgr.modules: ", val)
 	}
@@ -34,6 +36,7 @@ func TestGetCephClusterStorageConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CephCluster spec.storage.config: ", val)
 	}
@@ -44,6 +47,7 @@ func TestGetNotFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CephCluster NotFound: ", val)
 	}
@@ -54,6 +58,7 @@ func TestGetCephCRDName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CRD Name: ", val)
 	}
@@ -64,6 +69,7 @@ func TestGetCephCRDShort(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("CRD shortNames: ", val)
 	}
@@ -74,6 +80,7 @@ func TestGetCephRoleBinding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("RoleBinding Name: ", val)
 	}
@@ -84,6 +91,7 @@ func TestGetCephClusterRole(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("ClusterRole rules[1]: ", val)
 	}
@@ -94,6 +102,7 @@ func TestGetCephClusterRoleIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for _, val := range value {
 		t.Log("ClusterRole rules[1].verbs: ", val)
 	}

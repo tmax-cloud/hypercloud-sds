@@ -4,11 +4,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
+
 	glogcobra "github.com/blocktop/go-glog-cobra"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
 )
 
 var cfgFile string
@@ -46,10 +47,19 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
+// TODO: Should return error (ErrorHandling)
 func initConfig() {
-	glogcobra.Parse(rootCmd)
-	// TODO:
-	flag.Set("logtostderr", "true")
+	err := glogcobra.Parse(rootCmd)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	err = flag.Set("logtostderr", "true")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -79,6 +89,8 @@ func checkAndSetInventory(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("inventoryPath가 주어지지 않았습니다")
 	}
+
 	inventoryPath = args[0]
+
 	return nil
 }

@@ -5,8 +5,8 @@ import (
 	"hypercloud-storage/hcsctl/pkg/kubectl"
 	"os"
 	"path"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -25,11 +25,13 @@ func Apply(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = rookApply(inventoryPath, "operator.yaml")
 	if err != nil {
 		return err
 	}
-	err = waitRookOperator() 
+
+	err = waitRookOperator()
 	if err != nil {
 		return nil
 	}
@@ -38,6 +40,7 @@ func Apply(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = waitClusterApply()
 	if err != nil {
 		return err
@@ -47,10 +50,12 @@ func Apply(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = rookApply(inventoryPath, "cephfs-fs.yaml")
 	if err != nil {
 		return err
 	}
+
 	err = waitCephFSReady()
 	if err != nil {
 		return err
@@ -60,18 +65,20 @@ func Apply(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = rookApply(inventoryPath, "toolbox.yaml")
 	if err != nil {
 		return err
 	}
 
 	glog.Info("End Rook Apply")
+
 	return nil
 }
 
 func rookApply(inventoryPath, filename string) error {
-	path := path.Join(inventoryPath, "rook", filename)
-	return kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", path)
+	yamlPath := path.Join(inventoryPath, "rook", filename)
+	return kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", yamlPath)
 }
 
 func waitRookOperator() error {
@@ -102,18 +109,19 @@ func isOperatorCreated() (bool, error) {
 func isClusterCreated() (bool, error) {
 	var stdout bytes.Buffer
 
-	err := kubectl.Run(&stdout, os.Stderr, "get", "cephclusters.ceph.rook.io", "rook-ceph", "-n", "rook-ceph", "-o", "jsonpath={.status.ceph.health}")
+	err := kubectl.Run(&stdout, os.Stderr, "get", "cephclusters.ceph.rook.io",
+		"rook-ceph", "-n", "rook-ceph", "-o", "jsonpath={.status.ceph.health}")
 	if err != nil {
 		return false, err
 	}
 
 	if stdout.String() == "HEALTH_OK" {
 		osdDeployments := getDaemonDeployNames("ceph-osd")
-	
-		/// TODO: Count osd number in cluster.yaml
-		return isDaemonReadyAndAvailable(osdDeployments)	
-	} 
-	
+
+		// TODO: Count osd number in cluster.yaml
+		return isDaemonReadyAndAvailable(osdDeployments)
+	}
+
 	return false, nil
 }
 
@@ -121,18 +129,25 @@ func isMdsCreated() (bool, error) {
 	mdsDeployments := getDaemonDeployNames("ceph-mds")
 
 	// TODO: Count mds number in cephfs-fs.yaml
-	if len(mdsDeployments) >= 2 {
+	mdsCount := 2
+	if len(mdsDeployments) >= mdsCount {
 		return isDaemonReadyAndAvailable(mdsDeployments)
 	}
 
 	return false, nil
 }
 
+// TODO: Should has return error (ErrorHandling)
 func getDaemonDeployNames(name string) []string {
 	var stdout bytes.Buffer
-	kubectl.Run(&stdout, os.Stderr, "get", "deployments.apps", "-n", "rook-ceph", "-o", "custom-columns=name:.metadata.name", "--no-headers")
 
-	var targetDeployments [] string
+	err := kubectl.Run(&stdout, os.Stderr, "get", "deployments.apps", "-n", "rook-ceph",
+		"-o", "custom-columns=name:.metadata.name", "--no-headers")
+	if err != nil {
+		glog.Error(err)
+	}
+
+	var targetDeployments []string
 
 	for _, deployment := range strings.Split(stdout.String(), "\n") {
 		if strings.Contains(deployment, name) {
@@ -146,27 +161,37 @@ func getDaemonDeployNames(name string) []string {
 // Check daemon pods are all ready and available
 func isDaemonReadyAndAvailable(daemons []string) (bool, error) {
 	allComplete := true
+
 	for _, daemon := range daemons {
 		var replicaCount, readyReplicaCount, availReplicaCount bytes.Buffer
-		
-		err := kubectl.Run(&replicaCount, os.Stderr, "get", "deployments.apps", 
-							"-n", "rook-ceph", daemon,
-							"-o", "jsonpath='{.status.replicas}'")
-		if err != nil {	return false, err }
+
+		err := kubectl.Run(&replicaCount, os.Stderr, "get", "deployments.apps",
+			"-n", "rook-ceph", daemon,
+			"-o", "jsonpath='{.status.replicas}'")
+		if err != nil {
+			return false, err
+		}
+
 		err = kubectl.Run(&readyReplicaCount, os.Stderr, "get", "deployments.apps",
-							"-n", "rook-ceph", daemon,
-							"-o", "jsonpath='{.status.readyReplicas}'")
-		if err != nil {	return false, err }
+			"-n", "rook-ceph", daemon,
+			"-o", "jsonpath='{.status.readyReplicas}'")
+		if err != nil {
+			return false, err
+		}
+
 		err = kubectl.Run(&availReplicaCount, os.Stderr, "get", "deployments.apps",
-							"-n", "rook-ceph", daemon,
-							"-o", "jsonpath='{.status.availableReplicas}'")
-		if err != nil {	return false, err }
+			"-n", "rook-ceph", daemon,
+			"-o", "jsonpath='{.status.availableReplicas}'")
+		if err != nil {
+			return false, err
+		}
 
 		// If a replica is not ready or is not available, polling should keep going
-		if !(replicaCount.String() == readyReplicaCount.String() && replicaCount.String() == availReplicaCount.String()) {
+		if replicaCount.String() != readyReplicaCount.String() ||
+			replicaCount.String() != availReplicaCount.String() {
 			allComplete = false
 			break
-		} 
+		}
 	}
 
 	return allComplete, nil
@@ -180,22 +205,27 @@ func Delete(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = rookDelete(inventoryPath, "cephfs-sc.yaml")
 	if err != nil {
 		return err
 	}
+
 	err = rookDelete(inventoryPath, "cephfs-fs.yaml")
 	if err != nil {
 		return err
 	}
+
 	err = rookDelete(inventoryPath, "rbd-sc.yaml")
 	if err != nil {
 		return err
 	}
+
 	err = rookDelete(inventoryPath, "cluster.yaml")
 	if err != nil {
 		return err
 	}
+
 	err = waitClusterDelete()
 	if err != nil {
 		return err
@@ -205,29 +235,36 @@ func Delete(inventoryPath string) error {
 	if err != nil {
 		return err
 	}
+
 	err = rookDelete(inventoryPath, "common.yaml")
 	if err != nil {
 		return err
 	}
+
 	glog.Info("End Rook Delete")
+
 	return nil
 }
 
 func rookDelete(inventoryPath, filename string) error {
-	path := path.Join(inventoryPath, "rook", filename)
-	return kubectl.Run(os.Stdout, os.Stderr, "delete", "-f", path, "--ignore-not-found=true", "--wait=true")
+	yamlPath := path.Join(inventoryPath, "rook", filename)
+	return kubectl.Run(os.Stdout, os.Stderr, "delete", "-f", yamlPath,
+		"--ignore-not-found=true", "--wait=true")
 }
 
 func waitClusterDelete() error {
 	glog.Info("Wait for rook cluster delete")
-	return wait.PollImmediate(time.Second, applyTimeout, isDeleted)
+	return wait.PollImmediate(time.Second, deleteTimeout, isDeleted)
 }
 
 func isDeleted() (bool, error) {
 	var stdout bytes.Buffer
-	err := kubectl.Run(&stdout, os.Stderr, "get", "cephclusters.ceph.rook.io", "rook-ceph", "-n", "rook-ceph", "-o", "json", "--ignore-not-found=true")
+
+	err := kubectl.Run(&stdout, os.Stderr, "get", "cephclusters.ceph.rook.io",
+		"rook-ceph", "-n", "rook-ceph", "-o", "json", "--ignore-not-found=true")
 	if err != nil {
 		return false, err
 	}
-	return len(stdout.String()) == 0, nil
+
+	return stdout.String() == "", nil
 }

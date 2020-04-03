@@ -2,10 +2,11 @@ package rook
 
 import (
 	"bytes"
-	"github.com/golang/glog"
 	"hypercloud-storage/hcsctl/pkg/kubectl"
 	"os"
 	"strings"
+
+	"github.com/golang/glog"
 )
 
 var cmdStdOut bytes.Buffer
@@ -19,6 +20,7 @@ func Status() error {
 	if err != nil {
 		return err
 	}
+
 	glog.Infof("Ceph status is : \n%s\n", cmdStdOut.String())
 
 	return nil
@@ -33,6 +35,7 @@ func Exec(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	glog.Infof("Stdout of '%s' is : \n%s\n", strings.Join(args, " "), cmdStdOut.String())
 
 	return nil
@@ -47,6 +50,7 @@ func execInToolbox(cmd ...string) error {
 	if err != nil {
 		return err
 	}
+
 	glog.Info("rook-ceph-toolbox pod name is : " + toolboxPodName.String())
 
 	// Execute cmd in the toolbox container

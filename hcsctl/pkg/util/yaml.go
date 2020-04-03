@@ -72,6 +72,7 @@ func getYamlItemWithoutIndex(myYAML yaml.MapSlice, myKey string) (yaml.MapItem, 
 			return item, nil
 		}
 	}
+
 	return yaml.MapItem{Key: nil, Value: nil},
 		errors.New("NOT FOUND '" + myKey + "'")
 }
@@ -128,13 +129,14 @@ func getYamlItemWithArrayIndex(myYAML yaml.MapSlice, myKeyIndex string) (yaml.Ma
 
 // getYamlItem get yaml item match keyPath (ex: metadata.namespace)
 func getYamlItem(myYAML yaml.MapSlice, keyPath string) (yaml.MapItem, error) {
-	var item yaml.MapItem
+	var (
+		item yaml.MapItem
+		err  error
+	)
 
 	for _, key := range strings.Split(keyPath, ".") {
-		match, err := regexp.MatchString(`^(.*?)\[\d*?\]`, key)
-		if err != nil {
-			return yaml.MapItem{Key: nil, Value: nil}, err
-		}
+		req := regexp.MustCompile(`^(.*?)\[\d*?\]`)
+		match := req.MatchString(key)
 
 		if match {
 			item, err = getYamlItemWithArrayIndex(myYAML, key)
@@ -160,11 +162,13 @@ func GetValueFromYamlByte(yamlByte []byte, kind, keyPath string) ([]interface{},
 	}
 
 	var itemValues []interface{}
+
 	for _, oneYAML := range allYAMLs {
 		item, err := getYamlItem(oneYAML, keyPath)
 		if err != nil {
 			continue
 		}
+
 		itemValues = append(itemValues, item.Value)
 	}
 
