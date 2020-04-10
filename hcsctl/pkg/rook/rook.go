@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
@@ -257,8 +258,17 @@ func Delete(inventoryPath string) error {
 
 func rookDelete(inventoryPath, filename string) error {
 	yamlPath := path.Join(inventoryPath, "rook", filename)
-	return kubectl.Run(os.Stdout, os.Stderr, "delete", "-f", yamlPath,
-		"--ignore-not-found=true", "--wait=true")
+
+	var stderr bytes.Buffer
+	err := kubectl.Run(os.Stdout, &stderr, "delete", "-f", yamlPath, "--ignore-not-found=true", "--wait=true")
+
+	if !kubectl.CRDAlreadyExists(stderr.String()) {
+		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
+	} else if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func waitClusterDelete() error {
@@ -267,11 +277,13 @@ func waitClusterDelete() error {
 }
 
 func isDeleted() (bool, error) {
-	var stdout bytes.Buffer
-
-	err := kubectl.Run(&stdout, os.Stderr, "get", "cephclusters.ceph.rook.io",
+	var stdout, stderr bytes.Buffer
+	err := kubectl.Run(&stdout, &stderr, "get", "cephclusters.ceph.rook.io",
 		"rook-ceph", "-n", "rook-ceph", "-o", "json", "--ignore-not-found=true")
-	if err != nil {
+
+	if !kubectl.CRDAlreadyExists(stderr.String()) {
+		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
+	} else if err != nil {
 		return false, err
 	}
 

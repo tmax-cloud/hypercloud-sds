@@ -67,8 +67,12 @@ func Delete(inventoryPath string) error {
 
 	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
 
-	err := kubectl.Run(os.Stdout, os.Stderr, "delete", "-f", crPath, "--ignore-not-found=true")
-	if err != nil {
+	var stderr bytes.Buffer
+	err := kubectl.Run(os.Stdout, &stderr, "delete", "-f", crPath, "--ignore-not-found=true")
+
+	if !kubectl.CRDAlreadyExists(stderr.String()) {
+		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
+	} else if err != nil {
 		return err
 	}
 
@@ -92,10 +96,12 @@ func Delete(inventoryPath string) error {
 }
 
 func isDeleted() (bool, error) {
-	var stdout bytes.Buffer
+	var stdout, stderr bytes.Buffer
+	err := kubectl.Run(&stdout, &stderr, "get", "cdis.cdi.kubevirt.io", "cdi", "-o", "json", "--ignore-not-found=true")
 
-	err := kubectl.Run(&stdout, os.Stderr, "get", "cdis.cdi.kubevirt.io", "cdi", "-o", "json", "--ignore-not-found=true")
-	if err != nil {
+	if !kubectl.CRDAlreadyExists(stderr.String()) {
+		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
+	} else if err != nil {
 		return false, err
 	}
 

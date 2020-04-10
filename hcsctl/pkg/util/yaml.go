@@ -25,9 +25,14 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strconv"
+
 	"strings"
 
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	kindString = "kind"
 )
 
 // GetYamlByKindFromByte get all yaml documents from []byte (yaml file)
@@ -40,7 +45,7 @@ func GetYamlByKindFromByte(yamlByte []byte, myKind string) ([]yaml.MapSlice, err
 	for dec.Decode(&oneYamlDoc) == nil {
 		for _, item := range oneYamlDoc {
 			key, ok := item.Key.(string)
-			if !ok || key != "kind" {
+			if !ok || key != kindString {
 				continue
 			}
 
@@ -62,6 +67,69 @@ func GetYamlByKindFromByte(yamlByte []byte, myKind string) ([]yaml.MapSlice, err
 	}
 
 	return myYAMLs, nil
+}
+
+// GetYamlFromByte get all yaml documents from []byte (yaml file)
+func GetYamlFromByte(yamlByte []byte) ([]yaml.MapSlice, error) {
+	var myYAMLs []yaml.MapSlice
+
+	dec := yaml.NewDecoder(bytes.NewReader(yamlByte))
+
+	var oneYamlDoc yaml.MapSlice
+	for dec.Decode(&oneYamlDoc) == nil {
+		for _, item := range oneYamlDoc {
+			key, ok := item.Key.(string)
+			if !ok || key != kindString {
+				continue
+			}
+
+			_, ok = item.Value.(string)
+			if !ok {
+				return nil, errors.New("Cannot convert (value) '" +
+					fmt.Sprintf("%v", item.Value) + "' to string")
+			}
+
+			myYAMLs = append(myYAMLs, oneYamlDoc)
+		}
+	}
+
+	if len(myYAMLs) == 0 {
+		return nil, errors.New("NOT FOUND")
+	}
+
+	return myYAMLs, nil
+}
+
+// GetKindsFromYamlFile returns all value of "kind" key in yaml file
+func GetKindsFromYamlFile(yamlPath string) ([]string, error) {
+	yamlFile, err := ioutil.ReadFile(yamlPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	mapSlices, err := GetYamlFromByte(yamlFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var crds []string
+
+	for i := range mapSlices {
+		for _, mapItem := range mapSlices[i] {
+			if mapItem.Key == kindString {
+				crd, canConvert2String := mapItem.Value.(string)
+
+				if !canConvert2String {
+					return nil, err
+				}
+
+				crds = append(crds, crd)
+			}
+		}
+	}
+
+	return crds, nil
 }
 
 // getYamlItemWithoutIndex get yaml item match myKey
