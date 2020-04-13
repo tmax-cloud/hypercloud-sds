@@ -33,7 +33,7 @@ func Apply(inventoryPath string) error {
 
 	err = waitRookOperator()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	err = rookApply(inventoryPath, "cluster.yaml")
