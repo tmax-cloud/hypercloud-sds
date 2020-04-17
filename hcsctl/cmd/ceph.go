@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"github.com/golang/glog"
+
 	"hypercloud-storage/hcsctl/pkg/rook"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -18,6 +21,13 @@ var cephCmd = &cobra.Command{
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "ceph 의 현재 상태를 조회합니다.",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if isAvailable, err := rook.IsAvailableToolbox(); err != nil || !isAvailable {
+			glog.Error("There isn't any available rook-ceph-toolbox pod in current k8s cluster.")
+			glog.Error("Please check the rook-ceph-toolbox pod first.")
+			os.Exit(1)
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := rook.Status()
 		if err != nil {
@@ -30,6 +40,13 @@ var execCmd = &cobra.Command{
 	Use:   "exec",
 	Short: "arguments 로 주어지는 ceph 명령을 수행합니다.",
 	Args:  cobra.MinimumNArgs(1),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if isAvailable, err := rook.IsAvailableToolbox(); err != nil || !isAvailable {
+			glog.Error("There isn't any available rook-ceph-toolbox pod in current k8s cluster.")
+			glog.Error("Please check the rook-ceph-toolbox pod first.")
+			os.Exit(1)
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := rook.Exec(args)
 		if err != nil {
