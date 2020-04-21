@@ -37,53 +37,54 @@ hcsctl_build:
   tags:
     - prolinux
 
-prolinux_v1_15_3_calico:
-  extends: .e2e_on_cluster_template
-  before_script:
-    - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=calico
-  except:
-    - tags
-  tags:
-    - prolinux
-
-prolinux_v1_15_3_flannel:
-  extends: .e2e_on_cluster_template
-  before_script:
-    - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=flannel
-  except:
-    - tags
-  tags:
-    - prolinux
-
-prolinux_v1_16_8_calico:
-  extends: .e2e_on_cluster_template
-  before_script:
-    - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=calico
-  except:
-    - tags
-  tags:
-    - prolinux
-
-prolinux_v1_16_8_flannel:
-  extends: .e2e_on_cluster_template
-  before_script:
-    - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=flannel
-  except:
-    - tags
-  tags:
-    - prolinux
-
-prolinux_nodes_poweroff:
-  stage: cleanup
-  script:
-    - ./hack/prolinux_cluster.sh down
-  when: always
-  tags:
-    - prolinux
+#prolinux_v1_15_3_calico:
+#  extends: .e2e_on_cluster_template
+#  before_script:
+#    - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=calico
+#  except:
+#    - tags
+#  tags:
+#    - prolinux
+#
+#prolinux_v1_15_3_flannel:
+#  extends: .e2e_on_cluster_template
+#  before_script:
+#    - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=flannel
+#  except:
+#    - tags
+#  tags:
+#    - prolinux
+#
+#prolinux_v1_16_8_calico:
+#  extends: .e2e_on_cluster_template
+#  before_script:
+#    - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=calico
+#  except:
+#    - tags
+#  tags:
+#    - prolinux
+#
+#prolinux_v1_16_8_flannel:
+#  extends: .e2e_on_cluster_template
+#  before_script:
+#    - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=flannel
+#  except:
+#    - tags
+#  tags:
+#    - prolinux
+#
+#prolinux_nodes_poweroff:
+#  stage: cleanup
+#  script:
+#    - ./hack/prolinux_cluster.sh down
+#  when: always
+#  tags:
+#    - prolinux
 
 pre-release:
   stage: pre-release
   script:
+    - env
     - source RELEASE
     - git config user.email "${GITLAB_USER_EMAIL}"
     - git config user.name "${GITLAB_USER_NAME}"
@@ -93,6 +94,8 @@ pre-release:
   when: manual
   only:
     - master
+  tags:
+    - prolinux
 
 release:
   stage: release
@@ -102,3 +105,5 @@ release:
   when: manual
   only:
     - tags
+  tags:
+    - prolinux
