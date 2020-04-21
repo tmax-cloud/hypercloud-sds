@@ -5,6 +5,7 @@ stages:
   - build
   - e2e_test
   - cleanup
+  - release
 
 .e2e_on_cluster_template:
   stage: e2e_test
@@ -29,6 +30,7 @@ hcsctl_build:
   script:
     - make -C hcsctl
   artifacts:
+    expire_in: '1 day'
     paths:
     - hcsctl/build/
   tags:
@@ -67,5 +69,16 @@ prolinux_nodes_poweroff:
   script:
     - ./hack/prolinux_cluster.sh down
   when: always
+  tags:
+    - prolinux
+
+publish:
+  stage: release
+  image: inetprocess/gitlab-release
+  script:
+    - gitlab-release --message 'Automatic release' ./hcsctl/build/hcsctl
+  only:
+    - tags
+  when: manual
   tags:
     - prolinux
