@@ -31,10 +31,18 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+	glog.Info("Before operator:", time.Now())
+
 	err = waitRookOperator()
 	if err != nil {
 		return err
 	}
+
+	glog.Info("After operator:", time.Now())
+
+	// TODO
+	tmp := 10
+	time.Sleep(time.Duration(tmp) * time.Second)
 
 	err = rookApply(inventoryPath, "cluster.yaml")
 	if err != nil {

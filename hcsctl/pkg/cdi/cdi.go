@@ -27,6 +27,10 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+	// TODO: waiting util operator is ready (김현빈 연구원이 구현하고 있습니다.)
+	tmp := 10
+	time.Sleep(time.Duration(tmp) * time.Second)
+
 	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
 
 	err = kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", crPath)

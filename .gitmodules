@@ -1,3 +1,6 @@
 [submodule "hack/k8s-vagrant-multi-node"]
 	path = hack/k8s-vagrant-multi-node
 	url = https://github.com/galexrt/k8s-vagrant-multi-node.git
+[submodule "hack/kubespray"]
+	path = hack/kubespray
+	url = https://github.com/kubernetes-sigs/kubespray.git
