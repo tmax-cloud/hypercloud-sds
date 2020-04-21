@@ -87,9 +87,11 @@ pre-release:
     - env
     - source RELEASE
     - OAUTH_TOKEN_URL=${CI_PROJECT_URL//\/\//\/\/oauth2:${GITLAB_ACCESS_TOKEN}@}
+    - echo $OAUTH_TOKEN_URL
     - git config user.email "${GITLAB_USER_EMAIL}"
     - git config user.name "${GITLAB_USER_NAME}"
     - git remote set-url origin "${OAUTH_TOKEN_URL}"
+    - git remote show origin
     - git tag -a "${VERSION}" -m "${DESCRIPTION}"
     - git push origin "${VERSION}"
   when: manual
