@@ -87,9 +87,9 @@ pre-release:
     - source RELEASE
     - git config user.email "${GITLAB_USER_EMAIL}"
     - git config user.name "${GITLAB_USER_NAME}"
-    - git remote add api-origin https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.com/${CI_PROJECT_PATH}
+    - git remote set-url origin https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.com/${CI_PROJECT_PATH}
     - git tag -a "${VERSION}" -m "${DESCRIPTION}"
-    - git push api-origin "${VERSION}"
+    - git push origin "${VERSION}"
   when: manual
   only:
     - master
