@@ -5,6 +5,7 @@ stages:
   - build
   - e2e_test
   - cleanup
+  - pre-release
   - release
 
 .e2e_on_cluster_template:
@@ -40,6 +41,8 @@ prolinux_v1_15_3_calico:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=calico
+  except:
+    - tags
   tags:
     - prolinux
 
@@ -47,6 +50,8 @@ prolinux_v1_15_3_flannel:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=prolinux KUBE_VERSION=v1.15.3 KUBE_NETWORK=flannel
+  except:
+    - tags
   tags:
     - prolinux
 
@@ -54,6 +59,8 @@ prolinux_v1_16_8_calico:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=calico
+  except:
+    - tags
   tags:
     - prolinux
 
@@ -61,6 +68,8 @@ prolinux_v1_16_8_flannel:
   extends: .e2e_on_cluster_template
   before_script:
     - export BOX_OS=prolinux KUBE_VERSION=v1.16.8 KUBE_NETWORK=flannel
+  except:
+    - tags
   tags:
     - prolinux
 
@@ -72,13 +81,24 @@ prolinux_nodes_poweroff:
   tags:
     - prolinux
 
-publish:
-  stage: release
-  image: inetprocess/gitlab-release
+pre-release:
+  stage: pre-release
   script:
-    - gitlab-release --message 'Automatic release' ./hcsctl/build/hcsctl
+    - source RELEASE
+    - git config user.email "${GITLAB_USER_EMAIL}"
+    - git config user.name "${GITLAB_USER_NAME}"
+    - git remote add api-origin https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.com/${CI_PROJECT_PATH}
+    - git tag -a "${VERSION}" -m "${DESCRIPTION}"
+    - git push api-origin "${VERSION}"
+  when: manual
+  only:
+    - master
+
+release:
+  stage: release
+  script:
+    - source RELEASE
+    - gitlab-release --message "${DESCRIPTION}" ./hcsctl/build/hcsctl ./hcsctl/build/hcsctl.test
+  when: manual
   only:
     - tags
-  when: manual
-  tags:
-    - prolinux
