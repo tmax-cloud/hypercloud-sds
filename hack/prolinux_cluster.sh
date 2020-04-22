@@ -62,6 +62,9 @@ virtualbox_restore_snapshot(){
 
         if VBoxManage snapshot "$1" restore "$2"; then
             echo "[$VM] '$1' has been restored to: $2"
+        else
+            echo "[$VM] '$1' Unable to restore snapshot: $2"
+            exit 1
         fi
     else
         echo "[$VM] [ERROR] '$1' snapshot ($2) is not exist!"
