@@ -105,6 +105,7 @@ Internal error occurred: failed calling webhook "datavolume-mutate.cdi.kubevirt.
 > !limits.cpu
 > !importer pod
 > !v1.11
+> !pvcbound
 
 #### 상황
 
@@ -134,7 +135,7 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
 
 - 위의 테스트 결과 해당 이슈가 맞다면 해결하는 방법은 다음과 같습니다.
   - cdi version 을 v1.12.0 이상의 버전으로 업그레이드하면 모두 해결됩니다.
-  - cdi version 을 유지하고 싶은 경우에는 namespace 에 resourceQuota 에 대응되는 default resource 를 명시한 limitRange 객체를 생성해줍니다.
+  - cdi version 을 유지하고 싶은 경우에는 **datavolume 을 생성할 namespace** 에 resourceQuota 에 대응되는 default resource 를 명시한 limitRange 객체를 생성해줍니다.
     - [limitRange 생성 방법](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
 
 ----------
@@ -145,6 +146,7 @@ importer pod API create errored: pods importer-XXXXX is forbidden: failed quota:
 > !v1.11
 > !resourceQuota !resourcequota !quota
 > !exceeded !exceeded quota
+> !pvcbound
 
 #### 상황
 
@@ -254,3 +256,44 @@ import-controller.go:297] error processing pvc "hpcd-ccf03101/hpcd-d03451e2": sc
 - cdiconfig 에 적힌 storageclass 가 더이상 사용 중이 아닌 storageclass 라면 다른 storageclass 로 변경합니다.([cdiconfig 변경](./cdi.md))
 - dvName 으로 시작하는 pvc, pv 가 정상 생성되지 않는다면 storageclass 를 확인합니다.
 - pod 끼리 통신이 되지 않는다면 network 를 확인합니다.
+
+----------
+
+## Issue (6)
+> 원인 : 비정상 삭제, 재설치
+
+> !cdi-operator pod
+> !crd
+> !v1.11.0
+> !삭제 !uninstall !delete
+> !설치 !install !deploy
+
+#### 상황
+
+- **cdi 설치 단계에서 cdi-operator pod 을 제외한 다른 pod 이 아예 생성되지 않는 경우**:
+  - cdi-operator pod 의 log 를 확인했을 때, 다음과 같은 형태의 에러 메시지가 있는 경우
+
+```
+{"level":"error","ts":1587955224.906415,"logger":"kubebuilder.controller","msg":"Reconciler error","controller":"cdi-operator-controller","request":"/cdi","error":"*v1beta1.CustomResourceDefinition /datavolumes.cdi.kubevirt.io missing last applied config","stacktrace":"kubevirt.io/containerized-data-importer/vendor/github.com/go-logr/zapr.(*zapLogger).Error\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/github.com/go-logr/zapr/zapr.go:128\nkubevirt.io/containerized-data-importer/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).processNextWorkItem\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:217\nkubevirt.io/containerized-data-importer/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).Start.func1\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/sigs.k8s.io/controller-runtime/pkg/internal/controller/controller.go:158\nkubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait.JitterUntil.func1\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait/wait.go:133\nkubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait.JitterUntil\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait/wait.go:134\nkubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait.Until\n\t/go/src/kubevirt.io/containerized-data-importer/vendor/k8s.io/apimachinery/pkg/util/wait/wait.go:88"}
+
+=> 중요 로그 : "request":"/cdi","error":"*v1beta1.CustomResourceDefinition /datavolumes.cdi.kubevirt.io missing last applied config"
+```
+
+#### 테스트
+
+- log 에 적힌 crd 가 kubernetes cluster 에 존재하는지 확인
+  - 위의 로그의 예에서는 `datavolumes.cdi.kubevirt.io` 를 확인합니다.
+  - `kubectl get crd | grep datavolumes.cdi.kubevirt.io`
+    - ```
+      datavolumes.cdi.kubevirt.io              {$과거 날짜}
+      ```
+    - cdi 모듈 install 을 시도한 날짜가 아닌 {$과거 날짜} 가 조회된다면, 해당 k8s cluster 에 과거 cdi 모듈을 install 하였고, 삭제 과정에서 비정상적으로 삭제되었다는 것을 의미합니다.
+  - 존재하지 않는다면 **해당 이슈가 아닙니다.**
+
+
+#### 해결방법
+
+- 위의 테스트 결과 해당 이슈가 맞다면 해결하는 방법은 다음과 같습니다.
+  - `kubectl delete -f cdi-cr.yaml` 과 `kubectl delete -f cdi-operator.yaml` 을 통해 cdi 관련 resource 전체를 삭제합니다.
+  - 과거 delete 할 당시 미처 삭제되지 않은 cdi 관련 crd 를 `kubectl get crd` 를 통해 조회 후 삭제합니다.
+  - `kubectl apply` 를 통해 재설치하면 정상적으로 설치됩니다.
