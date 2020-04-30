@@ -252,3 +252,24 @@ func GetValueFromYamlFile(filename, kind, keyPath string) ([]interface{}, error)
 
 	return GetValueFromYamlByte(fileByte, kind, keyPath)
 }
+
+// GetSingleValueFromYaml get only one value from yaml file
+func GetSingleValueFromYaml(yamlPath, kind, key string) (string, error) {
+	value, err := GetValueFromYamlFile(yamlPath, kind, key)
+	if err != nil {
+		return "", err
+	}
+
+	if len(value) > 1 {
+		return "", errors.New("There are more than one " + kind + ": " +
+			fmt.Sprintf("%v", value))
+	}
+
+	valueStr, isConvertibleToStr := value[0].(string)
+	if !isConvertibleToStr {
+		return "", errors.New("Unable to convert value of " + key + " to string: " +
+			fmt.Sprintf("%v", value[0]))
+	}
+
+	return valueStr, nil
+}

@@ -3,6 +3,7 @@ package rook
 import (
 	"bytes"
 	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-storage/hcsctl/pkg/util"
 	"os"
 	"path"
 	"strings"
@@ -33,18 +34,18 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-	glog.Info("Before operator:", time.Now())
-
 	err = waitRookOperator()
 	if err != nil {
 		return err
 	}
 
-	glog.Info("After operator:", time.Now())
+	glog.Info("Wait for cephclusters CRD to be available...")
 
-	// TODO
-	tmp := 10
-	time.Sleep(time.Duration(tmp) * time.Second)
+	err = wait.PollImmediate(time.Second, applyTimeout,
+		util.IsCrdAvailable("cephclusters.ceph.rook.io"))
+	if err != nil {
+		return err
+	}
 
 	err = rookApply(inventoryPath, "cluster.yaml")
 	if err != nil {

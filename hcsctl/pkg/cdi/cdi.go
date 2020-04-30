@@ -3,6 +3,7 @@ package cdi
 import (
 	"bytes"
 	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-storage/hcsctl/pkg/util"
 	"os"
 	"path"
 	"time"
@@ -21,26 +22,65 @@ func Apply(inventoryPath string) error {
 	glog.Info("Start CDI Apply")
 
 	operatorPath := path.Join(inventoryPath, "cdi", "operator.yaml")
+	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
 
-	err := kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", operatorPath)
+	cdiNamespace, err := util.GetSingleValueFromYaml(operatorPath,
+		"Namespace", "metadata.name")
 	if err != nil {
 		return err
 	}
 
-	// TODO: waiting util operator is ready (김현빈 연구원이 구현하고 있습니다.)
-	tmp := 10
-	time.Sleep(time.Duration(tmp) * time.Second)
+	cdiOperatorDeploymentName, err := util.GetSingleValueFromYaml(operatorPath,
+		"Deployment", "metadata.name")
+	if err != nil {
+		return err
+	}
 
-	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
+	crdName, err := util.GetSingleValueFromYaml(operatorPath,
+		"CustomResourceDefinition", "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	cdiKindName, err := util.GetSingleValueFromYaml(operatorPath,
+		"CustomResourceDefinition", "spec.names.kind")
+	if err != nil {
+		return err
+	}
+
+	cdiName, err := util.GetSingleValueFromYaml(crPath, cdiKindName, "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	err = kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", operatorPath)
+	if err != nil {
+		return err
+	}
+
+	glog.Info("Wait for CDI operator to be created...")
+
+	err = wait.PollImmediate(time.Second, applyTimeout,
+		util.IsDeploymentCreated(cdiNamespace, cdiOperatorDeploymentName))
+	if err != nil {
+		return err
+	}
+
+	glog.Info("Wait for CDI CRD to be available...")
+
+	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrdAvailable(crdName))
+	if err != nil {
+		return err
+	}
 
 	err = kubectl.Run(os.Stdout, os.Stderr, "apply", "-f", crPath)
 	if err != nil {
 		return err
 	}
 
-	glog.Info("Wait for cdi deploy state")
+	glog.Info("Wait for CDI to be deployed...")
 
-	err = wait.PollImmediate(time.Second, applyTimeout, isDeployed)
+	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrDeployed(crdName, cdiName))
 	if err != nil {
 		return err
 	}
@@ -50,25 +90,16 @@ func Apply(inventoryPath string) error {
 	return nil
 }
 
-func isDeployed() (bool, error) {
-	var stdout bytes.Buffer
-
-	err := kubectl.Run(&stdout, os.Stderr, "get", "cdis.cdi.kubevirt.io", "cdi", "-o", "jsonpath={.status.phase}")
-	if err != nil {
-		return false, err
-	}
-
-	return stdout.String() == "Deployed", nil
-}
-
 // Delete run `kubectl delete -f *.yaml`
 func Delete(inventoryPath string) error {
 	glog.Info("Start CDI Delete")
 
 	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
+	operatorPath := path.Join(inventoryPath, "cdi", "operator.yaml")
 
 	var stderr bytes.Buffer
-	err := kubectl.Run(os.Stdout, &stderr, "delete", "-f", crPath, "--ignore-not-found=true")
+	err := kubectl.Run(os.Stdout, &stderr, "delete", "-f", crPath,
+		"--ignore-not-found=true")
 
 	if !kubectl.CRDAlreadyExists(stderr.String()) {
 		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
@@ -78,14 +109,32 @@ func Delete(inventoryPath string) error {
 
 	glog.Info("Wait for cdi cr deleting")
 
-	err = wait.PollImmediate(time.Second, deleteTimeout, isDeleted)
+	crdName, err := util.GetSingleValueFromYaml(operatorPath,
+		"CustomResourceDefinition", "metadata.name")
 	if err != nil {
 		return err
 	}
 
-	operatorPath := path.Join(inventoryPath, "cdi", "operator.yaml")
+	cdiKindName, err := util.GetSingleValueFromYaml(operatorPath,
+		"CustomResourceDefinition", "spec.names.kind")
+	if err != nil {
+		return err
+	}
 
-	err = kubectl.Run(os.Stdout, os.Stderr, "delete", "-f", operatorPath, "--ignore-not-found=true")
+	cdiName, err := util.GetSingleValueFromYaml(crPath,
+		cdiKindName, "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	err = wait.PollImmediate(time.Second, deleteTimeout,
+		util.IsCrDeleted(crdName, cdiName))
+	if err != nil {
+		return err
+	}
+
+	err = kubectl.Run(os.Stdout, os.Stderr, "delete", "-f",
+		operatorPath, "--ignore-not-found=true")
 	if err != nil {
 		return err
 	}
@@ -93,17 +142,4 @@ func Delete(inventoryPath string) error {
 	glog.Info("End CDI Delete")
 
 	return nil
-}
-
-func isDeleted() (bool, error) {
-	var stdout, stderr bytes.Buffer
-	err := kubectl.Run(&stdout, &stderr, "get", "cdis.cdi.kubevirt.io", "cdi", "-o", "json", "--ignore-not-found=true")
-
-	if !kubectl.CRDAlreadyExists(stderr.String()) {
-		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
-	} else if err != nil {
-		return false, err
-	}
-
-	return stdout.String() == "", nil
 }
