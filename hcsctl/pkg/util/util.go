@@ -5,6 +5,15 @@ import (
 	"hypercloud-storage/hcsctl/pkg/kubectl"
 )
 
+const (
+	// Namespace in string
+	Namespace = "Namespace"
+	// Deployment in string
+	Deployment = "Deployment"
+	// CustomResourceDefinition in string
+	CustomResourceDefinition = "CustomResourceDefinition"
+)
+
 // IsCrdAvailable check if given CRD name is available
 func IsCrdAvailable(crdKind string) func() (bool, error) {
 	return func() (bool, error) {

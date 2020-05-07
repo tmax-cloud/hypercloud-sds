@@ -1,3 +1,4 @@
 *.swp
 ./e2e/cluster-config
 hcsctl/build
+hcsctl/pkged.go

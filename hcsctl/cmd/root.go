@@ -5,11 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"hypercloud-storage/hcsctl/pkg/kubectl"
-	"os"
 	"path/filepath"
 
+	"hypercloud-storage/hcsctl/pkg/cdi"
+	"hypercloud-storage/hcsctl/pkg/rook"
+	"os"
+	"path"
+	"strings"
+
 	glogcobra "github.com/blocktop/go-glog-cobra"
+
+	"github.com/coreos/etcd/pkg/fileutil"
 	"github.com/spf13/cobra"
+
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 var kubeConfig string
@@ -68,6 +77,43 @@ func checkAndSetInventory(cmd *cobra.Command, args []string) error {
 	}
 
 	inventoryPath = args[0]
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	cdiYamlFiles, err := fileutil.ReadDir(path.Join(wd, inventoryPath, "cdi"))
+
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
+				"hcsctl create-inventory 명령을 참고하세요", "cdi")
+		}
+
+		return err
+	}
+
+	if !cdi.CdiYamlSet.Equal(sets.NewString(cdiYamlFiles...)) {
+		return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
+			"hcsctl create-inventory 명령을 참고하세요", "cdi")
+	}
+
+	rookYamlFiles, err := fileutil.ReadDir(path.Join(wd, inventoryPath, "rook"))
+
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
+				"hcsctl create-inventory 명령을 참고하세요", "rook")
+		}
+
+		return err
+	}
+
+	if !rook.RookYamlSet.Equal(sets.NewString(rookYamlFiles...)) {
+		return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
+			"hcsctl create-inventory 명령을 참고하세요", "rook")
+	}
 
 	return nil
 }

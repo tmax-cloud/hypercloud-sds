@@ -9,46 +9,40 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+
 	"k8s.io/apimachinery/pkg/util/wait"
+
+	"k8s.io/apimachinery/pkg/util/sets"
+)
+
+const (
+	applyTimeout  = 10 * time.Minute
+	deleteTimeout = 10 * time.Minute
 )
 
 var (
-	applyTimeout  = 300 * time.Second * 2
-	deleteTimeout = 300 * time.Second * 2
+	// OperatorYaml represents operator.yaml
+	OperatorYaml string = "operator.yaml"
+	// CrYaml represents cr.yaml
+	CrYaml string = "cr.yaml"
+	// CdiYamlSet represents required yamls of cdi
+	CdiYamlSet = sets.NewString(OperatorYaml, CrYaml)
 )
 
-// Apply run `kubectl apply -f *.yaml`
+var (
+	cdiNamespaceName, cdiOperatorDeploymentName, cdiCrdName, cdiKindName, cdiCrName string
+
+	operatorPath string
+	crPath       string
+)
+
+// Apply executes `kubectl apply -f *.yaml`
 func Apply(inventoryPath string) error {
-	glog.Info("Start CDI Apply")
+	glog.Info("[STEP 0 / 5] Start Applying CDI")
 
-	operatorPath := path.Join(inventoryPath, "cdi", "operator.yaml")
-	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
+	glog.Info("[STEP 1 / 5] Fetch CDI variables from inventory")
 
-	cdiNamespace, err := util.GetSingleValueFromYaml(operatorPath,
-		"Namespace", "metadata.name")
-	if err != nil {
-		return err
-	}
-
-	cdiOperatorDeploymentName, err := util.GetSingleValueFromYaml(operatorPath,
-		"Deployment", "metadata.name")
-	if err != nil {
-		return err
-	}
-
-	crdName, err := util.GetSingleValueFromYaml(operatorPath,
-		"CustomResourceDefinition", "metadata.name")
-	if err != nil {
-		return err
-	}
-
-	cdiKindName, err := util.GetSingleValueFromYaml(operatorPath,
-		"CustomResourceDefinition", "spec.names.kind")
-	if err != nil {
-		return err
-	}
-
-	cdiName, err := util.GetSingleValueFromYaml(crPath, cdiKindName, "metadata.name")
+	err := setCdiValuesFrom(inventoryPath)
 	if err != nil {
 		return err
 	}
@@ -58,17 +52,17 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-	glog.Info("Wait for CDI operator to be created...")
+	glog.Infof("[STEP 2 / 5] Wait up to %s for CDI operator to be created...", applyTimeout.String())
 
 	err = wait.PollImmediate(time.Second, applyTimeout,
-		util.IsDeploymentCreated(cdiNamespace, cdiOperatorDeploymentName))
+		util.IsDeploymentCreated(cdiNamespaceName, cdiOperatorDeploymentName))
 	if err != nil {
 		return err
 	}
 
-	glog.Info("Wait for CDI CRD to be available...")
+	glog.Infof("[STEP 3 / 5] Wait up to %s for CDI CRD to be available...", applyTimeout.String())
 
-	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrdAvailable(crdName))
+	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrdAvailable(cdiCrdName))
 	if err != nil {
 		return err
 	}
@@ -78,60 +72,47 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-	glog.Info("Wait for CDI to be deployed...")
+	glog.Infof("[STEP 4 / 5] Wait up to %s for CDI CR to be deployed...", applyTimeout.String())
 
-	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrDeployed(crdName, cdiName))
+	err = wait.PollImmediate(time.Second, applyTimeout, util.IsCrDeployed(cdiCrdName, cdiCrName))
 	if err != nil {
 		return err
 	}
 
-	glog.Info("End CDI Apply")
+	glog.Info("[STEP 5 / 5] End Applying CDI")
 
 	return nil
 }
 
-// Delete run `kubectl delete -f *.yaml`
+// Delete executes `kubectl delete -f *.yaml`
 func Delete(inventoryPath string) error {
-	glog.Info("Start CDI Delete")
+	glog.Info("[STEP 0 / 4] Start Deleting CDI")
 
-	crPath := path.Join(inventoryPath, "cdi", "cr.yaml")
-	operatorPath := path.Join(inventoryPath, "cdi", "operator.yaml")
+	glog.Info("[STEP 1 / 4] Fetch CDI variables from inventory")
+
+	err := setCdiValuesFrom(inventoryPath)
+	if err != nil {
+		return err
+	}
 
 	var stderr bytes.Buffer
-	err := kubectl.Run(os.Stdout, &stderr, "delete", "-f", crPath,
+
+	err = kubectl.Run(os.Stdout, &stderr, "delete", "-f", crPath,
 		"--ignore-not-found=true")
 
-	if !kubectl.CRDAlreadyExists(stderr.String()) {
-		glog.Infof("There isn't any remained custom resource already. Don't need to delete.")
-	} else if err != nil {
+	if err != nil && kubectl.CRDAlreadyExists(stderr.String()) {
 		return err
 	}
 
-	glog.Info("Wait for cdi cr deleting")
-
-	crdName, err := util.GetSingleValueFromYaml(operatorPath,
-		"CustomResourceDefinition", "metadata.name")
-	if err != nil {
-		return err
-	}
-
-	cdiKindName, err := util.GetSingleValueFromYaml(operatorPath,
-		"CustomResourceDefinition", "spec.names.kind")
-	if err != nil {
-		return err
-	}
-
-	cdiName, err := util.GetSingleValueFromYaml(crPath,
-		cdiKindName, "metadata.name")
-	if err != nil {
-		return err
-	}
+	glog.Infof("[STEP 2 / 4] Wait up to %s for CDI CR to be deleted...", deleteTimeout.String())
 
 	err = wait.PollImmediate(time.Second, deleteTimeout,
-		util.IsCrDeleted(crdName, cdiName))
+		util.IsCrDeleted(cdiCrdName, cdiCrName))
 	if err != nil {
 		return err
 	}
+
+	glog.Infof("[STEP 3 / 4] Wait up to %s for CDI operator to be deleted...", deleteTimeout.String())
 
 	err = kubectl.Run(os.Stdout, os.Stderr, "delete", "-f",
 		operatorPath, "--ignore-not-found=true")
@@ -139,7 +120,46 @@ func Delete(inventoryPath string) error {
 		return err
 	}
 
-	glog.Info("End CDI Delete")
+	glog.Info("[STEP 4 / 4] End Deleting CDI")
+
+	return nil
+}
+
+func setCdiValuesFrom(inventoryPath string) error {
+	operatorPath = path.Join(inventoryPath, "cdi", OperatorYaml)
+	crPath = path.Join(inventoryPath, "cdi", CrYaml)
+
+	var err error
+
+	cdiNamespaceName, err = util.GetUniqueStringValueFromYamlFile(operatorPath,
+		util.Namespace, "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	cdiOperatorDeploymentName, err = util.GetUniqueStringValueFromYamlFile(operatorPath,
+		util.Deployment, "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	cdiCrdName, err = util.GetUniqueStringValueFromYamlFile(operatorPath,
+		util.CustomResourceDefinition, "metadata.name")
+	if err != nil {
+		return err
+	}
+
+	cdiKindName, err = util.GetUniqueStringValueFromYamlFile(operatorPath,
+		util.CustomResourceDefinition, "spec.names.kind")
+	if err != nil {
+		return err
+	}
+
+	cdiCrName, err = util.GetUniqueStringValueFromYamlFile(crPath,
+		cdiKindName, "metadata.name")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

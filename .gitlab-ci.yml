@@ -17,6 +17,7 @@ stages:
     - ./hcsctl/build/hcsctl ceph exec ceph osd status
     - ./hcsctl/build/hcsctl.test
     - ./hcsctl/build/hcsctl uninstall myInventory
+    - ./hcsctl/build/hcsctl uninstall myInventory # idempotent
 
 golangci_lint_check:
   stage: lint_check
