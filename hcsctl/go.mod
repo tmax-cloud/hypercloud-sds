@@ -11,12 +11,9 @@ require (
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect
 	github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b // indirect
 	github.com/markbates/pkger v0.15.0
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v0.0.6
-	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.5.1 // indirect
-	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 	gopkg.in/yaml.v2 v2.2.8
-	k8s.io/apimachinery v0.18.0
+	k8s.io/apimachinery v0.18.2
 )

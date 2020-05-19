@@ -4,15 +4,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"hypercloud-storage/hcsctl/pkg/kubectl"
 	"os"
+	"path/filepath"
 
 	glogcobra "github.com/blocktop/go-glog-cobra"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var kubeConfig string
 var inventoryPath string
 
 var rootCmd = &cobra.Command{
@@ -33,15 +33,15 @@ func init() {
 	flag.Parse()
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hcsctl.yaml)")
+	rootCmd.PersistentFlags().StringVar(&kubeConfig, "kubeconfig", filepath.Join(home, ".kube", "config"),
+		"(optional) the location of kubeConfig file, default is $HOME/.kube/config")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	kubectl.KubeConfig = &kubeConfig
 
 	glogcobra.Init(rootCmd)
 }
@@ -59,29 +59,6 @@ func initConfig() {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name ".hcsctl" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".hcsctl")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
 
