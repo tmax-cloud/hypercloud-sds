@@ -1,51 +1,81 @@
 # hcsctl: hypercloud storage ctl
-hcsctl은 hypercloud storage의 설치, 제거 및 관리를 제공합니다.
+hcsctl은 hypercloud storage의 설치, 제거 및 관리 기능을 제공합니다.
 
-# Install
 ## Prerequisite
-- kubectl (> 1.15.0)
-- Existing Kubernetes Cluster
+- kubectl (>= 1.15)
+- Kubernetes Cluster
 
-## 설치
-TODO: hcsctl 바이너리 업로드해두고 다운로드 링크 여기에 걸기
+## 바이너리 다운로드
+- release 버전의 hcsctl 바이너리는 다음 경로에서 다운받을 수 있습니다.
+    - [hypercloud-storage-release](http://192.168.1.150:10080/ck3-4/hypercloud-storage/releases)
+- master branch 버전의 hcsctl 바이너리를 사용하고 싶으면 다음 가이드를 수행하여 로컬에서 빌드할 수 있습니다.
 
-- 바이너리 생성 가이드
-  - prerequisite
-    - go 관련 환경 설정
-      - `export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin` 
-      - `export GO111MODULE=auto`
-    - go 관련 바이너리 다운로드
-      - `go get -u github.com/onsi/ginkgo/ginkgo`
-      - `go get github.com/markbates/pkger/cmd/pkger`
-    - 패키지 설치
-      - gcc
-      - make
-  - `cd hypercloud-storage/hcsctl`
-  - `make build`
-  - 이제 hypercloud-storage/hcsctl/build 디렉토리에 생성된 `hcsctl` 과 `hcsctl.test` 바이너리를 사용하실 수 있습니다.
+### 바이너리 생성 가이드
 
-## 지원 기능 목록
-- 자세한 사항은 `hcsctl help` 를 참고하세요.
-- create-inventory
-  - ex) hcsctl create-inventory myInventory
-  - `hcsctl install` 을 위한 정해진 형식의 yaml 파일을 담은 디렉토리 `./myInventory` 를 생성합니다.
-  - `./myInventory/rook/*.yaml` 은 rook-ceph 설치에 사용되는 yaml 파일이며 `./myInventory/cdi/*.yaml` 은 cdi 설치에 사용되는 yaml 파일입니다.
-  - 생성된 모든 yaml 파일들은 sample 제공용 파일이므로, 파일명을 제외한 파일 내용은 사용자가 원하는대로 수정 후 사용하시면 됩니다.  
-- install
-  - ex) hcsctl install myInventory
-- uninstall
-  - ex) hcsctl uninstall myInventory
-- ceph {status/exec}
-  - ex) hcsctl ceph status
-  - ex) hcsctl ceph exec ceph osd status
-  - ex) hcsctl ceph exec ceph df
-  
-# Quick Start
-TODO: 자세하게 작성
+``` shell
+# gcc, make, git 패키지가 필요합니다.
 
-```shell
-hcsctl install my_inventory
-hcsctl uninstall my_inventory
-# e2e 테스트
-hcsctl.test
+# hypercloud-storage 프로젝트 clone
+$ git clone http://192.168.1.150:10080/ck3-4/hypercloud-storage.git
+
+# go 환경 설정
+$ export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+$ export GO111MODULE=auto
+
+# go 관련 바이너리 다운로드
+$ go get -u github.com/onsi/ginkgo/ginkgo
+$ go get github.com/markbates/pkger/cmd/pkger
+
+# 빌드 방법
+$ cd hypercloud-storage/hcsctl
+$ make build
+
+# 이제 hypercloud-storage/hcsctl/build 디렉토리에 hcsctl과 hcsctl.test 바이너리가 생성된 것을 확인하실 수 있습니다.
 ```
+
+## 시작하기
+- hcsctl 로 hypercloud-storage 설치에 앞서 설치에 필요한 yaml 파일을 생성하고 환경에 맞게 변경합니다.
+
+   ``` shell
+   $ hcsctl create-inventory {$inventory_name}
+   # 예) hcsctl create-inventory myInventory
+   ```
+
+    - `./myInventory/rook/*.yaml` 에는 rook-ceph 설치에 사용되는 yaml 파일이, `./myInventory/cdi/*.yaml` 에는 cdi 설치에 사용되는 yaml 파일이 생성됩니다.
+    - 생성된 모든 yaml 파일들은 sample 제공용 파일이므로, 폴더명, 파일명을 제외한 각 yaml 파일 내용은 **사용자의 환경에 맞게 수정** 후 사용하시면 됩니다.
+        - 수정 시 [docs](./../docs) 를 참고하시기 바랍니다.
+- hcsctl 로 inventory 설정에 맞게 hypercloud-storage 를 설치합니다.
+   ``` shell
+   $ hcsctl install {$inventory_name}
+   # 예) hcsctl install myInventory
+   ```
+
+    - 정상 설치가 완료되면 hypercloud-storage 를 사용하실 수 있습니다.
+- hcsctl.test 로 hypercloud-storage 가 정상 설치되었는지 검증합니다.
+    - `hcsctlctl.test`
+    - hypercloud-storage 정상 사용 가능 여부 확인을 위해, 여러 시나리오 테스트를 수행하게 됩니다.
+ 
+### Uninstall
+- hcsctl 로 설치시 사용한 inventory 를 참고하여 hypercloud-storage 를 제거합니다.
+   ``` shell
+   $ hcsctl uninstall {$inventory_name}
+   # 예) hcsctl uninstall myInventory
+   ```
+
+    - 제거 완료 후 출력되는 메시지를 확인하여 추가 작업이 필요한 경우 추가 작업을 완료해야 할 수 있습니다. 
+
+## Additional features
+> 기본 설치, 제거 외에 효율적인 사용을 위해 여러 추가 기능 또한 제공하고 있습니다.
+
+hcsctl 로 ceph 명령어를 수행할 수 있습니다.
+
+``` shell
+$ hcsctl ceph status
+$ hcsctl ceph exec {$ceph_cmd}
+
+# 상태 점검을 위해서 자주 사용되는 명령어는 아래와 같습니다.
+$ hcsctl ceph status
+$ hcsctl ceph exec ceph osd status
+$ hcsctl ceph exec ceph df
+```
+
