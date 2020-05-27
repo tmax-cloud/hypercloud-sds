@@ -31,16 +31,18 @@ var (
 	OperatorYaml string = "operator.yaml"
 	// ClusterYaml represents cluster.yaml
 	ClusterYaml string = "cluster.yaml"
-	// RbdStorageClassYaml represents rbd-sc.yaml
-	RbdStorageClassYaml string = "rbd-sc.yaml"
-	// CephfsFilesystemYaml represents cephfs-fs.yaml
-	CephfsFilesystemYaml string = "cephfs-fs.yaml"
-	// CephfsStorageClassYaml represents cephfs-sc.yaml
-	CephfsStorageClassYaml string = "cephfs-sc.yaml"
+	// RbdPoolYaml represents block_pool.yaml
+	RbdPoolYaml string = "block_pool.yaml"
+	// RbdStorageClassYaml represents block_sc.yaml
+	RbdStorageClassYaml string = "block_sc.yaml"
+	// CephfsFilesystemYaml represents file_system.yaml
+	CephfsFilesystemYaml string = "file_system.yaml"
+	// CephfsStorageClassYaml represents file_sc.yaml
+	CephfsStorageClassYaml string = "file_sc.yaml"
 	// ToolboxYaml represents toolbox.yaml
 	ToolboxYaml string = "toolbox.yaml"
 	// RookYamlSet represents required yamls of rook
-	RookYamlSet = sets.NewString(CommonYaml, OperatorYaml, ClusterYaml, RbdStorageClassYaml,
+	RookYamlSet = sets.NewString(CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml,
 		CephfsFilesystemYaml, CephfsStorageClassYaml, ToolboxYaml)
 )
 
@@ -96,6 +98,11 @@ func Apply(inventoryPath string) error {
 	glog.Infof("[STEP 4 / 6] Wait up to %s for CephCluster applied...", applyTimeout.String())
 
 	err = waitClusterApply()
+	if err != nil {
+		return err
+	}
+
+	err = rookApply(inventoryPath, RbdPoolYaml)
 	if err != nil {
 		return err
 	}
@@ -310,6 +317,11 @@ func Delete(inventoryPath string) error {
 	}
 
 	err = rookDelete(inventoryPath, RbdStorageClassYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookDelete(inventoryPath, RbdPoolYaml)
 	if err != nil {
 		return err
 	}
