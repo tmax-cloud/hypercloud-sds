@@ -1,8 +1,7 @@
-## CephFS(file storage) 사용 가이드
+# CephFS(file storage) 사용 가이드
 
-### CephFS setting 방법
+## CephFS yaml 수정 방법
 ```yaml
-#cephfs-fs.yaml
 apiVersion: ceph.rook.io/v1
 kind: CephFilesystem
 metadata:
@@ -10,19 +9,69 @@ metadata:
   namespace: rook-ceph
 spec:
   metadataPool:
-  # failureDomain - values are possible for 'osd' and 'host'
-    failureDomain: host  # ceph-osd must exist equal or more than replicated size
+    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+    failureDomain: host
     replicated:
+      # set the replica size
       size: 3
+      # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+      requireSafeReplicaSize: true
   dataPools:
-  # failureDomain - values are possible for 'osd' and 'host'
-    - failureDomain: host  # ceph-osd must exist equal or more than replicated size
+    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+    - failureDomain: host
       replicated:
+        # set the replica size
         size: 3
+        # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+        requireSafeReplicaSize: true
+        # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+        #targetSizeRatio: .5
+      compressionMode: none
+  preservePoolsOnDelete: true
   metadataServer:
+    # The number of active MDS instances
     activeCount: 1
     activeStandby: true
+    placement:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rook-ceph-mds
+            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rook-ceph-mds
+            topologyKey: topology.kubernetes.io/zone
+    annotations:
+    priorityClassName: rook-ceph-default-priority-class
+    resources:
+    # set The requests and limits for mds
+    #  limits:
+    #    cpu: "4"
+    #    memory: "4096Mi"
+    #  requests:
+    #    cpu: "4"
+    #    memory: "4096Mi"
 ```
+### `Resource setting`
+- `spec.metadataServer.resources`: cluster에 배포될 mds pod에 대한 resource를 설정합니다.
+  -  <strong>test환경이 아닌 production 환경일 경우 반드시 주석을 풀고 mds에 대한 resource를 설정해주시기를 바랍니다.</strong>
+  - `spec.metadataServer.resources.limits`와 `spec.metadataServer.resources.requests`에 설정되는 값들은 반드시 `동일`해야 합니다.
+  - <strong>[MDS의 하드웨어 요건](/docs/ceph-cluster-setting.md)과 [cluster.yaml의 Resource setting 방법](/docs/ceph-cluster-setting.md)</strong>를 참고하여 작성해주시면 됩니다.
+
+### CephFS setting
 - CephFS의 경우 metedataPool과 dataPool 두 종류의 pool를 생성하며, 각 pool에 대한 설정을 해야 합니다.
     - `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
     - `replicated: size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.

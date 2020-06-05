@@ -1,14 +1,26 @@
 # cluster.yaml 수정 메뉴얼
 본 메뉴얼에서는 cluster.yaml를 수정하는 방법에 대해서 설명합니다. 메뉴얼에서 설명하는 옵션에 대해서만 수정하는 것을 권장합니다.
 
-## 최소요건 및 권장사항
-클러스터 배포시 최소요건 및 권장사항은 다음과 같습니다.
+## 하드웨어 요건 및 권장사항
+클러스터 배포시 하드웨어 요건 및 권장사항은 다음과 같습니다.
 - 하드웨어 요건
-  - OSD Memory: 1TB당 1GB 정도의 메모리 권장
-  - OSD disk: 최소 10GB 이상 디스크 권장, 데이터 저장용으로 큰 용량의 디바이스나 디렉토리를 사용하는 게 좋음
-    - 디렉토리로 root filesystem 사용시 kubernetes 상에서 <strong>`disk pressure`</strong> 발생할 수 있으므로 주의
-  - Ceph Mon memory: 1GB 정도의 메모리 권장
-  - Ceph Mon disk: 10GB 정도의 디스크 권장
+  - `OSD`
+    - CPU: 2GHz CPU 2 core 이상 권장
+    - Memory: 최소 2GB + 1TB당 1GB 이상의 메모리 권장
+      - ex) 2TB disk 기반 OSD -> 4GB(2GB+2GB) memory 이상 권장
+    - Disk: 최소 10GB 이상 디스크 권장, 데이터 저장용으로 큰 용량의 디바이스를 사용하는 게 좋음
+  - `MON`
+    - CPU: 2GHz CPU 1 core 이상 권장
+    - Memory: 2GB 메모리 이상 권장
+    - Disk: 10GB 디스크 이상 권장
+  - `MGR`
+    - CPU: 2GHz CPU 1 core 이상 권장
+    - Memory: 1GB 메모리 이상 권장
+  - `MDS`
+    - CPU: 2GHz CPU 4 core 이상 권장
+    - Memory: 4GB 메모리 이상 권장
+  - <strong>production용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 ceph가 정상적인 성능 및 안정성을 제공합니다.</strong>
+    - <strong>ceph pod들에 다음 값들로 resource를 설정하기 위해 아래의 resource 설정과 [cephFS의 resource 설정](/docs/file.md)</strong>을 참고바랍니다.`
 - 권장사항
   - 각 노드마다 OSD를 배포하도록 권장 (Taint 걸린 host 없는 걸 확인해야함)
   - 총 OSD 개수는 3개 이상으로 권장
@@ -24,59 +36,126 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: ceph/ceph:v14.2.4-20190917
-    allowUnsupported: true
+    image: ceph/ceph:v14.2.9
+    allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
   mon:
-    count: 3
-    allowMultiplePerNode: true  # If more than 3 nodes are available, false is recommended.
+    # set the amount of mons to be started, Recommendation: Use odd numbers (ex. 3, 5)
+    count: 1
+    allowMultiplePerNode: false
+  mgr:
+    modules:
+    - name: pg_autoscaler
+      enabled: true
   dashboard:
     enabled: true
     ssl: true
   monitoring:
-    enabled: false  # Require Prometheus to be pre-installed
+    # requires Prometheus to be pre-installed for enabled is true
+    enabled: false
     rulesNamespace: rook-ceph
   network:
-    hostNetwork: false
+    # enable host networking
+    #provider: host
   rbdMirroring:
     workers: 0
-  mgr:
-    modules:
-    # The pg_autoscaler is only available on nautilus or newer. remove this if testing mimic.
-    - name: pg_autoscaler
-      enabled: true
+  crashCollector:
+    disable: false
+  cleanupPolicy:
+    deleteDataDirOnHosts: ""
+  annotations:
+  resources:
+# set the requests and limits for osd, mon, mgr
+#    osd:
+#      limits:
+#        cpu: "2"
+#        memory: "4096Mi"
+#      requests:
+#        cpu: "2"
+#        memory: "4096Mi"
+#    mon:
+#      limits:
+#        cpu: "1"
+#        memory: "2048Mi"
+#      requests:
+#        cpu: "1"
+#        memory: "2048Mi"
+#    mgr:
+#      limits:
+#        cpu: "1"
+#        memory: "1024Mi"
+#      requests:
+#        cpu: "1"
+#        memory: "1024Mi"
+  removeOSDsIfOutAndSafeToRemove: false
+  priorityClassNames:
+    all: rook-ceph-default-priority-class
+  disruptionManagement:
+    managePodBudgets: false
+    osdMaintenanceTimeout: 30
+    manageMachineDisruptionBudgets: false
+    machineDisruptionBudgetNamespace: openshift-machine-api
   storage:
-#   useAllNodes: true      # Apply ceph-osd to all nodes in the same way.
-    useAllNodes: false     # Apply ceph-osd to specific nodes.
-    useAllDevices: false
-    deviceFilter:
+    # set useAllNodes,useAllDevices to false for node-specific config
+    useAllNodes: true
+    useAllDevices: true
+    #useAllNodes: false
+    #useAllDevices: false
     config:
-      databaseSizeMB: "1024" # This value can be removed for environments with normal sized disks (100 GB or larger)
-      journalSizeMB: "1024"  # This value can be removed for environments with normal sized disks (20 GB or larger)
-      osdsPerDevice: "1"   # This value can be overridden at the node or device level
-#   directories:
-#   - path: /var/lib/rook
+# Example for node-specific config. It works only when 'useAllNodes' is false.
     nodes:
       - name: "worker1"    # Add worker1 node to ceph-osd. (Caution: check hostname by 'kubectl get nodes')
         devices:           # Add disk of worker1 to ceph-osd.
-        - name: "sdc"      # Caution: Disk must exist in worker1 node. (check disk by 'sudo fdisk -l')
-      - name: "worker2"         # Add worker2 node to ceph-osd.
-        directories:            # Add a directory of worker2 to ceph-osd.
-        - path: "/root/testdir" # Caution: Directory must exist in worker2 node.
-        devices:
-        - name: "sdc"           # Add disk of worker2 to ceph-osd. disk must exist in the nodes.
+        - name: "sdb"      # Caution: Disk must exist in worker1 node. (check disk by 'sudo fdisk -l')
+        - name: "sdc"
+#          config:          
+#            metadataDevice: "sdd1"     # Separate metadata device to high-performance device. (ex. SSD)
+#      - name: "worker2"         # Add worker2 node to ceph-osd.
+#        devices:           # Add disk of worker1 to ceph-osd.
+#      - name: "nvme01" # multiple osds can be created on high performance devices
+#        config:
+#          osdsPerDevice: "5"
 ```
+### `Resource setting`
+- `spec.resources`: cluster에 배포될 osd, mgr, mon에 대한 resource를 설정합니다.
+  -  <strong>test환경이 아닌 production 환경일 경우 반드시 주석을 풀고 각 데몬에 대한 resource를 설정해주시기를 바랍니다.</strong>
+  - `spec.resources.{dameon}.limits`와 `spec.resources.{dameon}.requests`에 설정되는 값들은 반드시 `동일`해야 합니다.
+  - `spec.resources.osd`: osd pod에 대한 resource의 request, limit을 설정합니다. 해당 값은 각 osd pod에 모두 동일하게 적용됩니다. 그러므로 <strong>가장 큰 용량을 가진 osd</strong>를 기준으로 <strong>위의 하드웨어 요건</strong>에 따라 해당 값들을 설정해주시기를 바랍니다.
+    - ex) 2TB disk 기반 OSD 배포, 배포되는 노드의 CPU 성능은 2GHz
+      ```yaml
+      osd:
+        limits:
+          cpu: "2"
+          memory: "4096Mi" # 2GB+2GB
+        Requests:
+          cpu: "2"
+          memory: "4096Mi"
+      ```
+    - ex) 3TB disk 기반 OSD 배포, 배포되는 노드의 CPU 성능은 2.5GHz
+      ```yaml
+      osd:
+        limits:
+          cpu: "1.6" # osd는 2GHz CPU core 2개가 필요하므로 CPU 성능이 2.5GHz일 경우는 ((2+2)/2.5)=1.6 이면 됩니다.
+          memory: "5120Mi" # 2GB+3GB
+        Requests:
+          cpu: "1.6"
+          memory: "5120Mi"
+      ```
+  - `spec.resources.mon`: mon pod에 대한 resource의 request, limit을 설정합니다. 위의 osd resource 설정 방식을 참고하여 작성하시면 됩니다.
+  - `spec.resources.mgr`: mgr pod에 대한 resource의 request, limit을 설정합니다. 위의 osd resource 설정 방식을 참고하여 작성하시면 됩니다.
 ### Mon deploy setting
 - `spec.mon.count`: kube cluster에 deploy할 mon의 개수를 의미합니다. `count`의 값은 1부터 9 사이의 홀수이어야 합니다. Ceph document에서는 기본적으로 3개의 mon를 권장합니다.
 - `spec.mon.allowMultiplePerNode`: `true` 또는 `false`를 값으로 가질 수 있으며, 하나의 노드에 여러 개의 mon를 deploy할 수 있는지에 대한 여부를 결정하는 옵션입니다. `false`로 설정 할 경우, 하나의 node에 여러 개의 mon pod이 deploy될 수 없습니다.
 
 ### OSD deploy setting
-- `spec.storage.useAllNodes`: OSD pod에 deploy관련 설정입니다. Pod를 deploy할 수 있는 모든 노드에 동일한 조건의 OSD pod를 deploy하고 싶으면 `true`로, 각 노드별로 다른 설정의 OSD를 deploy하고 싶으면 `false`로 설정합니다.
-  -  `true`일 경우, `spec.storage.directories`: 를 통해 모든 노드에서 OSD가 배포될 directory를 설정할 수 있습니다.
+- `spec.storage.useAllNodes`, `spec.storage.useAllDevices`: <strong> production 환경일 경우, 각 노드마다 올바르게 osd를 배포하기 위해 해당 값을 `false`로 변경해주시길 바랍니다. </strong>
+  - 이 두 값이 `true`일 경우, 모든 노드에서 사용가능한 모든 device에 osd 배포를 시도합니다. 
 - `spec.storage.nodes`: 각 노드 별로 deploy되는 OSD pod의 설정을 다르게 하고 싶은 경우 해당 설정에 osd에 관한 설정을 명시하면 됩니다.
     - `name`: OSD pod가 deploy될 node 이름을 명시합니다. 해당 값은 `kubernetes.io/hostname`과 동일해야 됩니다.
-    - `devices`: OSD pod를 device 위에 deploy하겠다는 옵션입니다. 해당 옵션에서는 `name`에 device 이름을 명시하면 됩니다. 명시되는 device는 아래의 조건을 만족해야 됩니다.(만족하지 않을 경우, OSD pod가 deploy되지 않는다.)
+    - `devices`: OSD pod를 device 위에 deploy하겠다는 옵션입니다. 해당 옵션에서는 `name`에 device 이름(device 파티션 이름도 가능)을 명시하면 됩니다. 명시되는 device는 아래의 조건을 만족해야 됩니다.(만족하지 않을 경우, OSD pod가 deploy되지 않습니다.)
+        - <strong>lvm device의 경우 현재 지원되지 않습니다.</strong>
         - Deploy되는 노드에 해당 디바이스가 반드시 존재해야 하며 unmount된 상태여야 합니다.
         - 해당 device의 초기화가 제대로 되어 있어야 하며 초기화 제대로 안 되어있을 경우 아래의 명령어를 통해 초기화합니다.(당연히 초기화후 원래 있었던 데이터는 복구할 수 없습니다.)
             ```shell
@@ -85,9 +164,6 @@ spec:
             $ sudo sgdisk --zap-all $DISK
             $ sudo if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
             ```
-    - `directories`: OSD pod를 directory 위에 deploy하겠다는 옵션입니다. 해당 옵션에서는 `path`에 directory이름을 명시하면 됩니다. 명시되는 directory는 아래의 조건을 만족해야 됩니다.(만족하지 않을 경우, OSD pod가 deploy되지 않습니다.)
-        - Deploy되는 노드에 해당 디렉토리가 반드시 존재해야 됩니다.
-        - OSD를 directory 위에 deploy할 경우, storage 사용에 대한 monitoring이 정상적으로 수행되지 않는 현상을 발견했습니다. 그러므로 <strong>OSD pod를 device위에 deploy</strong>하는 것을 권장합니다.
     - 하나의 노드에 두 개 이상의 OSD pod를 deploy하고 싶은 경우 아래와 같이 osd 설정을 추가하면 됩니다.
         ```yaml
         nodes:
@@ -95,15 +171,9 @@ spec:
            devices:          
            - name: "sdc"
            - name: "sdb"  ## "Add sdb"
-         - name: "worker2"       
-           directories:          
-           - path: "/root/testdir"
-           - path: "/root/testdir2" ## Add "/root/testdir2"
-           devices:
-           - name: "sdc"
         ```
 ### Ceph Cluster network 설정
-- `spec.network.hostNetwork`: `true`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고 `false`로 설정할 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 `false`로 설정하는 것을 권장합니다.
+- `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.
 
 ## RunTime에서의 ceph cluster update하는 방법
 - Ceph cluster의 상태가 `HEALTH_OK`일 경우에만 ceph cluster update를 진행하시기를 권장합니다.
@@ -158,10 +228,4 @@ spec:
     -2       0.09180     host ask-b360m-d3h                         
     1   ssd 0.09180         osd.1              up  1.00000 1.00000
     ```
-- OSD가 제거되었으므로, 제거한 OSD가 사용하던 디렉토리나 디바이스는 <strong>삭제하거나 초기화</strong>합니다.
-- 삭제한 OSD가 `directories` 기반이고, 더 이상 해당 노드에 `directories` 기반으로 생성된 OSD가 <strong>없는</strong> 경우, 다음 configmap을 삭제해줍니다. (예시: worker1노드 configmap 삭제)
-    ```shell
-    # 노드별 directory 기반 osd 정보 저장하는 configmap 삭제
-    # kubectl delete configmap -n rook-ceph rook-ceph-osd-<$hostname>-config
-    $ kubectl delete configmap -n rook-ceph rook-ceph-osd-worker1-config
-    ```
+- OSD가 제거되었으므로, 제거한 OSD가 사용하던 디바이스는 <strong>초기화</strong>합니다.
