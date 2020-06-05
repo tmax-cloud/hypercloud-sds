@@ -25,6 +25,8 @@ const (
 )
 
 var (
+	// PriorityYaml represents priority.yaml
+	PriorityYaml string = "priority.yaml"
 	// CommonYaml represents common.yaml
 	CommonYaml string = "common.yaml"
 	// OperatorYaml represents operator.yaml
@@ -42,7 +44,7 @@ var (
 	// ToolboxYaml represents toolbox.yaml
 	ToolboxYaml string = "toolbox.yaml"
 	// RookYamlSet represents required yamls of rook
-	RookYamlSet = sets.NewString(CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml,
+	RookYamlSet = sets.NewString(PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml,
 		CephfsFilesystemYaml, CephfsStorageClassYaml, ToolboxYaml)
 )
 
@@ -62,6 +64,11 @@ func Apply(inventoryPath string) error {
 	glog.Info("[STEP 1 / 6] Fetch Rook-ceph variables from inventory")
 
 	err := setRookCephValuesFrom(inventoryPath)
+	if err != nil {
+		return err
+	}
+
+	err = rookApply(inventoryPath, PriorityYaml)
 	if err != nil {
 		return err
 	}
