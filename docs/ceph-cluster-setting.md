@@ -20,7 +20,7 @@
     - CPU: 2GHz CPU 4 core 이상 권장
     - Memory: 4GB 메모리 이상 권장
   - <strong>production용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 ceph가 정상적인 성능 및 안정성을 제공합니다.</strong>
-    - <strong>ceph pod들에 다음 값들로 resource를 설정하기 위해 아래의 resource 설정과 [cephFS의 resource 설정](/docs/file.md)</strong>을 참고바랍니다.`
+    - <strong>ceph pod들에 다음 값들로 resource를 설정하기 위해 아래의 resource 설정과 [cephFS의 resource 설정](/docs/file.md)</strong>을 참고바랍니다.
 - 권장사항
   - 각 노드마다 OSD를 배포하도록 권장 (Taint 걸린 host 없는 걸 확인해야함)
   - 총 OSD 개수는 3개 이상으로 권장
@@ -99,10 +99,8 @@ spec:
     machineDisruptionBudgetNamespace: openshift-machine-api
   storage:
     # set useAllNodes,useAllDevices to false for node-specific config
-    useAllNodes: true
-    useAllDevices: true
-    #useAllNodes: false
-    #useAllDevices: false
+    useAllNodes: false
+    useAllDevices: false
     config:
 # Example for node-specific config. It works only when 'useAllNodes' is false.
     nodes:
@@ -150,7 +148,7 @@ spec:
 - `spec.mon.allowMultiplePerNode`: `true` 또는 `false`를 값으로 가질 수 있으며, 하나의 노드에 여러 개의 mon를 deploy할 수 있는지에 대한 여부를 결정하는 옵션입니다. `false`로 설정 할 경우, 하나의 node에 여러 개의 mon pod이 deploy될 수 없습니다.
 
 ### OSD deploy setting
-- `spec.storage.useAllNodes`, `spec.storage.useAllDevices`: <strong> production 환경일 경우, 각 노드마다 올바르게 osd를 배포하기 위해 해당 값을 `false`로 변경해주시길 바랍니다. </strong>
+- `spec.storage.useAllNodes`, `spec.storage.useAllDevices`: <strong> production 환경일 경우, 각 노드마다 올바르게 osd를 배포하기 위해 해당 값들을 `false`로 하길 바랍니다. </strong>
   - 이 두 값이 `true`일 경우, 모든 노드에서 사용가능한 모든 device에 osd 배포를 시도합니다. 
 - `spec.storage.nodes`: 각 노드 별로 deploy되는 OSD pod의 설정을 다르게 하고 싶은 경우 해당 설정에 osd에 관한 설정을 명시하면 됩니다.
     - `name`: OSD pod가 deploy될 node 이름을 명시합니다. 해당 값은 `kubernetes.io/hostname`과 동일해야 됩니다.
@@ -172,6 +170,16 @@ spec:
            - name: "sdc"
            - name: "sdb"  ## "Add sdb"
         ```
+    - <strong>OSD의 성능 향상을 위해 Write-Ahead Logging (WAL) 및 DB 디바이스를 성능이 좋은 디스크(ex. SSD, NVMe) 로 분리하는 방법</strong> 은 [cluster tuning 문서](/docs/cluster-tuning.md)를 참고하길 바랍니다.
+    - <strong>NVMe SSD를 기반으로 OSD를 생성할 경우</strong> 하나의 OSD만으로는 NVMe SSD의 성능을 모두 활용하지 못합니다. 하나의 NVMe SSD에 여러 OSD를 생성하기 위해서는 아래와 같이 `config.osdsPerDevice`로 생성할 OSD 개수를 명시해주면 됩니다.  
+      ```yaml
+      nodes:
+      - name: "worker2"
+        devices:
+        - name: "nvme01" # multiple osds can be created on high performance devices
+          config:
+            osdsPerDevice: "2" # nvme01 device에 OSD를 2개 생성합니다.
+      ```
 ### Ceph Cluster network 설정
 - `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.
 

@@ -2,17 +2,38 @@
 
 ### block pool setting 방법
 ```yaml
-#rbd-sc.yaml
+# block_pool.yaml
 apiVersion: ceph.rook.io/v1
 kind: CephBlockPool
 metadata:
   name: replicapool
   namespace: rook-ceph
 spec:
-  failureDomain: host   ## host or osd
+  # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+  failureDomain: host
   replicated:
+    # set the replica size
     size: 3
----
+    # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+    requireSafeReplicaSize: true
+    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+    #targetSizeRatio: .5
+  #crushRoot: my-root
+  # The Ceph CRUSH device class associated with the CRUSH replicated rule
+  #deviceClass: my-class
+  compressionMode: none
+  annotations:
+```
+#### CephBlockPool
+- `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
+- `replicated.size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
+    - `replicated.size`를 1로 설정하고 싶으신 경우, `replicated.requireSafeReplicaSize`의 값을 `false`로 변경해야 합니다.
+    - `failureDomain`를 host로 설정하고 replicated size를 n으로 설정했을 경우에는 <strong>적어도 n개 이상의 노드에 osd pod가 존재</strong>해야 됩니다.
+    - `failureDomain`를 osd로 설정하고 replicated size를 n으로 설정했을 경우에는 ceph cluster에 <strong>적어도 n개 이상의 osd pod가 존재</strong>해야 합니다.
+
+#### CephBlockPool의 StorageClass
+```yaml
+# block_sc.yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -26,30 +47,26 @@ parameters:
     imageFormat: "2"
     imageFeatures: layering
 
+    # The secrets contain Ceph admin credentials. These are generated automatically by the operator
+    # in the same namespace as the cluster.
     csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
     csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
     csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
     csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
     csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
     csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-    # default로 'ext4'
+    # Specify the filesystem type of the volume. If not specified, csi-provisioner
+    # will set default as `ext4`.
     csi.storage.k8s.io/fstype: ext4
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 ```
-#### CephBlockPool
-- `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
-- `replicated: size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
-    - `failureDomain`를 host로 설정하고 replicated size를 n으로 설정했을 경우에는 <strong>적어도 n개 이상의 노드에 osd pod가 존재</strong>해야 됩니다.
-    - `failureDomain`를 osd로 설정하고 replicated size를 n으로 설정했을 경우에는 ceph cluster에 <strong>적어도 n개 이상의 osd pod가 존재</strong>해야 합니다.
-
-#### CephBlockPool의 StorageClass
 - `clusterID`: rook cluster가 동작하는 namespace
 - `csi.storage.k8s.io/fstype`: rbd를 pod의 파일 경로에 마운트할때, rbd를 해당 파일시스템으로 초기화합니다. 설정하지 않으면 default로 ext4를 사용합니다.
 - `reclaimPolicy`: 동적으로 생성한 pv의 회수 정책이다. 기본으로 `Delete`로 동작하지만, 삭제하고 싶지 않으면 `Retain`으로 설정한다.
 
 ### RBD 사용 예시
-hcsctl로 생성한 inventory에 `rbd-sc.yaml`파일을 목적에 맞게 수정하시고 `$ hcsctl install {$inventory_name}`을 수행하시면 BlockPool과 StorageClass가 생성됩니다.
+hcsctl로 생성한 inventory에 `block_pool.yaml`파일을 목적에 맞게 수정하시고 `$ hcsctl install {$inventory_name}`을 수행하시면 BlockPool과 StorageClass가 생성됩니다.
 
 본 예시에서는 docs/examples 폴더에 있는 `block-wordpress.yaml`과 `block-mysql.yaml`에 대해서 진행합니다.
 - mysql, wordpress 배포

@@ -2,6 +2,7 @@
 
 ## CephFS yaml 수정 방법
 ```yaml
+# file_system.yaml
 apiVersion: ceph.rook.io/v1
 kind: CephFilesystem
 metadata:
@@ -74,18 +75,18 @@ spec:
 ### CephFS setting
 - CephFS의 경우 metedataPool과 dataPool 두 종류의 pool를 생성하며, 각 pool에 대한 설정을 해야 합니다.
     - `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
-    - `replicated: size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
+    - `replicated.size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
+        - `replicated.size`를 1로 설정하고 싶으신 경우, `replicated.requireSafeReplicaSize`의 값을 `false`로 변경해야 합니다.
         - `failureDomain`를 host로 설정하고 replicated size를 n으로 설정했을 경우에는 <strong>적어도 n개 이상의 노드에 osd pod가 존재</strong>해야 됩니다.
         - `failureDomain`를 osd로 설정하고 replicated size를 n으로 설정했을 경우에는 ceph cluster에 <strong>적어도 n개 이상의 osd pod가 존재</strong>해야 합니다.
 
-### Provision Storage
+### CephFS의 StorageClass
 ```yaml
-#cephfs-sc.yaml
+# file_sc.yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: rook-cephfs
-# Change "rook-ceph" provisioner prefix to match the operator namespace if needed
+  name: csi-cephfs-sc
 provisioner: rook-ceph.cephfs.csi.ceph.com
 parameters:
   # clusterID is the namespace where operator is deployed.
@@ -98,22 +99,22 @@ parameters:
   # Required for provisionVolume: "true"
   pool: myfs-data0
 
-  # Root path of an existing CephFS volume
-  # Required for provisionVolume: "false"
-  # rootPath: /absolute/path
-
   # The secrets contain Ceph admin credentials. These are generated automatically by the operator
   # in the same namespace as the cluster.
   csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
   csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
   csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
   csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
 
 reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
 ```
 
 ### CephFS 사용 예시
-hcsctl로 생성한 inventory에 `cephfs-fs.yaml`파일과 `cephfs-sc.yaml`을 목적에 맞게 수정하시고 `$ hcsctl install {$inventory_name}`을 수행하시면 myfs 파일시스템과 StorageClass가 생성됩니다.
+hcsctl로 생성한 inventory에 `file_system.yaml`을 목적에 맞게 수정하시고 `$ hcsctl install {$inventory_name}`을 수행하시면 myfs 파일시스템과 StorageClass가 생성됩니다.
 
 본 예시에서는 docs/examples 폴더에 있는 `file-nginx.yaml`에 대해서 진행합니다.
 
@@ -146,8 +147,8 @@ hcsctl로 생성한 inventory에 `cephfs-fs.yaml`파일과 `cephfs-sc.yaml`을 �
 
 ### CephFS 사용시 주의할 점
 - CephFS 설정에서 failureDomain에 오는 값 ('osd, 'host')의 정보가 환경보다 과하면 안됨!
-    - `failureDomain`이 `osd`이고, `replicated: size`의 값이 3인 경우, Ceph Cluster에는 최소 3개의 OSD가 존재해야 함
-    - `failureDomain`이 `host`이고, `replicated: size`의 값이 3인 경우, Ceph Cluter에는 최소 3개의 host가 존재해야 하며, 각각에는 최소 한 개의 OSD가 떠있어야 함
+    - `failureDomain`이 `osd`이고, `replicated.size`의 값이 3인 경우, Ceph Cluster에는 최소 3개의 OSD가 존재해야 함
+    - `failureDomain`이 `host`이고, `replicated.size`의 값이 3인 경우, Ceph Cluter에는 최소 3개의 host가 존재해야 하며, 각각에는 최소 한 개의 OSD가 떠있어야 함
 
 
 ## References
