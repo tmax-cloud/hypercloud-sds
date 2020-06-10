@@ -1,0 +1,68 @@
+#################################################################################################################
+# Create a filesystem with settings with replication enabled for a production environment.
+# A minimum of 3 OSDs on different nodes are required in this example.
+#  kubectl create -f filesystem.yaml
+#################################################################################################################
+
+apiVersion: ceph.rook.io/v1
+kind: CephFilesystem
+metadata:
+  name: myfs
+  namespace: rook-ceph
+spec:
+  metadataPool:
+    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+    failureDomain: host
+    replicated:
+      # set the replica size
+      size: 1
+      # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+      requireSafeReplicaSize: false
+  dataPools:
+    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+    - failureDomain: host
+      replicated:
+        # set the replica size
+        size: 1
+        # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+        requireSafeReplicaSize: false
+        # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+        #targetSizeRatio: .5
+      compressionMode: none
+  preservePoolsOnDelete: true
+  metadataServer:
+    # The number of active MDS instances
+    activeCount: 1
+    activeStandby: true
+    placement:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rook-ceph-mds
+            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rook-ceph-mds
+            topologyKey: topology.kubernetes.io/zone
+    annotations:
+    priorityClassName: rook-ceph-default-priority-class
+    resources:
+    # set The requests and limits for mds
+    #  limits:
+    #    cpu: "4"
+    #    memory: "4096Mi"
+    #  requests:
+    #    cpu: "4"
+    #    memory: "4096Mi"

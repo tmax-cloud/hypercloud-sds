@@ -1,0 +1,26 @@
+#################################################################################################################
+# Create a Ceph pool with settings for replication in production environments. A minimum of 3 OSDs on
+# different hosts are required in this example.
+#  kubectl create -f pool.yaml
+#################################################################################################################
+
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: replicapool
+  namespace: rook-ceph
+spec:
+  # The failure domain will spread the replicas of the data across different failure zones (osd, host)
+  failureDomain: host
+  replicated:
+    # set the replica size
+    size: 1
+    # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+    requireSafeReplicaSize: false
+    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+    #targetSizeRatio: .5
+  #crushRoot: my-root
+  # The Ceph CRUSH device class associated with the CRUSH replicated rule
+  #deviceClass: my-class
+  compressionMode: none
+  annotations:

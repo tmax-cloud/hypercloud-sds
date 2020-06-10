@@ -1,0 +1,108 @@
+#################################################################################################################
+# Define the settings for the rook-ceph cluster with common settings for a production cluster.
+# All nodes with available raw devices will be used for the Ceph cluster. At least three nodes are required
+# in this example. See the documentation for more details on storage settings available.
+
+# For example, to create the cluster:
+#   kubectl create -f common.yaml
+#   kubectl create -f operator.yaml
+#   kubectl create -f cluster.yaml
+#################################################################################################################
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rook-config-override
+  namespace: rook-ceph
+data:
+  config: |
+    [global]
+    osd_pool_default_size = 1
+---
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    image: ceph/ceph:v14.2.9
+    allowUnsupported: false
+  dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
+  mon:
+    # set the amount of mons to be started, Recommendation: Use odd numbers (ex. 3, 5)
+    count: 1
+    allowMultiplePerNode: true
+  mgr:
+    modules:
+    - name: pg_autoscaler
+      enabled: true
+  dashboard:
+    enabled: true
+    ssl: true
+  monitoring:
+    # requires Prometheus to be pre-installed for enabled is true
+    enabled: false
+    rulesNamespace: rook-ceph
+  network:
+    # enable host networking
+    #provider: host
+  rbdMirroring:
+    workers: 0
+  crashCollector:
+    disable: false
+  cleanupPolicy:
+    deleteDataDirOnHosts: ""
+  annotations:
+  resources:
+# set the requests and limits for osd, mon, mgr
+#    osd:
+#      limits:
+#        cpu: "2"
+#        memory: "4096Mi"
+#      requests:
+#        cpu: "2"
+#        memory: "4096Mi"
+#    mon:
+#      limits:
+#        cpu: "1"
+#        memory: "2048Mi"
+#      requests:
+#        cpu: "1"
+#        memory: "2048Mi"
+#    mgr:
+#      limits:
+#        cpu: "1"
+#        memory: "1024Mi"
+#      requests:
+#        cpu: "1"
+#        memory: "1024Mi"
+  removeOSDsIfOutAndSafeToRemove: false
+  priorityClassNames:
+    all: rook-ceph-default-priority-class
+  disruptionManagement:
+    managePodBudgets: false
+    osdMaintenanceTimeout: 30
+    manageMachineDisruptionBudgets: false
+    machineDisruptionBudgetNamespace: openshift-machine-api
+  storage:
+    # set useAllNodes,useAllDevices to false for node-specific config
+    useAllNodes: true
+    useAllDevices: true
+    #useAllNodes: false
+    #useAllDevices: false
+    config:
+# Example for node-specific config. It works only when 'useAllNodes' is false.
+#    nodes:
+#      - name: "worker1"    # Add worker1 node to ceph-osd. (Caution: check hostname by 'kubectl get nodes')
+#        devices:           # Add disk of worker1 to ceph-osd.
+#        - name: "sdb"      # Caution: Disk must exist in worker1 node. (check disk by 'sudo fdisk -l')
+#        - name: "sdc"
+#          config:          
+#            metadataDevice: "sdd1"     # Separate metadata device to high-performance device. (ex. SSD)
+#      - name: "worker2"         # Add worker2 node to ceph-osd.
+#        devices:           # Add disk of worker1 to ceph-osd.
+#      - name: "nvme01" # multiple osds can be created on high performance devices
+#        config:
+#          osdsPerDevice: "5"

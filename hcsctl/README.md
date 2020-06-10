@@ -50,11 +50,17 @@ $ make build
         - toolbox.yaml: [Ceph 클러스터 컨트롤을 위한 toolbox 사용 가이드](./../docs/ceph-command.md)
     - `./myInventory/cdi/` 경로 밑에 생성된 yaml 파일의 경우, 설치할 cdi version 변경이 필요한 경우에만 `operator.yaml` 파일 내의 `OPERATOR_VERSION`과 container image 버전을 변경하시면 됩니다.
 
+- 테스트 환경용 inventory
+    - OSD를 3개 이상 배포할 수 없는 테스트용 환경을 위한 inventory가  `hypercloud-storage/hack/test-sample` 경로에 존재합니다. 해당 inventory는 다음과 같은 설정이 되어 있으니 필요하신 경우 해당 inventory를 사용하시기를 바랍니다.
+      - osd 3개 미만으로 배포되더라도 정상적으로 설치되도록 설정(`cluster.yaml`에 `ConfigMap` 추가)
+      - `cluster.yaml`의 `spec.storage.useAllNodes`, `spec.storage.useAllDevices`값을 `true`로 설정하여 모든 노드에서 사용 가능한 모든 device에 osd 배포를 시도
+      - 배포하는 block, cephfs pool의 replication 개수를 1로 설정
 
 - 환경에 맞게 inventory의 파일을 수정후, hcsctl로 hypercloud-storage를 설치합니다.
    ``` shell
    $ hcsctl install {$inventory_name}
    # 예) hcsctl install myInventory
+   # 테스트 환경용 inventory 예) hcsctl install ../hack/test-sample
    ```
 
     - 정상 설치가 완료되면 hypercloud-storage 를 사용하실 수 있습니다. 설치 이후 Block Storage와 Share Filesystem을 사용할 수 있습니다.

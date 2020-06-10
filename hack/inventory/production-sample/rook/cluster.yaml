@@ -79,10 +79,8 @@ spec:
     machineDisruptionBudgetNamespace: openshift-machine-api
   storage:
     # set useAllNodes,useAllDevices to false for node-specific config
-    useAllNodes: true
-    useAllDevices: true
-    #useAllNodes: false
-    #useAllDevices: false
+    useAllNodes: false
+    useAllDevices: false
     config:
 # Example for node-specific config. It works only when 'useAllNodes' is false.
 #    nodes:

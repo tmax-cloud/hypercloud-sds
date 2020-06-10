@@ -11,13 +11,12 @@ stages:
   stage: e2e_test
   script:
     - ./hack/prolinux_cluster.sh up
-    - ./hcsctl/build/hcsctl create-inventory myInventory
-    - ./hcsctl/build/hcsctl install myInventory
+    - ./hcsctl/build/hcsctl install ./hack/inventory/test-sample
     - ./hcsctl/build/hcsctl ceph status
     - ./hcsctl/build/hcsctl ceph exec ceph osd status
     - ./hcsctl/build/hcsctl.test
-    - ./hcsctl/build/hcsctl uninstall myInventory
-    - ./hcsctl/build/hcsctl uninstall myInventory # idempotent
+    - ./hcsctl/build/hcsctl uninstall ./hack/inventory/test-sample
+    - ./hcsctl/build/hcsctl uninstall ./hack/inventory/test-sample # idempotent
 
 golangci_lint_check:
   stage: lint_check
@@ -72,10 +71,9 @@ prolinux_v1_15_3_calico_with_another_kubeconfigpath:
   script:
     - ./hack/prolinux_cluster.sh up
     - mv $HOME/.kube/config $HOME/config
-    - ./hcsctl/build/hcsctl create-inventory myInventory
-    - ./hcsctl/build/hcsctl install myInventory --kubeconfig $HOME/config
+    - ./hcsctl/build/hcsctl install ./hack/inventory/test-sample --kubeconfig $HOME/config
     - ./hcsctl/build/hcsctl ceph status --kubeconfig=$HOME/config
-    - ./hcsctl/build/hcsctl uninstall myInventory --kubeconfig $HOME/config
+    - ./hcsctl/build/hcsctl uninstall ./hack/inventory/test-sample --kubeconfig $HOME/config
     - mv $HOME/config $HOME/.kube/config
   tags:
     - prolinux
