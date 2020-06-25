@@ -53,7 +53,7 @@ spec:
   crashCollector:
     disable: false
   cleanupPolicy:
-    deleteDataDirOnHosts: ""
+    confirmation: ""
   annotations:
   resources:
 # set the requests and limits for osd, mon, mgr

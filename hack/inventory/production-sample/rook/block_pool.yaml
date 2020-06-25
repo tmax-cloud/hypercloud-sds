@@ -23,4 +23,4 @@ spec:
   # The Ceph CRUSH device class associated with the CRUSH replicated rule
   #deviceClass: my-class
   compressionMode: none
-  annotations:
+  
