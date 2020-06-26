@@ -1,8 +1,10 @@
-# CephFS(file storage) 사용 가이드
+# CephFS (file storage) 가이드
 
-## CephFS yaml 수정 방법
+## 설치 yaml 수정 방법
+
+### file_system.yaml
+
 ```yaml
-# file_system.yaml
 apiVersion: ceph.rook.io/v1
 kind: CephFilesystem
 metadata:
@@ -66,23 +68,24 @@ spec:
     #    cpu: "4"
     #    memory: "4096Mi"
 ```
-### `Resource setting`
+
+#### Resource setting
 - `spec.metadataServer.resources`: cluster에 배포될 mds pod에 대한 resource를 설정합니다.
-  -  <strong>test환경이 아닌 production 환경일 경우 반드시 주석을 풀고 mds에 대한 resource를 설정해주시기를 바랍니다.</strong>
+  -  **test환경이 아닌 production 환경일 경우 반드시 주석을 풀고 mds에 대한 resource를 설정해주시기를 바랍니다.**
   - `spec.metadataServer.resources.limits`와 `spec.metadataServer.resources.requests`에 설정되는 값들은 반드시 `동일`해야 합니다.
-  - <strong>[MDS의 하드웨어 요건](/docs/ceph-cluster-setting.md)과 [cluster.yaml의 Resource setting 방법](/docs/ceph-cluster-setting.md)</strong>를 참고하여 작성해주시면 됩니다.
+  - [cluster.yaml](/docs/ceph-cluster-setting.md) 파일에서 **MDS의 하드웨어 요건과 Resource setting 방법 파트**를 참고하여 작성해주시면 됩니다.
 
-### CephFS setting
+#### CephFS setting
 - CephFS의 경우 metedataPool과 dataPool 두 종류의 pool를 생성하며, 각 pool에 대한 설정을 해야 합니다.
-    - `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
-    - `replicated.size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
-        - `replicated.size`를 1로 설정하고 싶으신 경우, `replicated.requireSafeReplicaSize`의 값을 `false`로 변경해야 합니다.
-        - `failureDomain`를 host로 설정하고 replicated size를 n으로 설정했을 경우에는 <strong>적어도 n개 이상의 노드에 osd pod가 존재</strong>해야 됩니다.
-        - `failureDomain`를 osd로 설정하고 replicated size를 n으로 설정했을 경우에는 ceph cluster에 <strong>적어도 n개 이상의 osd pod가 존재</strong>해야 합니다.
+  - `failureDomain`: data의 replica를 어떻게 배치할 것인가에 대한 설정입니다. `host` 또는 `osd`가 값으로 올 수 있습니다. `failureDomain`을 host로 설정 했을 경우 데이터의 replica들은 서로 다른 host(node)에 배치되게 됩니다.
+  - `replicated.size`: pool에서의 replicated size에 대한 설정입니다. 대체적으로 3을 권장하며 ceph의 성능을 위해서 2로 설정하는 경우도 있습니다.
+    - `replicated.size`를 1로 설정하고 싶으신 경우, `replicated.requireSafeReplicaSize`의 값을 `false`로 변경해야 합니다.
+    - `failureDomain`를 host로 설정하고 replicated size를 n으로 설정했을 경우에는 <strong>적어도 n개 이상의 노드에 osd pod가 존재</strong>해야 됩니다.
+    - `failureDomain`를 osd로 설정하고 replicated size를 n으로 설정했을 경우에는 ceph cluster에 <strong>적어도 n개 이상의 osd pod가 존재</strong>해야 합니다.
 
-### CephFS의 StorageClass
+### file_sc.yaml
+
 ```yaml
-# file_sc.yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -113,43 +116,41 @@ allowVolumeExpansion: true
 mountOptions:
 ```
 
-### CephFS 사용 예시
+#### CephFS의 StorageClass 설정 방법
+
+- `clusterID`: rook cluster가 동작하는 namespace
+- `reclaimPolicy`: 동적으로 생성한 pv의 회수 정책입니다. 기본으로 `Delete`로 동작하지만, 삭제하고 싶지 않으면 `Retain`으로 설정하면 됩니다.
+
+## CephFS 사용 예시
+
 hcsctl로 생성한 inventory에 `file_system.yaml`을 목적에 맞게 수정하시고 `$ hcsctl install {$inventory_name}`을 수행하시면 myfs 파일시스템과 StorageClass가 생성됩니다.
 
-본 예시에서는 docs/examples 폴더에 있는 `file-nginx.yaml`에 대해서 진행합니다.
+docs/examples 폴더에 있는 `file-nginx.yaml`을 배포하여 file storage 사용을 테스트 할 수 있습니다.
 
-- nginx 배포
+```shell
+# file_nginx.yaml를 통해 하나의 file storage를 공유하는 두 개의 nginx pod를 생성합니다.
+# PVC 생성 및 nginx Deployment 생성
+$ kubectl apply -f file-nginx.yam
 
-    ```shell
-    # file_nginx.yaml를 통해 하나의 file storage를 공유하는 두 개의 nginx pod를 생성합니다.
-    # PVC 생성 및 nginx Deployment 생성
-    $ kubectl apply -f file-nginx.yaml
+# 배포된 pod을 확인. 서로 다른 이름을 가진 pod이 두개 생성되었습니다.
+$ kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+cephfs-nginx-64df995589-4j4n6   1/1     Running   0          62s
+cephfs-nginx-64df995589-z98nn   1/1     Running   0          62
 
-    # 배포된 pod을 확인. 서로 다른 이름을 가진 pod이 두개 생성되었습니다.
-    $ kubectl get pods
-    NAME                            READY   STATUS    RESTARTS   AGE
-    cephfs-nginx-64df995589-4j4n6   1/1     Running   0          62s
-    cephfs-nginx-64df995589-z98nn   1/1     Running   0          62s
+# 디렉토리가 잘 공유되었나 확인하기 위해 하나의 pod의 공유 디렉토리에 파일을 생성합니다.
+# pod의 이름이 다름을 주의하세요.
+$ kubectl exec -it cephfs-nginx-64df995589-4j4n6 -- touch /mnt/cephfs/testfil
 
-    # 디렉토리가 잘 공유되었나 확인하기 위해 하나의 pod의 공유 디렉토리에 파일을 생성합니다.
-    # pod의 이름이 다름을 주의하세요.
-    $ kubectl exec -it cephfs-nginx-64df995589-4j4n6 -- touch /mnt/cephfs/testfile
+# 이제 다른 하나의 pod에서 공유 디렉토리에 파일이 잘 생성되어 있나 확인합니다.
+$ kubectl exec -it cephfs-nginx-64df995589-z98nn -- ls /mnt/cephf
 
-    # 이제 다른 하나의 pod에서 공유 디렉토리에 파일이 잘 생성되어 있나 확인합니다.
-    $ kubectl exec -it cephfs-nginx-64df995589-z98nn -- ls /mnt/cephfs
-
-    # 아래와 같이 출력되어야 합니다.
-    total 4
-    drwxrwxrwx 2 root root    1 Nov 18 04:34 .
-    drwxr-xr-x 1 root root 4096 Nov 18 04:33 ..
-    -rw-r--r-- 1 root root    0 Nov 18 04:34 testfile
-    ```
-
-### CephFS 사용시 주의할 점
-- CephFS 설정에서 failureDomain에 오는 값 ('osd, 'host')의 정보가 환경보다 과하면 안됨!
-    - `failureDomain`이 `osd`이고, `replicated.size`의 값이 3인 경우, Ceph Cluster에는 최소 3개의 OSD가 존재해야 함
-    - `failureDomain`이 `host`이고, `replicated.size`의 값이 3인 경우, Ceph Cluter에는 최소 3개의 host가 존재해야 하며, 각각에는 최소 한 개의 OSD가 떠있어야 함
-
+# 아래와 같이 출력되어야 합니다.
+total 4
+drwxrwxrwx 2 root root    1 Nov 18 04:34 .
+drwxr-xr-x 1 root root 4096 Nov 18 04:33 ..
+-rw-r--r-- 1 root root    0 Nov 18 04:34 testfile
+```
 
 ## References
 - <https://rook.io/docs/rook/v1.3/ceph-filesystem.html>

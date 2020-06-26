@@ -7,10 +7,13 @@
 * [Rook Ceph Storage official page](https://rook.github.io/docs/rook/v1.3/ceph-storage.html)
 
 ## Rook Ceph Cluster 설정하는 법
+
 * 자세한 방법은 이 [문서](./ceph-cluster-setting.md)를 확인하세요.
 
 ## Rook-Ceph Cluster 제거
+
 > Uninstall 작업 후, 초기화를 위해 다음 작업들을 수행해야합니다.
+
 - k8s Cluster의 <strong>모든 노드</strong>에서 `/var/lib/rook` directory를 삭제합니다.
 
   ```shell

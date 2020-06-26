@@ -26,7 +26,6 @@ hcsctl 최신 바이너리는 프로젝트 [release page](http://192.168.1.150:1
 ## Compatibility
 - 본 프로젝트는 아래와 같은 버전에서 검증되었습니다.
     - Kubernetes
-        - 단, 각 kubernetes server version 과 호환되는 kubectl version 을 필요로 합니다.
         - v1.17
         - v1.16
         - v1.15
