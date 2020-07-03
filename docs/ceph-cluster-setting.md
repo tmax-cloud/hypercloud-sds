@@ -189,6 +189,7 @@ spec:
           config:
             osdsPerDevice: "2" # nvme01 device에 OSD를 2개 생성합니다.
       ```
+    - `v1.3.0` 이상 부터는 directory-based (FileStore) OSD 를 더이상 지원하지 않습니다. 기존 버전에서 사용된 yaml 파일에서 `directories:` 관련 설정은 삭제가 필요하고, device (raw partition) 정보를 기입해주셔야 합니다. [(해당 버전 릴리즈 노트 참고)](https://github.com/rook/rook/releases/tag/v1.3.0)
 
 ### Ceph Cluster network 설정
 

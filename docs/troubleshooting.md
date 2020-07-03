@@ -1,6 +1,62 @@
 # Rook Ceph Issues
 
+## First of all
 
+아래의 조건들이 지켜졌는지 확인이 필요합니다.
+
+### OSD 가 배포되지 않은 경우
+
+- `cluster.yaml` 파일에 기입한 스토리지 디바이스가 해당 노드에 존재하며 unmount된 상태여야 합니다.
+- `v1.3.0` 이상 버전을 배포한 경우 `cluster.yaml` 파일에 `directories:` 관련 설정은 없어야 합니다.
+
+## 주요 커맨드
+
+디버깅 시 유용하게 사용할 수 있는 K8s command들 입니다.
+
+### 상태 점검
+
+- 아래 pod 들이 모두 배포되고, status 가 running 인지 확인합니다.
+  - csi-cephfsplugin
+  - csi-cephfsplugin-provisioner
+  - csi-rbdplugin
+  - csi-rbdplugin-provisioner
+  - rook-ceph-crashcollector
+  - rook-ceph-mgr
+  - rook-ceph-mon
+  - rook-ceph-operator
+  - rook-ceph-osd
+  - rook-ceph-osd-prepare
+  - rook-discover
+- `cluster.yaml` 파일 설정에 따라서 배포된 pod 의 개수는 다를 수 있습니다.
+
+``` shell
+$ kubectl get pod -n rook-ceph
+NAME                                                  READY   STATUS      RESTARTS   AGE
+csi-cephfsplugin-4fdds                                3/3     Running     0          19h
+csi-cephfsplugin-provisioner-74964d6869-h8g9q         5/5     Running     0          19h
+csi-cephfsplugin-provisioner-74964d6869-vpwh5         5/5     Running     0          19h
+csi-rbdplugin-ph28f                                   3/3     Running     0          19h
+csi-rbdplugin-provisioner-79cb7f7cb4-9p8vd            6/6     Running     0          19h
+csi-rbdplugin-provisioner-79cb7f7cb4-fdh8m            6/6     Running     0          19h
+rook-ceph-crashcollector-hyeongbin-759985c655-pp4f5   1/1     Running     0          19h
+rook-ceph-mgr-a-797d9b578-6smnx                       1/1     Running     0          19h
+rook-ceph-mon-a-55f4754f4f-6tsrs                      1/1     Running     0          19h
+rook-ceph-operator-657fb97bf9-9lwdg                   1/1     Running     0          19h
+rook-ceph-osd-0-8dcfdbf5b-z5rw4                       1/1     Running     0          19h
+rook-ceph-osd-prepare-hyeongbin-sqkgq                 0/1     Completed   0          19h
+rook-discover-hjxzj                                   1/1     Running     0          19h
+```
+
+### OSD가 배포 되지 않은 경우
+
+rook-ceph-osd-prepare pod 개수보다 rook-ceph-osd 개수가 작거나, rook-ceph-osd pod이 하나도 존재하지 않은 경우입니다.
+
+``` shell
+# OSD pod이 배포되지 않은 노드 정보를 확인합니다.
+$ kubectl get pod -n rook-ceph -o wide
+
+# cluster.yaml 에서 OSD 배포 설정과 디바이스 정보 설정을 재확인합니다.
+```
 
 ----------
 
@@ -11,6 +67,7 @@
 ## Troubleshooting Issues
 
 ### 주요 커맨드
+
 > 이슈 상황 파악에 용이하게 쓰일 기본적인 커맨드입니다.
 
 - `kubectl describe cdi`
