@@ -18,8 +18,9 @@ const (
 )
 
 // Create creates inventory with fixed version
-// Usage: Create(inventoryName)
-func Create(inventoryName string) error {
+// If CDI is not included, it removes CDI from inventory.
+// Usage: Create(inventoryName, isIncludingCdi)
+func Create(inventoryName string, isIncludingCdi bool) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -28,14 +29,17 @@ func Create(inventoryName string) error {
 	inventoryDir := path.Join(wd, inventoryName)
 	glog.Infof("Start Creating Sample Inventory on \"%s\"", inventoryDir)
 	glog.Infof("Sample Inventory contains rook version : \"v1.3.6\"") // TODO yaml 파일 읽어서 값 가져오는 것으로 변경
-	glog.Infof("Sample Inventory contains cdi version : \"v1.18.0\"")
 
-	err = createInventory(inventoryDir)
+	if isIncludingCdi {
+		glog.Infof("Sample Inventory contains cdi version : \"v1.18.0\"")
+	}
+
+	err = createInventory(inventoryDir, isIncludingCdi)
 
 	return err
 }
 
-func createInventory(inventory string) error {
+func createInventory(inventory string, isIncludingCdi bool) error {
 	err := os.MkdirAll(inventory, 0755)
 	if err != nil {
 		return err
@@ -57,8 +61,18 @@ func createInventory(inventory string) error {
 	}()
 
 	err = extract.Gz(context.TODO(), sourceTarFile, inventory, nil)
+
 	if err != nil {
 		return err
+	}
+
+	if !isIncludingCdi {
+		cdiInventoryPath := filepath.Join(inventory, "cdi")
+		err = os.RemoveAll(cdiInventoryPath)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -15,7 +15,9 @@ var inventoryCreateCmd = &cobra.Command{
 	Args:    cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inventoryName := args[0]
-		err := inventory.Create(inventoryName)
+		includingCdiFlag, _ := cmd.Flags().GetBool("include-cdi")
+
+		err := inventory.Create(inventoryName, includingCdiFlag)
 		if err != nil {
 			panic(err)
 		}
@@ -23,5 +25,6 @@ var inventoryCreateCmd = &cobra.Command{
 }
 
 func init() {
+	inventoryCreateCmd.Flags().Bool("include-cdi", false, "CDI Installation Feature. Bool type")
 	rootCmd.AddCommand(inventoryCreateCmd)
 }

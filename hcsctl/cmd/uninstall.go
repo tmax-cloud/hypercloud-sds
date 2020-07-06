@@ -10,13 +10,16 @@ import (
 var uninstallCmd = &cobra.Command{
 	Use:     "uninstall",
 	Short:   "해당 인벤토리의 hypercloud-storage를 제거합니다.",
-	PreRunE: checkAndSetInventory,
+	PreRunE: validateInventory,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := cdi.Delete(inventoryPath)
-		if err != nil {
-			panic(err)
+		if isCdiExist(inventoryPath) {
+			err := cdi.Delete(inventoryPath)
+			if err != nil {
+				panic(err)
+			}
 		}
-		err = rook.Delete(inventoryPath)
+
+		err := rook.Delete(inventoryPath)
 		if err != nil {
 			panic(err)
 		}

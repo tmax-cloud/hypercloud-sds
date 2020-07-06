@@ -35,14 +35,17 @@ hcsctl은 hypercloud storage의 설치, 제거 및 관리 기능을 제공합니
 - hcsctl 로 hypercloud-storage 설치에 앞서 설치에 필요한 yaml 파일을 생성하고 환경에 맞게 변경합니다.
 
    ``` shell
-   $ hcsctl create-inventory {$inventory_name}
-   # 예) hcsctl create-inventory myInventory
+   $ hcsctl create-inventory {$inventory_name} [--include-cdi=BOOLEAN]
+   # 예) hcsctl create-inventory myInventory --include-cdi=true
    ```
 
-    - 생성된 inventory 에는 rook, cdi 두개의 디렉토리가 생성됩니다.
+    - hcsctl 은 고가용성 스토리지인 rook-ceph 을 기본적으로 제공하며, 추가로 이미지 임포팅을 위한 cdi 를 옵션으로 제공합니다.
+      - inventory 를 create 할 때 `--include-cdi` 플래그를 true 혹은 1 로 설정함으로써 cdi 를 inventory 에 포함시킬 수 있습니다. 
+      - `--include-cdi` 플래그를 입력하지 않을 경우 기본값이 false 로 설정되어, inventory 에는 rook-ceph 만 생성됩니다.
+    - 생성된 inventory 에는 rook, cdi 두 개의 디렉토리가 생성될 수 있습니다.
       - `./myInventory/rook/*.yaml` 에는 rook-ceph 설치에 사용되는 yaml 파일이 생성 됩니다.
-      - `./myInventory/cdi/*.yaml` 에는 cdi 설치에 사용되는 yaml 파일이 생성됩니다.
-    - 생성된 모든 yaml 파일들은 sample 제공용 파일이므로, 각 yaml 파일 내용을 **사용자의 환경에 맞게 수정** 후 사용하시면 됩니다. 
+      - `./myInventory/cdi/*.yaml` 에는 cdi 설치에 사용되는 yaml 파일이 생성됩니다. (`--include-cdi` 값을 true 로 설정한 경우)
+    - 생성된 모든 yaml 파일들은 sample 제공용 파일이므로, 각 yaml 파일 내용을 반드시 **사용자의 환경에 맞게 수정** 후 사용하셔야 합니다. 
       - **생성된 폴더와 파일명은 절대 수정하시면 안됩니다.**
     - `./myInventory/rook/` 경로 밑에 생성된 yaml 파일을 환경에 맞게 수정하는 가이드 입니다.
         - cluster.yaml: [Rook-Ceph 클러스터 구성 가이드](./../docs/ceph-cluster-setting.md)

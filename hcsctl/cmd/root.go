@@ -71,7 +71,7 @@ func initConfig() {
 	}
 }
 
-func checkAndSetInventory(cmd *cobra.Command, args []string) error {
+func validateInventory(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("inventoryPath가 주어지지 않았습니다")
 	}
@@ -83,23 +83,10 @@ func checkAndSetInventory(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cdiYamlFiles, err := fileutil.ReadDir(path.Join(wd, inventoryPath, "cdi"))
+	inventoryPath = path.Join(wd, inventoryPath)
 
-	if err != nil {
-		if strings.Contains(err.Error(), "no such file or directory") {
-			return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
-				"hcsctl create-inventory 명령을 참고하세요", "cdi")
-		}
-
-		return err
-	}
-
-	if !cdi.CdiYamlSet.Equal(sets.NewString(cdiYamlFiles...)) {
-		return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
-			"hcsctl create-inventory 명령을 참고하세요", "cdi")
-	}
-
-	rookYamlFiles, err := fileutil.ReadDir(path.Join(wd, inventoryPath, "rook"))
+	// Rook 은 Required 이므로 반드시 존재함
+	rookYamlFiles, err := fileutil.ReadDir(path.Join(inventoryPath, "rook"))
 
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
@@ -115,6 +102,21 @@ func checkAndSetInventory(cmd *cobra.Command, args []string) error {
 			"hcsctl create-inventory 명령을 참고하세요", "rook")
 	}
 
+	// CDI 가 존재하는 경우만 valid check
+	if isCdiExist(inventoryPath) {
+		cdiYamlFiles, err := fileutil.ReadDir(path.Join(inventoryPath, "cdi"))
+		if err != nil {
+			if !strings.Contains(err.Error(), "no such file or directory") {
+				return err
+			}
+		}
+
+		if !cdi.CdiYamlSet.Equal(sets.NewString(cdiYamlFiles...)) {
+			return fmt.Errorf("inventoryPath 아래 %s directory 가 정해진 형식을 만족하지 않습니다. "+
+				"hcsctl create-inventory 명령을 참고하세요", "cdi")
+		}
+	}
+
 	return nil
 }
 
@@ -125,4 +127,12 @@ func checkInventoryName(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func isCdiExist(inventory string) bool {
+	if _, err := os.Stat(path.Join(inventory, "cdi")); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
 }

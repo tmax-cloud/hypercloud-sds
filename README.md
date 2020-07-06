@@ -1,5 +1,5 @@
 # Hypercloud-Storage
-Hypercloud Storage에서는 고가용성 스토리지(Rook) 와 이미지 임포팅(CDI)을 지원하는 프로젝트입니다.
+Hypercloud Storage 는 고가용성 스토리지(Rook) 와 이미지 임포팅(CDI)을 지원하는 프로젝트입니다.
 두 모듈의 편리한 설치, 제거, 관리를 위해서 hcsctl 바이너리 파일을 제공하고 있습니다.
 hcsctl 최신 바이너리는 프로젝트 [release page](http://192.168.1.150:10080/ck3-4/hypercloud-storage/releases) 에서 확인 가능합니다.
 
