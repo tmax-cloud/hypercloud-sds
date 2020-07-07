@@ -190,7 +190,23 @@ spec:
             osdsPerDevice: "2" # nvme01 device에 OSD를 2개 생성합니다.
       ```
     - `v1.3.0` 이상 부터는 directory-based (FileStore) OSD 를 더이상 지원하지 않습니다. 기존 버전에서 사용된 yaml 파일에서 `directories:` 관련 설정은 삭제가 필요하고, device (raw partition) 정보를 기입해주셔야 합니다. [(해당 버전 릴리즈 노트 참고)](https://github.com/rook/rook/releases/tag/v1.3.0)
-
+    - OSD를 3개 이상 배포할 수 없는 테스트용 환경에서는 아래와 같이 설정 추가 및 변경이 필요합니다.
+      - cluster.yaml 파일 상단에 `ConfigMap` 추가
+      - cluster.yaml의 spec.storage.useAllNodes, spec.storage.useAllDevices값을 true로 설정하여 모든 노드에서 사용 가능한 모든 device에 osd 배포를 시도
+      - 배포하는 block, cephfs pool의 replication 개수를 1로 설정
+      ``` yaml
+      kind: ConfigMap
+      apiVersion: v1
+      metadata:
+        name: rook-config-override
+        namespace: rook-ceph
+      data:
+        config: |
+          [global]
+          osd_pool_default_size = 1
+      ---
+      ```
+      
 ### Ceph Cluster network 설정
 
 - `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.
