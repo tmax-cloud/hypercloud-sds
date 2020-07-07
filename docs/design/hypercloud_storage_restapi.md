@@ -3,8 +3,6 @@
 Hypercloud 4 Storage 서비스 설계 진행 내역과 설계시에 참고한 타 클라우드 플랫폼의 storage 서비스 rest api를 조사 및 비교한 자료를 포함한 디자인 문서입니다.
 
 ### 테스트 환경 정보
-  - HyperCloud v3 (Feb 2020 시점 기준)
-    - http://192.168.6.148/hypercloud-osp/#!/login
   - Rancher v2.x 
     - 싱글노드 클러스터 설치 - [Vagrant + Virtualbox](https://rancher.com/docs/rancher/v2.x/en/quick-start-guide/deployment/quickstart-vagrant/)
   - Openshift v4.3 
@@ -103,8 +101,6 @@ version 4 에서는 이전 버전과 달리 kubernetes api 를 그대로 사용�
   - template 으로 앱 생성시에 pvc (volume) size 만 지정 가능
 
 ## 플랫폼 별 Rest API 비교
-
-HyperCloud의 경우에는 쿠버네티스 api를 감싼 rest api 를 제공하기 때문에 `hypercloud/_api_swagger/consumer_api.yaml` [v3.1.0.61](http://192.168.1.150:10080/hypercloud/hypercloud/blob/master/_api_swagger/consumer_api.yaml) 확인이 필요합니다.
 
 Rancher, Openshift 는 모두 쿠버네티스 api를 그대로 사용하고 있기 때문에 필수값 등 자세한 api 사용법은 [k8s api reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/) 를 참고하면 좋습니다. 
 

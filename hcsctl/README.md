@@ -7,14 +7,14 @@ hcsctl은 hypercloud storage의 설치, 제거 및 관리 기능을 제공합니
 
 ## 바이너리 다운로드
 - release 버전의 hcsctl 바이너리는 다음 경로에서 다운받을 수 있습니다.
-    - [hypercloud-storage-release](http://192.168.1.150:10080/ck3-4/hypercloud-storage/releases)
+    - [hypercloud-storage-release](https://github.com/tmax-cloud/hypercloud-storage/releases)
 - master branch 버전의 hcsctl 바이너리를 사용하고 싶으면 다음 가이드를 수행하여 로컬에서 빌드할 수 있습니다.
 
   ``` shell
   # 바이너리 생성 시 gcc, make, git 패키지가 필요합니다.
 
   # hypercloud-storage 프로젝트 clone
-  $ git clone http://192.168.1.150:10080/ck3-4/hypercloud-storage.git
+  $ git clone https://github.com/tmax-cloud/hypercloud-storage.git
 
   # go 환경 설정
   $ export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
