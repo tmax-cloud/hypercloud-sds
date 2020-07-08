@@ -1,0 +1,61 @@
+name: hypercloud-stroage
+on:
+  push:
+    branches:
+      - master
+    tages:
+      - v*
+  pull_request:
+defaults:
+  run:
+    working-directory: hcsctl
+jobs:
+  lint:
+    runs-on: ubuntu-18.04 # golangci-lint-action does not support prolinux
+    timeout-minutes: 3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.29
+          working-directory: hcsctl
+  build:
+    runs-on: prolinux
+    timeout-minutes: 3
+    needs: [lint]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
+        id: go
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get dependencies
+        run: go get github.com/markbates/pkger/cmd/pkger
+      - name: Build
+        run: make
+  e2e:
+    runs-on: prolinux
+    needs: [build]
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        config:
+        - {k8s: v1.17.9, network: calico}
+        - {k8s: v1.17.9, network: flannel}
+        - {k8s: v1.15.3, network: calico}
+        - {k8s: v1.15.3, network: flannel}
+    steps:
+      - run: |
+          export BOX_OS=prolinux KUBE_VERSION=${{ matrix.config.k8s }} KUBE_NETWORK=${{ matrix.config.network }}
+          ../hack/prolinux_cluster.sh up
+          build/hcsctl install ../hack/inventory/test-sample
+          build/hcsctl ceph status
+          build/hcsctl ceph exec ceph osd status
+          build/hcsctl.test
+          build/hcsctl uninstall ../hack/inventory/test-sample
+          build/hcsctl uninstall ../hack/inventory/test-sample # idempotent
+          ../hack/prolinux_cluster.sh down
