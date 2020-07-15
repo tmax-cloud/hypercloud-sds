@@ -169,7 +169,7 @@ spec:
             # /dev/sdb device에 osd 설치를 원하는 경우
             DISK="/dev/sdb"
             $ sudo sgdisk --zap-all $DISK
-            $ sudo if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
+            $ sudo dd if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
             ```
     - 하나의 노드에 두 개 이상의 OSD pod를 deploy하고 싶은 경우 아래와 같이 osd 설정을 추가하면 됩니다.
         ```yaml
