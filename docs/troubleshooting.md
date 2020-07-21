@@ -9,6 +9,10 @@
 - `cluster.yaml` 파일에 기입한 스토리지 디바이스가 해당 노드에 존재하며 unmount된 상태여야 합니다.
 - `v1.3.0` 이상 버전을 배포한 경우 `cluster.yaml` 파일에 `directories:` 관련 설정은 없어야 합니다.
 
+### ceph cluster가 health_warn 인 경우
+
+- `ntp` 패키지가 설치 되어 있고, 특히 monitor가 deploy 된 노드에서는 ntp service가 enable 되어 있는지 확인합니다.
+
 ## 주요 커맨드
 
 디버깅 시 유용하게 사용할 수 있는 K8s command들 입니다.
@@ -57,6 +61,25 @@ $ kubectl get pod -n rook-ceph -o wide
 
 # cluster.yaml 에서 OSD 배포 설정과 디바이스 정보 설정을 재확인합니다.
 ```
+
+### ceph cluster가 health_warn 인 경우
+
+``` shell
+# ceph cluster 상태 확인
+$ kubectl describe cephcluster -n rook-ceph rook-ceph
+
+....
+Status:
+  Ceph:
+    Details:
+      MON_CLOCK_SKEW:
+        Message:   clock skew detected on mon.b
+        Severity:  HEALTH_WARN
+    Health:        HEALTH_WARN
+    Last Checked:  2020-07-20T01:24:30Z
+```
+
+Detail 메세지가 MON_CLOCK_SKEW인 경우에는 ntp 패키지 설치 및 enable 여부가 확인이 필요합니다. Ceph monitor 데몬들끼리 데이터 동기화가 제대로 이뤄지지 못할 위험이 있기 때문입니다.
 
 ----------
 
