@@ -1,4 +1,4 @@
-module hypercloud-storage/hcsctl
+module hypercloud-sds/hcsctl
 
 go 1.13
 

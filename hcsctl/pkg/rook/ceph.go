@@ -3,7 +3,7 @@ package rook
 import (
 	"bytes"
 	"errors"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
 	"io"
 	"os"
 	"strings"

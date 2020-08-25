@@ -4,11 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
 	"path/filepath"
 
-	"hypercloud-storage/hcsctl/pkg/cdi"
-	"hypercloud-storage/hcsctl/pkg/rook"
+	"hypercloud-sds/hcsctl/pkg/cdi"
+	"hypercloud-sds/hcsctl/pkg/rook"
 	"os"
 	"path"
 	"strings"
@@ -26,7 +26,7 @@ var inventoryPath string
 
 var rootCmd = &cobra.Command{
 	Use:   "hcsctl",
-	Short: "hypercloud-storage를 설치, 관리하기 위한 툴을 제공합니다.",
+	Short: "hypercloud-sds를 설치, 관리하기 위한 툴을 제공합니다.",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -2,8 +2,8 @@ package cdi
 
 import (
 	"bytes"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
-	"hypercloud-storage/hcsctl/pkg/util"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/util"
 	"os"
 	"path"
 	"time"
