@@ -1,7 +1,7 @@
 package main
 
 import (
-	"hypercloud-storage/hcsctl/pkg/util"
+	"hypercloud-sds/hcsctl/pkg/util"
 	"testing"
 )
 

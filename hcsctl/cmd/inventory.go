@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"hypercloud-storage/hcsctl/pkg/inventory"
+	"hypercloud-sds/hcsctl/pkg/inventory"
 
 	"github.com/spf13/cobra"
 )

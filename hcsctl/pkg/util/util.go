@@ -2,7 +2,7 @@ package util
 
 import (
 	"bytes"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
 )
 
 const (

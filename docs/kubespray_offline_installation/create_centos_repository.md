@@ -149,7 +149,7 @@ repositories to your server by using `reposync` command.
   ```shell
   cat <<EOF > /etc/yum.repos.d/hcs.repo
   [hcs]
-  name=HyperCloud-storage Repository
+  name=HyperCloud-sds Repository
   baseurl=http://192.168.0.30/hcs-yum
   enabled=1
   gpgcheck=0

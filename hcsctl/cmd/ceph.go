@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/golang/glog"
 
-	"hypercloud-storage/hcsctl/pkg/rook"
+	"hypercloud-sds/hcsctl/pkg/rook"
 	"os"
 
 	"github.com/spf13/cobra"

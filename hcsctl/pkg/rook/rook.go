@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
-	"hypercloud-storage/hcsctl/pkg/util"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/util"
 
 	"os"
 	"path"
@@ -360,7 +360,7 @@ func Delete(inventoryPath string) error {
 	glog.Info("[STEP 4 / 4] End Deleting Rook")
 	glog.Info("[WARNING] You need to remove /var/lib/rook directory in every nodes. " +
 		"Also, you need to reset all devices used by rook-ceph. " +
-		"There is the reset manual in the hypercloud-storage gitlab project")
+		"There is the reset manual in the hypercloud-sds github project")
 
 	return nil
 }

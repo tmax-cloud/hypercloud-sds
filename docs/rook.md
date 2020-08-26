@@ -1,6 +1,6 @@
 # Rook Ceph Cluster
 
-> Rook Ceph는 hypercloud-storage에서의 고가용성 storage 제공을 위해서 설치하는 모듈입니다. 본 프로젝트에서 cephFS(file system), rbd(block storage)를 제공합니다.
+> Rook Ceph는 hypercloud-sds에서의 고가용성 storage 제공을 위해서 설치하는 모듈입니다. 본 프로젝트에서 cephFS(file system), rbd(block storage)를 제공합니다.
 
 ## Reference
 

@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "hypercloud-storage/hcsctl/cmd"
+import "hypercloud-sds/hcsctl/cmd"
 
 func main() {
 	cmd.Execute()

@@ -1,4 +1,4 @@
-module tmax.com/hypercloud-storage/ginkgotest
+module tmax.com/hypercloud-sds/ginkgotest
 
 go 1.13
 
