@@ -16,13 +16,14 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: ceph/ceph:v14.2.9
+    image: ceph/ceph:v15.2.4
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
   continueUpgradeAfterChecksEvenIfNotHealthy: false
   mon:
-    # set the amount of mons to be started, Recommendation: Use odd numbers (ex. 3, 5)
+    # Set the amount of mons to be started
+    # Recommendation: Use odd numbers (ex 3, 5)
     count: 1
     allowMultiplePerNode: false
   mgr:
@@ -32,22 +33,20 @@ spec:
   dashboard:
     enabled: true
     ssl: true
+  # enable prometheus alerting for cluster
   monitoring:
-    # requires Prometheus to be pre-installed for enabled is true
+    # requires Prometheus to be pre-installed
     enabled: false
     rulesNamespace: rook-ceph
   network:
     # enable host networking
     # provider: host
-  rbdMirroring:
-    workers: 0
   crashCollector:
     disable: false
-  cleanupPolicy:
-    confirmation: ""
   annotations:
+  labels:
   resources:
-# set the requests and limits for osd, mon, mgr
+# Set the request and limits for osd, mon, mgr
 #    osd:
 #      limits:
 #        cpu: "2"
@@ -57,10 +56,10 @@ spec:
 #        memory: "4096Mi"
 #    mon:
 #      limits:
-#        cpu: "1"
+#        cpu: "2"
 #        memory: "2048Mi"
 #      requests:
-#        cpu: "1"
+#        cpu: "2"
 #        memory: "2048Mi"
 #    mgr:
 #      limits:
@@ -69,29 +68,43 @@ spec:
 #      requests:
 #        cpu: "1"
 #        memory: "1024Mi"
+# The option to automatically remove OSDs that are out and are safe to destroy.
   removeOSDsIfOutAndSafeToRemove: false
   priorityClassNames:
     all: rook-ceph-default-priority-class
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    config:
+# nodes below will be used as storage resources.
+# Each node's 'name' field should match their 'kubernetes.io/hostname' label.
+#    nodes:
+#    - name: "worker1"               # Add Ceph osd to worker1 node (Caution: check hostname by 'kubectl get nodes') 
+#      devices:                      # Specific devices
+#      - name: "sdb"
+#      - name: "nvme01"              # multiple osds can be created on high performance devices
+#        config:
+#          osdsPerDevice: "5"
+#    - name: "worker2"
+#      devices:
+#      - name: "sdc"
+#      - name: "sdd"
   disruptionManagement:
     managePodBudgets: false
     osdMaintenanceTimeout: 30
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
-  storage:
-    # set useAllNodes,useAllDevices to false for node-specific config
-    useAllNodes: false
-    useAllDevices: false
-    config:
-# Example for node-specific config. It works only when 'useAllNodes' is false.
-#    nodes:
-#      - name: "worker1"    # Add worker1 node to ceph-osd. (Caution: check hostname by 'kubectl get nodes')
-#        devices:           # Add disk of worker1 to ceph-osd.
-#        - name: "sdb"      # Caution: Disk must exist in worker1 node. (check disk by 'sudo fdisk -l')
-#        - name: "sdc"
-#          config:          
-#            metadataDevice: "sdd1"     # Separate metadata device to high-performance device. (ex. SSD)
-#      - name: "worker2"         # Add worker2 node to ceph-osd.
-#        devices:           # Add disk of worker1 to ceph-osd.
-#      - name: "nvme01" # multiple osds can be created on high performance devices
-#        config:
-#          osdsPerDevice: "5"
+
+# healthChecks
+# Valid values for daemons are 'mon', 'osd', 'status'
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: false
+        interval: 60s
