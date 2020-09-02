@@ -10,9 +10,9 @@ metadata:
   name: replicapool
   namespace: rook-ceph
 spec:
-  # The failure domain will spread the replicas of the data across different failure zones
+  # The failure domain will spread the replicas of the data across different failure zones (osd, host)
   failureDomain: host
-  # For a pool based on raw copies, specify the number of copies. A size of 1 indicates no redundancy.
+  # Set the replica size
   replicated:
     size: 3
     # Disallow setting pool with replica 1, this could lead to data loss without recovery.

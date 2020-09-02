@@ -24,7 +24,7 @@ spec:
   mon:
     # Set the amount of mons to be started
     # Recommendation: Use odd numbers (ex 3, 5)
-    count: 1
+    count: 3
     allowMultiplePerNode: false
   mgr:
     modules:
@@ -76,19 +76,16 @@ spec:
     useAllNodes: false
     useAllDevices: false
     config:
-# nodes below will be used as storage resources.
-# Each node's 'name' field should match their 'kubernetes.io/hostname' label.
-#    nodes:
-#    - name: "worker1"               # Add Ceph osd to worker1 node (Caution: check hostname by 'kubectl get nodes') 
-#      devices:                      # Specific devices
-#      - name: "sdb"
-#      - name: "nvme01"              # multiple osds can be created on high performance devices
-#        config:
-#          osdsPerDevice: "5"
-#    - name: "worker2"
-#      devices:
-#      - name: "sdc"
-#      - name: "sdd"
+    nodes:
+    - name: "s1-1"
+      devices:
+      - name: "sdc"
+    - name: "s1-2"
+      devices:
+      - name: "sdc"
+    - name: "s1-3"
+      devices:
+      - name: "sdc"
   disruptionManagement:
     managePodBudgets: false
     osdMaintenanceTimeout: 30

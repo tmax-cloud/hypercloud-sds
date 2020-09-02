@@ -5,7 +5,7 @@
 ## OSD를 추가하는 방법
 - ceph cluster에 OSD daemon를 추가하고 싶은 경우, cluster.yaml의 `spec.storage. node[].device`에 osd에 관련한 설정을 추가하고 `kubectl apply -f cluster.yaml`를 진행하시면 됩니다. `spec.storage.node[].device`를 수정하는 방법은 OSD deploy setting section을 참고하시면 됩니다.
   - `kubectl apply -f cluster.yaml` 이후 operator pod에 의해 OSD 생성 작업이 진행되며, osd의 추가 확인은 toolbox pod에서 `ceph osd tree` 명령을 통해 확인할 수 있습니다.
-  - toolbox pod 접근 방법은 [이 문서](docs/ceph-command.md)를 참고해주세요.
+  - toolbox pod 접근 방법은 [Ceph 명령어 메뉴얼](ceph-command.md)를 참고해주세요.
     ```shell
     $ ceph osd tree
     ID CLASS WEIGHT  TYPE NAME              STATUS REWEIGHT PRI-AFF
@@ -56,4 +56,4 @@
     -2       0.09180     host ask-b360m-d3h                         
     1   ssd 0.09180         osd.1              up  1.00000 1.00000
     ```
-- OSD가 제거되었으므로, 제거한 OSD가 사용하던 디바이스는 **초기화**합니다. 초기화 방법은 이 [문서](docs/rook.md)를 참고하세요.
+- OSD가 제거되었으므로, 제거한 OSD가 사용하던 디바이스는 **초기화**합니다. 초기화 방법은 이 [문서](rook.md)를 참고하세요.

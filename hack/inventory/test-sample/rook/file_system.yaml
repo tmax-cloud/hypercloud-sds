@@ -12,6 +12,9 @@ metadata:
 spec:
   # The metadata pool spec. Must use replication.
   metadataPool:
+    # The failure domain will spread teh replicas of the across different failure zones (osd, host)
+    failureDomain: host
+    # Set the replica size
     replicated:
       size: 2
       requireSafeReplicaSize: true

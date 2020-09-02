@@ -25,7 +25,15 @@ const (
 )
 
 var (
-	// PriorityYaml represents priority.yaml
+	// SnapshotCrdsYaml represents snapshot_crds.yaml
+	SnapshotCrdsYaml string = "snapshot_crds.yaml"
+
+	// SnapshotControllerRbacYaml represents snapshot-controller-rbac.yaml
+	SnapshotControllerRbacYaml = "snapshot-controller-rbac.yaml"
+	// SnapshotControllerYaml represents snapshot-controller.yaml
+	SnapshotControllerYaml string = "snapshot-controller.yaml"
+	
+        // PriorityYaml represents priority.yaml
 	PriorityYaml string = "priority.yaml"
 	// CommonYaml represents common.yaml
 	CommonYaml string = "common.yaml"
@@ -33,19 +41,28 @@ var (
 	OperatorYaml string = "operator.yaml"
 	// ClusterYaml represents cluster.yaml
 	ClusterYaml string = "cluster.yaml"
+
 	// RbdPoolYaml represents block_pool.yaml
 	RbdPoolYaml string = "block_pool.yaml"
 	// RbdStorageClassYaml represents block_sc.yaml
 	RbdStorageClassYaml string = "block_sc.yaml"
+	// RbdSnapClassYaml represents block_snap_sc.yaml
+	RbdSnapClassYaml string = "block_snap_sc.yaml"
+
 	// CephfsFilesystemYaml represents file_system.yaml
 	CephfsFilesystemYaml string = "file_system.yaml"
 	// CephfsStorageClassYaml represents file_sc.yaml
 	CephfsStorageClassYaml string = "file_sc.yaml"
+	// CephfsSnapClassYaml represents file_snap_sc.yaml
+	CephfsSnapClassYaml string = "file_snap_sc.yaml"
+
 	// ToolboxYaml represents toolbox.yaml
 	ToolboxYaml string = "toolbox.yaml"
+
 	// RookYamlSet represents required yamls of rook
-	RookYamlSet = sets.NewString(PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml,
-		CephfsFilesystemYaml, CephfsStorageClassYaml, ToolboxYaml)
+	RookYamlSet = sets.NewString(SnapshotCrdsYaml, SnapshotControllerRbacYaml, SnapshotControllerYaml,
+                PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml, RbdSnapClassYaml,
+		CephfsFilesystemYaml, CephfsStorageClassYaml, CephfsSnapClassYaml, ToolboxYaml)
 )
 
 var (
@@ -64,6 +81,22 @@ func Apply(inventoryPath string) error {
 	glog.Info("[STEP 1 / 6] Fetch Rook-ceph variables from inventory")
 
 	err := setRookCephValuesFrom(inventoryPath)
+	if err != nil {
+		return err
+	}
+
+        // Snapshot
+	err = rookApply(inventoryPath, SnapshotCrdsYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookApply(inventoryPath, SnapshotControllerRbacYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookApply(inventoryPath, SnapshotControllerYaml)
 	if err != nil {
 		return err
 	}
@@ -109,6 +142,7 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+        // RBD 
 	err = rookApply(inventoryPath, RbdPoolYaml)
 	if err != nil {
 		return err
@@ -119,6 +153,12 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+	err = rookApply(inventoryPath, RbdSnapClassYaml)
+	if err != nil {
+		return err
+	}
+
+        // CephFS
 	err = rookApply(inventoryPath, CephfsFilesystemYaml)
 	if err != nil {
 		return err
@@ -136,6 +176,12 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+	err = rookApply(inventoryPath, CephfsSnapClassYaml)
+	if err != nil {
+		return err
+	}
+
+        // Toolbox
 	err = rookApply(inventoryPath, ToolboxYaml)
 	if err != nil {
 		return err
@@ -313,12 +359,24 @@ func Delete(inventoryPath string) error {
 		return err
 	}
 
+        // CephFS
+	err = rookDelete(inventoryPath, CephfsSnapClassYaml)
+	if err != nil {
+		return err
+	}
+
 	err = rookDelete(inventoryPath, CephfsStorageClassYaml)
 	if err != nil {
 		return err
 	}
 
 	err = rookDelete(inventoryPath, CephfsFilesystemYaml)
+	if err != nil {
+		return err
+	}
+
+        // RBD
+	err = rookDelete(inventoryPath, RbdSnapClassYaml)
 	if err != nil {
 		return err
 	}
@@ -353,6 +411,22 @@ func Delete(inventoryPath string) error {
 	}
 
 	err = rookDelete(inventoryPath, CommonYaml)
+	if err != nil {
+		return err
+	}
+
+        // Snapshot
+	err = rookDelete(inventoryPath, SnapshotControllerYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookDelete(inventoryPath, SnapshotControllerRbacYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookDelete(inventoryPath, SnapshotCrdsYaml)
 	if err != nil {
 		return err
 	}
