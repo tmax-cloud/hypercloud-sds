@@ -9,7 +9,7 @@ import (
 
 // 패키지 변수
 var (
-	hyperStorageHelper *HyperHelper
+	hyperSdsHelper *HyperHelper
 	err                error
 )
 
@@ -20,7 +20,7 @@ func init() {
 		panic(err)
 	}
 
-	hyperStorageHelper = HyperStorageHelper()
+	hyperSdsHelper = HyperSdsHelper()
 }
 
 func TestGinkgotest(t *testing.T) {

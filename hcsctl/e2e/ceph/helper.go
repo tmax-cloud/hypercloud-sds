@@ -9,17 +9,17 @@ import (
 	"path/filepath"
 
 	"github.com/rook/rook/pkg/util/exec"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/dynamic"
 )
 
 type HyperHelper struct {
 	executor  *exec.CommandExecutor
-	Clientset *kubernetes.Clientset
+	Client    *dynamic.Interface
 	RunningInCluster bool
 }
 
 var (
-	uniqueHyperStorageHelper *HyperHelper
+	uniqueHyperSdsHelper *HyperHelper
 	uniqueConfig             *restclient.Config
 )
 
@@ -47,12 +47,12 @@ func CreateK8sHelper() (*HyperHelper, error) {
 		panic(err.Error())
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	client, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get clientset. %+v", err)
 	}
 
-	h := &HyperHelper{executor: executor, Clientset: clientset}
+	h := &HyperHelper{executor: executor, Client: &client}
 
 	//TODO cluster 밖에서 명령 보내는 경우 고려 (현재는 InCluster인 경우만 하고 있음)
 
@@ -60,14 +60,14 @@ func CreateK8sHelper() (*HyperHelper, error) {
 	//	h.RunningInCluster = true
 	//}
 	h.RunningInCluster = true
-	uniqueHyperStorageHelper, uniqueConfig = h, config
+	uniqueHyperSdsHelper, uniqueConfig = h, config
 	return h, err
 }
 
-func HyperStorageHelper() *HyperHelper {
-	return uniqueHyperStorageHelper
+func HyperSdsHelper() *HyperHelper {
+	return uniqueHyperSdsHelper
 }
 
-func HyperStorageConfig() *restclient.Config {
+func HyperSdsConfig() *restclient.Config {
 	return uniqueConfig
 }
