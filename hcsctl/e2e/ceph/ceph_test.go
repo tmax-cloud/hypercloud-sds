@@ -1,4 +1,4 @@
-package tests
+package testCeph
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 	"strconv"
+	"time"
 )
 
 var (
@@ -22,6 +23,7 @@ const (
 	CephPvcNamePrefix       = "ceph-"
 
 	VolumeSize = "100Mi"
+	TimeOutForCreatingPvc = 60 * time.Second *2
 
 	CephFsSc = "csi-cephfs-sc"
 	RbdSc    = "rook-ceph-block"

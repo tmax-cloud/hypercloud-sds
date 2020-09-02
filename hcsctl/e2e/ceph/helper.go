@@ -1,15 +1,13 @@
-package tests
+package testCeph
 
 import (
 	"flag"
 	"fmt"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	cdiclient "kubevirt.io/containerized-data-importer/pkg/client/clientset/versioned"
 	"os"
 	"path/filepath"
 
-	//rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	"github.com/rook/rook/pkg/util/exec"
 	"k8s.io/client-go/kubernetes"
 )
@@ -17,8 +15,6 @@ import (
 type HyperHelper struct {
 	executor  *exec.CommandExecutor
 	Clientset *kubernetes.Clientset
-	//RookClientset    *rookclient.Clientset
-	CdiClientset     *cdiclient.Clientset
 	RunningInCluster bool
 }
 
@@ -56,12 +52,7 @@ func CreateK8sHelper() (*HyperHelper, error) {
 		return nil, fmt.Errorf("failed to get clientset. %+v", err)
 	}
 
-	cdiclientset, err := cdiclient.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get cdiclientset. %+v", err)
-	}
-
-	h := &HyperHelper{executor: executor, Clientset: clientset, CdiClientset: cdiclientset}
+	h := &HyperHelper{executor: executor, Clientset: clientset}
 
 	//TODO cluster 밖에서 명령 보내는 경우 고려 (현재는 InCluster인 경우만 하고 있음)
 

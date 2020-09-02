@@ -1,4 +1,4 @@
-package tests
+package testCeph
 
 import "time"
 
