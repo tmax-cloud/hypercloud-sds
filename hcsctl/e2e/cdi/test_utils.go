@@ -1,4 +1,4 @@
-package testCDI
+package cdi
 
 import (
 	corev1 "k8s.io/api/core/v1"
