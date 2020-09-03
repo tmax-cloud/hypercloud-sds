@@ -64,9 +64,11 @@ jobs:
     needs: [lint, build, e2e]
     runs-on: prolinux
     steps:
-      - uses: actions/upload-artifact@v1
+      - name: Upload binary
+        uses: actions/upload-artifact@v1
         with:
           name: hcsctl
+          working-directory: hcsctl
           path: | 
             build/hcsctl
             bild/hcsctl.test
