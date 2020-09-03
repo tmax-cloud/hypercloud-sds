@@ -21,8 +21,8 @@
   - `MDS`
     - CPU: 2GHz CPU 4 core 이상 권장
     - Memory: 4GB 메모리 이상 권장
-  - **production용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 ceph가 정상적인 성능 및 안정성을 제공합니다.**
-    - ceph pod들에 다음 값들로 **resource를 설정하기 위해 아래의 resource 설정과 [cephFS의 resource 설정](/docs/file.md)**을 참고바랍니다.
+  - **Production 용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 Ceph 가 정상적인 성능 및 안정성을 제공합니다.**
+    - 각 Ceph daemon pod 의 resource 설정 방법은 [본 문서의 Resource setting](#resource-setting) 부분과 [CephFS 가이드 문서의 Resource setting](/docs/file.md#resource-setting) 부분을 참고하시면 됩니다.
 - 권장사항
   - 각 노드마다 OSD를 배포하도록 권장 (Taint 걸린 host 없는 걸 확인해야함)
   - 총 OSD 개수는 3개 이상으로 권장
@@ -70,7 +70,7 @@ spec:
   annotations:
   labels:
   resources:
-# Set the request and limits for osd, mon, mgr
+# Set the requests and limits for osd, mon, mgr
 #    osd:
 #      limits:
 #        cpu: "2"
@@ -102,11 +102,11 @@ spec:
     config:
 # nodes below will be used as storage resources.
 # Each node's 'name' field should match their 'kubernetes.io/hostname' label.
-    nodes:
-    - name: "worker1"               # Add Ceph osd to worker1 node (Caution: check hostname by 'kubectl get nodes') 
-      devices:                      # Specific devices
-      - name: "sdc"
-#      - name: "nvme01"            # multiple osds can be created on high performance devices
+#    nodes:
+#    - name: "worker1"               # Add Ceph osd to worker1 node (Caution: check hostname by 'kubectl get nodes') 
+#      devices:                      # Specific devices
+#      - name: "sdb"
+#      - name: "nvme01"              # multiple osds can be created on high performance devices
 #        config:
 #          osdsPerDevice: "5"
 #    - name: "worker2"
@@ -209,7 +209,7 @@ spec:
     - OSD를 3개 이상 배포할 수 없는 테스트용 환경에서는 아래와 같이 설정 추가 및 변경이 필요합니다.
       - cluster.yaml 파일 상단에 `ConfigMap` 추가
       - cluster.yaml의 spec.storage.useAllNodes, spec.storage.useAllDevices값을 true로 설정하여 모든 노드에서 사용 가능한 모든 device에 osd 배포를 시도
-      - 배포하는 block, cephfs pool의 replication 개수를 1로 설정
+      - 배포하는 RBD, CephFS pool의 replication 개수를 1로 설정
       ``` yaml
       kind: ConfigMap
       apiVersion: v1
@@ -225,4 +225,4 @@ spec:
       
 ### Ceph Cluster network 설정
 
-- `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.
+- `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 Ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.

@@ -32,8 +32,8 @@ var (
 	SnapshotControllerRbacYaml = "snapshot-controller-rbac.yaml"
 	// SnapshotControllerYaml represents snapshot-controller.yaml
 	SnapshotControllerYaml string = "snapshot-controller.yaml"
-	
-        // PriorityYaml represents priority.yaml
+
+	// PriorityYaml represents priority.yaml
 	PriorityYaml string = "priority.yaml"
 	// CommonYaml represents common.yaml
 	CommonYaml string = "common.yaml"
@@ -61,7 +61,7 @@ var (
 
 	// RookYamlSet represents required yamls of rook
 	RookYamlSet = sets.NewString(SnapshotCrdsYaml, SnapshotControllerRbacYaml, SnapshotControllerYaml,
-                PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml, RbdSnapClassYaml,
+		PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml, RbdSnapClassYaml,
 		CephfsFilesystemYaml, CephfsStorageClassYaml, CephfsSnapClassYaml, ToolboxYaml)
 )
 
@@ -85,7 +85,7 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-        // Snapshot
+	// Snapshot
 	err = rookApply(inventoryPath, SnapshotCrdsYaml)
 	if err != nil {
 		return err
@@ -142,7 +142,6 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-        // RBD 
 	err = rookApply(inventoryPath, RbdPoolYaml)
 	if err != nil {
 		return err
@@ -158,7 +157,6 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-        // CephFS
 	err = rookApply(inventoryPath, CephfsFilesystemYaml)
 	if err != nil {
 		return err
@@ -181,7 +179,6 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
-        // Toolbox
 	err = rookApply(inventoryPath, ToolboxYaml)
 	if err != nil {
 		return err
@@ -359,7 +356,6 @@ func Delete(inventoryPath string) error {
 		return err
 	}
 
-        // CephFS
 	err = rookDelete(inventoryPath, CephfsSnapClassYaml)
 	if err != nil {
 		return err
@@ -375,7 +371,6 @@ func Delete(inventoryPath string) error {
 		return err
 	}
 
-        // RBD
 	err = rookDelete(inventoryPath, RbdSnapClassYaml)
 	if err != nil {
 		return err
@@ -415,7 +410,6 @@ func Delete(inventoryPath string) error {
 		return err
 	}
 
-        // Snapshot
 	err = rookDelete(inventoryPath, SnapshotControllerYaml)
 	if err != nil {
 		return err

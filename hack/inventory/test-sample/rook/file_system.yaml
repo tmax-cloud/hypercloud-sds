@@ -12,7 +12,7 @@ metadata:
 spec:
   # The metadata pool spec. Must use replication.
   metadataPool:
-    # The failure domain will spread teh replicas of the across different failure zones (osd, host)
+    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
     failureDomain: host
     # Set the replica size
     replicated:
@@ -20,10 +20,8 @@ spec:
       requireSafeReplicaSize: true
     parameters:
       # Inline compression mode for the data pool
-      # Further reference: https://docs.ceph.com/docs/nautilus/rados/configuration/bluestore-config-ref/#inline-compression
       compression_mode: none
         # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-      # for more info: https://docs.ceph.com/docs/master/rados/operations/placement-groups/#specifying-expected-pool-size
       #target_size_ratio: ".5"
   # The list of data pool specs. Can use replication or erasure coding.
   dataPools:
@@ -35,10 +33,8 @@ spec:
         requireSafeReplicaSize: true
       parameters:
         # Inline compression mode for the data pool
-        # Further reference: https://docs.ceph.com/docs/nautilus/rados/configuration/bluestore-config-ref/#inline-compression
         compression_mode: none
           # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-        # for more info: https://docs.ceph.com/docs/master/rados/operations/placement-groups/#specifying-expected-pool-size
         #target_size_ratio: ".5"
   # Whether to preserve metadata and data pools on filesystem deletion
   preservePoolsOnDelete: true
@@ -72,14 +68,10 @@ spec:
                   operator: In
                   values:
                   - rook-ceph-mds
-              # topologyKey: */zone can be used to spread MDS across different AZ
-              # Use <topologyKey: failure-domain.beta.kubernetes.io/zone> in k8s cluster if your cluster is v1.16 or lower
-              # Use <topologyKey: topology.kubernetes.io/zone>  in k8s cluster is v1.17 or upper
               topologyKey: topology.kubernetes.io/zone
     # A key/value list of annotations
     annotations:
     resources:
-    # The requests and limits set here, allow the filesystem MDS Pod(s) to use half of one CPU core and 1 gigabyte of memory
     #  limits:
     #    cpu: "4"
     #    memory: "4096Mi"
