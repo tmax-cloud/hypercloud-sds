@@ -13,18 +13,27 @@ metadata:
 spec:
   # The failure domain will spread the replicas of the data across different failure zones (osd, host)
   failureDomain: host
+  # Set the replica size
   replicated:
-    # set the replica size
     size: 3
-    # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+    # Disallow setting pool with replica 1, this could lead to data loss without recovery.
+    # Make sure you're *ABSOLUTELY CERTAIN* that is what you want
     requireSafeReplicaSize: true
-    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-    #targetSizeRatio: .5
+  # Ceph CRUSH root location of the rule
   #crushRoot: my-root
   # The Ceph CRUSH device class associated with the CRUSH replicated rule
   #deviceClass: my-class
-  compressionMode: none
+  # Enables collecting RBD per-image IO statistics by enabling dynamic OSD performance counters. Defaults to false.
+  # enableRBDStats: true
+  # Set any property on a given pool
+  parameters:
+    # Inline compression mode for the data pool
+    compression_mode: none
+    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+    #target_size_ratio: ".5"
+  # A key/value list of annotations
   annotations:
+  #  key: value
 ```
 
 #### CephBlockPool 설정 방법
@@ -42,11 +51,25 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
    name: rook-ceph-block
+# Change "rook-ceph" provisioner prefix to match the operator namespace if needed
 provisioner: rook-ceph.rbd.csi.ceph.com
 parameters:
+    # clusterID is the namespace where the rook cluster is running
+    # If you change this namespace, also change the namespace below where the secret namespaces are defined
     clusterID: rook-ceph
+
+    # If you want to use erasure coded pool with RBD, you need to create
+    # two pools. one erasure coded and one replicated.
+    # You need to specify the replicated pool here in the `pool` parameter, it is
+    # used for the metadata of the images.
+    # The erasure coded pool must be set as the `dataPool` parameter below.
+    #dataPool: ec-data-pool
     pool: replicapool
+
+    # RBD image format. Defaults to "2".
     imageFormat: "2"
+
+    # RBD image features. Available for imageFormat: "2". CSI RBD currently supports only `layering` feature.
     imageFeatures: layering
 
     # The secrets contain Ceph admin credentials. These are generated automatically by the operator
@@ -58,8 +81,14 @@ parameters:
     csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
     csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
     # Specify the filesystem type of the volume. If not specified, csi-provisioner
-    # will set default as `ext4`.
+    # will set default as `ext4`. Note that `xfs` is not recommended due to potential deadlock
+    # in hyperconverged settings where the volume is mounted on the same node as the osds.
     csi.storage.k8s.io/fstype: ext4
+# uncomment the following to use rbd-nbd as mounter on supported nodes
+# **IMPORTANT**: If you are using rbd-nbd as the mounter, during upgrade you will be hit a ceph-csi
+# issue that causes the mount to be disconnected. You will need to follow special upgrade steps
+# to restart your application pods. Therefore, this option is not recommended.
+#mounter: rbd-nbd
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 ```
@@ -104,8 +133,8 @@ pod에 attach될 때에는 pod 배포 시 명시한 `volumeMounts.mountPath` 디
 - PVC 생성시 `spec.volumeMode.Block`을 명시할 경우, block volume은 자동으로 filesystem으로 포맷되지 않으며, pod에 attach될 때에는 pod 배포 시 명시한 `volumeDevices.devicePath` 경로에 raw block device 형태로 attach됩니다.
 해당 방법에서는 accessMode로 `RWO`, `RWX`를 모두 지원합니다.
 
-- RBD 사용을 위한 storageClass 작성시 `reclaimPolicy`를 `Retain`으로 설정할 경우, pv를 지워도 RBD image가 ceph cluster에 남아 있습니다. 이 경우에는 직접 `ceph 명령어`를 사용하여 RBD image를 지워야 합니다. RBD image를 지우는 방법은 <strong>[ceph 명령어 메뉴얼](/docs/ceph-command.md)</strong>을 참고하시기 바랍니다.
+- RBD 사용을 위한 storageClass 작성시 `reclaimPolicy`를 `Retain`으로 설정할 경우, pv를 지워도 RBD image가 ceph cluster에 남아 있습니다. 이 경우에는 직접 `ceph 명령어`를 사용하여 RBD image를 지워야 합니다. RBD image를 지우는 방법은 <strong>[ceph 명령어 메뉴얼](ceph-command.md)</strong>을 참고하시기 바랍니다.
 
 ## References
 
-- <https://rook.io/docs/rook/v1.3/ceph-block.html>
+- <https://rook.github.io/docs/rook/v1.4/ceph-block.html>

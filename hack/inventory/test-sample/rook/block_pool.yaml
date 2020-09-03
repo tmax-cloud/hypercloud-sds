@@ -12,15 +12,24 @@ metadata:
 spec:
   # The failure domain will spread the replicas of the data across different failure zones (osd, host)
   failureDomain: host
+  # Set the replica size
   replicated:
-    # set the replica size
-    size: 1
-    # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
-    requireSafeReplicaSize: false
-    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-    #targetSizeRatio: .5
+    size: 2
+    # Disallow setting pool with replica 1, this could lead to data loss without recovery.
+    # Make sure you're *ABSOLUTELY CERTAIN* that is what you want
+    requireSafeReplicaSize: true
+  # Ceph CRUSH root location of the rule
   #crushRoot: my-root
   # The Ceph CRUSH device class associated with the CRUSH replicated rule
   #deviceClass: my-class
-  compressionMode: none
-  
+  # Enables collecting RBD per-image IO statistics by enabling dynamic OSD performance counters. Defaults to false.
+  # enableRBDStats: true
+  # Set any property on a given pool
+  parameters:
+    # Inline compression mode for the data pool
+    compression_mode: none
+    # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+    #target_size_ratio: ".5"
+  # A key/value list of annotations
+  annotations:
+  #  key: value

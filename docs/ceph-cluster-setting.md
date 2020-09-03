@@ -21,8 +21,8 @@
   - `MDS`
     - CPU: 2GHz CPU 4 core 이상 권장
     - Memory: 4GB 메모리 이상 권장
-  - **production용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 ceph가 정상적인 성능 및 안정성을 제공합니다.**
-    - ceph pod들에 다음 값들로 **resource를 설정하기 위해 아래의 resource 설정과 [cephFS의 resource 설정](/docs/file.md)**을 참고바랍니다.
+  - **Production 용으로 배포될 경우 해당 사항들을 반드시 지켜주셔야 Ceph 가 정상적인 성능 및 안정성을 제공합니다.**
+    - 각 Ceph daemon pod 의 resource 설정 방법은 [본 문서의 Resource setting](#resource-setting) 부분과 [CephFS 가이드 문서의 Resource setting](/docs/file.md#resource-setting) 부분을 참고하시면 됩니다.
 - 권장사항
   - 각 노드마다 OSD를 배포하도록 권장 (Taint 걸린 host 없는 걸 확인해야함)
   - 총 OSD 개수는 3개 이상으로 권장
@@ -40,13 +40,14 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: ceph/ceph:v14.2.9
+    image: ceph/ceph:v15.2.4
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
   continueUpgradeAfterChecksEvenIfNotHealthy: false
   mon:
-    # set the amount of mons to be started, Recommendation: Use odd numbers (ex. 3, 5)
+    # Set the amount of mons to be started
+    # Recommendation: Use odd numbers (ex 3, 5)
     count: 1
     allowMultiplePerNode: false
   mgr:
@@ -56,22 +57,20 @@ spec:
   dashboard:
     enabled: true
     ssl: true
+  # enable prometheus alerting for cluster
   monitoring:
-    # requires Prometheus to be pre-installed for enabled is true
+    # requires Prometheus to be pre-installed
     enabled: false
     rulesNamespace: rook-ceph
   network:
     # enable host networking
-    #provider: host
-  rbdMirroring:
-    workers: 0
+    # provider: host
   crashCollector:
     disable: false
-  cleanupPolicy:
-    deleteDataDirOnHosts: ""
   annotations:
+  labels:
   resources:
-# set the requests and limits for osd, mon, mgr
+# Set the requests and limits for osd, mon, mgr
 #    osd:
 #      limits:
 #        cpu: "2"
@@ -81,10 +80,10 @@ spec:
 #        memory: "4096Mi"
 #    mon:
 #      limits:
-#        cpu: "1"
+#        cpu: "2"
 #        memory: "2048Mi"
 #      requests:
-#        cpu: "1"
+#        cpu: "2"
 #        memory: "2048Mi"
 #    mgr:
 #      limits:
@@ -93,32 +92,46 @@ spec:
 #      requests:
 #        cpu: "1"
 #        memory: "1024Mi"
+# The option to automatically remove OSDs that are out and are safe to destroy.
   removeOSDsIfOutAndSafeToRemove: false
   priorityClassNames:
     all: rook-ceph-default-priority-class
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    config:
+# nodes below will be used as storage resources.
+# Each node's 'name' field should match their 'kubernetes.io/hostname' label.
+#    nodes:
+#    - name: "worker1"               # Add Ceph osd to worker1 node (Caution: check hostname by 'kubectl get nodes') 
+#      devices:                      # Specific devices
+#      - name: "sdb"
+#      - name: "nvme01"              # multiple osds can be created on high performance devices
+#        config:
+#          osdsPerDevice: "5"
+#    - name: "worker2"
+#      devices:
+#      - name: "sdc"
+#      - name: "sdd"
   disruptionManagement:
     managePodBudgets: false
     osdMaintenanceTimeout: 30
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
-  storage:
-    # set useAllNodes,useAllDevices to false for node-specific config
-    useAllNodes: false
-    useAllDevices: false
-    config:
-# Example for node-specific config. It works only when 'useAllNodes' is false.
-    nodes:
-      - name: "worker1"    # Add worker1 node to ceph-osd. (Caution: check hostname by 'kubectl get nodes')
-        devices:           # Add disk of worker1 to ceph-osd.
-        - name: "sdb"      # Caution: Disk must exist in worker1 node. (check disk by 'sudo fdisk -l')
-        - name: "sdc"
-#          config:          
-#            metadataDevice: "sdd1"     # Separate metadata device to high-performance device. (ex. SSD)
-#      - name: "worker2"         # Add worker2 node to ceph-osd.
-#        devices:           # Add disk of worker1 to ceph-osd.
-#      - name: "nvme01" # multiple osds can be created on high performance devices
-#        config:
-#          osdsPerDevice: "5"
+
+# healthChecks
+# Valid values for daemons are 'mon', 'osd', 'status'
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: false
+        interval: 60s
 ```
 
 ### Resource setting
@@ -169,7 +182,10 @@ spec:
             # /dev/sdb device에 osd 설치를 원하는 경우
             DISK="/dev/sdb"
             $ sudo sgdisk --zap-all $DISK
+            # Clean hdds with dd
             $ sudo dd if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
+            # Clean disks such as ssd with blkdiscard
+            $ sudo blkdiscard $DISK
             ```
     - 하나의 노드에 두 개 이상의 OSD pod를 deploy하고 싶은 경우 아래와 같이 osd 설정을 추가하면 됩니다.
         ```yaml
@@ -193,7 +209,7 @@ spec:
     - OSD를 3개 이상 배포할 수 없는 테스트용 환경에서는 아래와 같이 설정 추가 및 변경이 필요합니다.
       - cluster.yaml 파일 상단에 `ConfigMap` 추가
       - cluster.yaml의 spec.storage.useAllNodes, spec.storage.useAllDevices값을 true로 설정하여 모든 노드에서 사용 가능한 모든 device에 osd 배포를 시도
-      - 배포하는 block, cephfs pool의 replication 개수를 1로 설정
+      - 배포하는 RBD, CephFS pool의 replication 개수를 1로 설정
       ``` yaml
       kind: ConfigMap
       apiVersion: v1
@@ -209,4 +225,4 @@ spec:
       
 ### Ceph Cluster network 설정
 
-- `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.
+- `spec.network.provider`: 해당 주석을 풀고 `host`로 설정할 경우 Ceph cluster를 구성하는 pod들은 host network의 대역대에서 ip를 할당받고, 주석을 풀지 않을 경우에는 pod들은 k8s cluster의 대역대에서 ip를 할당받습니다. 본 프로젝트에서는 주석을 풀지 않을 것을 권장합니다.

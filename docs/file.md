@@ -11,62 +11,75 @@ metadata:
   name: myfs
   namespace: rook-ceph
 spec:
+  # The metadata pool spec. Must use replication.
   metadataPool:
     # The failure domain will spread the replicas of the data across different failure zones (osd, host)
     failureDomain: host
+    # Set the replica size
     replicated:
-      # set the replica size
       size: 3
-      # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
       requireSafeReplicaSize: true
+    parameters:
+      # Inline compression mode for the data pool
+      compression_mode: none
+        # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+      #target_size_ratio: ".5"
+  # The list of data pool specs. Can use replication or erasure coding.
   dataPools:
-    # The failure domain will spread the replicas of the data across different failure zones (osd, host)
     - failureDomain: host
       replicated:
-        # set the replica size
         size: 3
-        # if requireSafeReplicaSize is true, Disallow setting pool with replica 1
+        # Disallow setting pool with replica 1, this could lead to data loss without recovery.
+        # Make sure you're *ABSOLUTELY CERTAIN* that is what you want
         requireSafeReplicaSize: true
-        # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-        #targetSizeRatio: .5
-      compressionMode: none
+      parameters:
+        # Inline compression mode for the data pool
+        compression_mode: none
+          # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
+        #target_size_ratio: ".5"
+  # Whether to preserve metadata and data pools on filesystem deletion
   preservePoolsOnDelete: true
+  # The metadata service (mds) configuration
   metadataServer:
     # The number of active MDS instances
     activeCount: 1
+    # Whether each active MDS instance will have an active standby with a warm metadata cache for faster failover.
+    # If false, standbys will be available, but will not have a warm cache.
     activeStandby: true
+    # The affinity rules to apply to the mds deployment
     placement:
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - rook-ceph-mds
-            topologyKey: kubernetes.io/hostname
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - rook-ceph-mds
-            topologyKey: topology.kubernetes.io/zone
+       podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rook-ceph-mds
+              # topologyKey: kubernetes.io/hostname will place MDS across different hosts
+              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rook-ceph-mds
+              topologyKey: topology.kubernetes.io/zone
+    # A key/value list of annotations
     annotations:
-    priorityClassName: rook-ceph-default-priority-class
     resources:
-    # set The requests and limits for mds
     #  limits:
     #    cpu: "4"
     #    memory: "4096Mi"
     #  requests:
     #    cpu: "4"
     #    memory: "4096Mi"
+    priorityClassName: rook-ceph-default-priority-class
 ```
 
 #### Resource setting
@@ -102,6 +115,10 @@ parameters:
   # Required for provisionVolume: "true"
   pool: myfs-data0
 
+  # Root path of an existing CephFS volume
+  # Required for provisionVolume: "false"
+  # rootPath: /absolute/path
+
   # The secrets contain Ceph admin credentials. These are generated automatically by the operator
   # in the same namespace as the cluster.
   csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
@@ -111,9 +128,15 @@ parameters:
   csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
   csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
 
+  # (optional) The driver can use either ceph-fuse (fuse) or ceph kernel client (kernel)
+  # If omitted, default volume mounter will be used - this is determined by probing for ceph-fuse
+  # or by setting the default mounter explicitly via --volumemounter command-line argument.
+  # mounter: kernel
 reclaimPolicy: Delete
 allowVolumeExpansion: true
 mountOptions:
+  # uncomment the following line for debugging
+  #- debug
 ```
 
 #### CephFS의 StorageClass 설정 방법
@@ -153,4 +176,4 @@ drwxr-xr-x 1 root root 4096 Nov 18 04:33 ..
 ```
 
 ## References
-- <https://rook.io/docs/rook/v1.3/ceph-filesystem.html>
+- <https://rook.github.io/docs/rook/v1.4/ceph-filesystem.html>
