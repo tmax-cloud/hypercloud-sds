@@ -68,7 +68,6 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: hcsctl
-          working-directory: hcsctl
           path: | 
-            build/hcsctl
-            bild/hcsctl.test
+            hcsctl/build/hcsctl
+            hcsctl/bild/hcsctl.test
