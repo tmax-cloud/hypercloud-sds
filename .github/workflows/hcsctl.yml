@@ -59,3 +59,14 @@ jobs:
           build/hcsctl uninstall ../hack/inventory/test-sample
           build/hcsctl uninstall ../hack/inventory/test-sample # idempotent
           ../hack/prolinux_cluster.sh down
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, build, e2e]
+    runs-on: prolinux
+    steps:
+      - uses: actions/upload-artifact@v1
+        with:
+          name: hcsctl
+          path: | 
+            build/hcsctl
+            bild/hcsctl.test
