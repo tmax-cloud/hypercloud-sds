@@ -31,7 +31,7 @@ func Create(inventoryName string, isIncludingCdi bool) error {
 	glog.Infof("Sample Inventory contains rook version : \"v1.4.2\"") // TODO yaml 파일 읽어서 값 가져오는 것으로 변경
 
 	if isIncludingCdi {
-		glog.Infof("Sample Inventory contains cdi version : \"v1.18.0\"")
+		glog.Infof("Sample Inventory contains cdi version : \"v1.22.0\"")
 	}
 
 	err = createInventory(inventoryDir, isIncludingCdi)
