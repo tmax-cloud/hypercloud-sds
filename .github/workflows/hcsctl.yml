@@ -50,14 +50,16 @@ jobs:
     steps:
       - run: |
           export BOX_OS=prolinux KUBE_VERSION=${{ matrix.config.k8s }} KUBE_NETWORK=${{ matrix.config.network }}
-          ../hack/prolinux_cluster.sh up
-          build/hcsctl install ../hack/inventory/test-sample
-          build/hcsctl ceph status
-          build/hcsctl ceph exec ceph osd status
-          build/hcsctl.test
-          build/hcsctl uninstall ../hack/inventory/test-sample
-          build/hcsctl uninstall ../hack/inventory/test-sample # idempotent
-          ../hack/prolinux_cluster.sh down
+          ../../hack/prolinux_cluster.sh up
+          ./hcsctl install ../../hack/inventory/test-sample
+          ./hcsctl ceph status
+          ./hcsctl ceph exec ceph osd status
+          ./rook.test
+          ./cdi.test
+          ./hcsctl uninstall ../../hack/inventory/test-sample
+          ./hcsctl uninstall ../../hack/inventory/test-sample # idempotent
+          ../../hack/prolinux_cluster.sh down
+        working-directory: hcsctl/build
   deploy:
     if: github.event_name == 'release'
     needs: [lint, build, e2e]
@@ -72,12 +74,22 @@ jobs:
           asset_path: hcsctl/build/hcsctl
           asset_name: hcsctl
           asset_content_type: application/octet-stream
-      - name: Upload hcsctl.test binary
+      - name: Upload rook.test binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: hcsctl/build/hcsctl.test
-          asset_name: hcsctl.test
+          asset_path: hcsctl/build/rook.test
+          asset_name: rook.test
           asset_content_type: application/octet-stream
+      - name: Upload cdi.test binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: hcsctl/build/cdi.test
+          asset_name: cdi.test
+          asset_content_type: application/octet-stream
+
