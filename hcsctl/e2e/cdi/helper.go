@@ -1,4 +1,4 @@
-package tests
+package cdi
 
 import (
 	"flag"
@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	//rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	"github.com/rook/rook/pkg/util/exec"
 	"k8s.io/client-go/kubernetes"
 )
@@ -17,7 +16,6 @@ import (
 type HyperHelper struct {
 	executor  *exec.CommandExecutor
 	Clientset *kubernetes.Clientset
-	//RookClientset    *rookclient.Clientset
 	CdiClientset     *cdiclient.Clientset
 	RunningInCluster bool
 }

@@ -1,4 +1,4 @@
-package tests
+package cdi
 
 import (
 	. "github.com/onsi/ginkgo"
