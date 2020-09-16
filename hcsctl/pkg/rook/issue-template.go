@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"hypercloud-storage/hcsctl/pkg/kubectl"
+	"hypercloud-sds/hcsctl/pkg/kubectl"
 	"io"
 	"os"
 	"os/exec"

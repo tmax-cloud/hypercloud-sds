@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"hypercloud-storage/hcsctl/pkg/rook"
+	"hypercloud-sds/hcsctl/pkg/rook"
 
 	"github.com/spf13/cobra"
 )
