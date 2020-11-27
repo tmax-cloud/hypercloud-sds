@@ -1,0 +1,54 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    # image: 192.168.50.100:5000/ceph/ceph:v14.2.8
+    image: ceph/ceph:v14.2.9
+    allowUnsupported: true
+  dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
+  mon:
+    count: 1    # Recommendation: Use odd numbers (ex. 3, 5)
+    allowMultiplePerNode: false
+  dashboard:
+    enabled: true
+    ssl: true
+  monitoring:
+    enabled: false  # Require Prometheus to be pre-installed
+    rulesNamespace: rook-ceph
+  network:
+    hostNetwork: false
+  rbdMirroring:
+    workers: 0
+  crashCollector:
+    disable: false
+  removeOSDsIfOutAndSafeToRemove: false
+  mgr:
+    modules:
+    # The pg_autoscaler is only available on nautilus or newer. remove this if testing mimic.
+    - name: pg_autoscaler
+      enabled: true
+
+  # Add priorityClassName config
+  priorityClassNames:
+    all: rook-ceph-default-priority-class
+
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    config:
+    nodes:
+     - name: "master1"
+       devices:
+       - name: "sdc"
+     - name: "worker1"
+       devices:
+       - name: "sdc"
+     - name: "worker2"
+       devices:
+       - name: "sdc"
+    
