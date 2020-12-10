@@ -34,7 +34,7 @@ const (
 	StorageClassCephfs = "csi-cephfs-sc"
 
 	SampleRegistryURL = "docker://kubevirt/fedora-cloud-registry-disk-demo"
-	SampleHTTPURL     = "https://download.cirros-cloud.net/contrib/0.3.0/cirros-0.3.0-i386-disk.img"
+	SampleHTTPURL     = "https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img"
 )
 
 var _ = Describe("Test CDI Module", func() {
