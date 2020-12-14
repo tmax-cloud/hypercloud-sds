@@ -318,6 +318,9 @@
 - STEP C) Toolbox Deployment의 rook version을 v1.4.2로 업그레이드합니다.
 
 	```shell
+	# 기존의 toolbox Deployment를 제거합니다.
+	$ kubectl delete -f $INVENTORY/rook/toolbox.yaml
+
 	# Toolbox의 image version을 v1.4.2로 업그레이드합니다.
 	# (spec.template.spec.containers[0].image)
 	$ cat $INVENTORY/rook/toolbox.yaml
@@ -334,8 +337,8 @@
 			command: ["/tini"]
 	...
 
-	# 변경된 Rook version으로 재적용합니다.
-	$ kubectl apply -f $INVENTORY/rook/toolbox.yaml
+	# 변경된 Rook version으로 재생성합니다.
+	$ kubectl create -f $INVENTORY/rook/toolbox.yaml
 	```
 
 
