@@ -35,4 +35,4 @@ hcsctl 최신 바이너리는 프로젝트 [release page](https://github.com/tma
         - prolinux 7.5
 
 ## Contact
-- CK 3-4 팀
+- CK 2-4 팀
