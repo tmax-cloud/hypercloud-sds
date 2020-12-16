@@ -50,8 +50,7 @@ jobs:
     strategy:
       matrix:
         config:
-        - {k8s: v1.17.9, network: calico}
-        - {k8s: v1.17.9, network: flannel}
+        - {k8s: v1.19.4, network: calico}
     steps:
       - run: |
           export BOX_OS=prolinux KUBE_VERSION=${{ matrix.config.k8s }} KUBE_NETWORK=${{ matrix.config.network }}
