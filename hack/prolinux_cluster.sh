@@ -8,7 +8,8 @@ VM="VirtualBox"
 DEPLOYED_KUBE=( "prolinux_v1.15.3_calico" \
                 "prolinux_v1.17.9_calico" \
                 "prolinux_v1.15.3_flannel" \
-                "prolinux_v1.17.9_flannel" )
+                "prolinux_v1.17.9_flannel" \
+	        "prolinux_v1.19.4_calico" )
 
 # Check if VirtualBox vm is running
 is_vm_running(){
