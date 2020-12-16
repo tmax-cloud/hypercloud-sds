@@ -321,24 +321,8 @@
 	# 기존의 toolbox Deployment를 제거합니다.
 	$ kubectl delete -f $INVENTORY/rook/toolbox.yaml
 
-	# Toolbox의 image version을 v1.4.2로 업그레이드합니다.
-	# (spec.template.spec.containers[0].image)
-	$ cat $INVENTORY/rook/toolbox.yaml
-	...
-	  template:
-		metadata:
-		  labels:
-			app: rook-ceph-tools
-		spec:
-		  dnsPolicy: ClusterFirstWithHostNet
-		  containers:
-		  - name: rook-ceph-tools
-			image: rook/ceph:v1.3.6   ## rook/ceph:v1.4.2 로 변경합니다.
-			command: ["/tini"]
-	...
-
-	# 변경된 Rook version으로 재생성합니다.
-	$ kubectl create -f $INVENTORY/rook/toolbox.yaml
+	# Rook v1.4의 toolbox를 설치합니다.
+	$ kubectl create -f 7_toolbox.yaml
 	```
 
 
