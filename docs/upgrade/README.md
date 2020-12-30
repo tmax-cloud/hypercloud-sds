@@ -115,7 +115,7 @@
 
 	```shell
 	# v1beta1 API version의 VolumeSnapshot, VolumeSnapshotClass, VolumeSnapshotContent CRD를 설치합니다.
-	$ kubectl create -f 1_snapshot_crds.yaml
+	$ kubectl apply -f 1_snapshot_crds.yaml
 	customresourcedefinition.apiextensions.k8s.io/volumesnapshots.snapshot.storage.k8s.io created
 	customresourcedefinition.apiextensions.k8s.io/volumesnapshotcontents.snapshot.storage.k8s.io created
 	customresourcedefinition.apiextensions.k8s.io/volumesnapshotclasses.snapshot.storage.k8s.io created
@@ -125,7 +125,7 @@
 	
 	```shell
 	# Snapshot controller의 ServiceAccount, ClusterRole 등 RBAC 관련 오브젝트들을 설치합니다.
-	$ kubectl create -f 2_snapshot_controller_rbac.yaml
+	$ kubectl apply -f 2_snapshot_controller_rbac.yaml
 	serviceaccount/snapshot-controller created
 	clusterrole.rbac.authorization.k8s.io/snapshot-controller-runner created
 	clusterrolebinding.rbac.authorization.k8s.io/snapshot-controller-role created
@@ -133,7 +133,7 @@
 	rolebinding.rbac.authorization.k8s.io/snapshot-controller-leaderelection created
 	
 	# Snapshot controller를 설치합니다.
-	$ kubectl create -f 3_snapshot_controller.yaml
+	$ kubectl apply -f 3_snapshot_controller.yaml
 	statefulset.apps/snapshot-controller created
 	```
 
@@ -152,14 +152,14 @@
 	...
 	
 	# Rook v1.4의 ServiceAccount, ClusterRole 등 RBAC 관련 오브젝트들을 설치합니다.
-	$ kubectl create -f 5_rook_rbac_v1_4.yaml
+	$ kubectl apply -f 5_rook_rbac_v1_4.yaml
 	clusterrole.rbac.authorization.k8s.io/rook-ceph-global created
 	clusterrole.rbac.authorization.k8s.io/rook-ceph-cluster-mgmt created
 	clusterrole.rbac.authorization.k8s.io/rook-ceph-mgr-cluster created
 	...
 	
 	# Rook v1.4에서 사용되는 CRD들을 설치합니다.
-	$ kubectl create -f 6_rook_crds_v1_4.yaml
+	$ kubectl apply -f 6_rook_crds_v1_4.yaml
 	customresourcedefinition.apiextensions.k8s.io/cephrbdmirrors.ceph.rook.io created
 	customresourcedefinition.apiextensions.k8s.io/cephobjectrealms.ceph.rook.io created
 	customresourcedefinition.apiextensions.k8s.io/cephobjectzonegroups.ceph.rook.io created
@@ -322,7 +322,7 @@
 	$ kubectl delete -f $INVENTORY/rook/toolbox.yaml
 
 	# Rook v1.4의 toolbox를 설치합니다.
-	$ kubectl create -f 7_toolbox.yaml
+	$ kubectl apply -f 7_toolbox.yaml
 	```
 
 
