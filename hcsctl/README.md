@@ -4,6 +4,7 @@ hcsctl은 hypercloud storage의 설치, 제거 및 관리 기능을 제공합니
 ## Prerequisite
 - kubectl (>= 1.15)
 - Kubernetes Cluster
+- lvm2 Package (OSD Host)
 
 ## 바이너리 다운로드
 - release 버전의 hcsctl 바이너리는 다음 경로에서 다운받을 수 있습니다.
