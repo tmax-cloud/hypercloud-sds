@@ -39,9 +39,8 @@
 - namespace 에 존재하는 datavolume 중 {$datavolumename} 을 삭제합니다.
   - `kubectl delete datavolume {$datavolumename} -n {$namespace}`
 
-## CDI 모듈 버전 업그레이드
+## CDI 모듈 버전 업그레이드 방법
 
-### 업그레이드 방법
 - CDI 상태를 확인 합니다.
 ```
 $ kubectl get cdi -n cdi
@@ -95,29 +94,6 @@ Status:
   Phase:                   Deployed
   Target Version:          v1.18.0
 Events:                    <none>
-```
-
-### v1.20.0 이후 버전 사용 시 주의 사항
-- 버전 업그레이드 방법은 위와 동일 합니다.
-- v1.20.0 버전부터 apiVersion이 `v1beta1`으로 업그레이드 되었으나 `v1alpha1`도 지원하고 있기 때문에 기존 example yaml을 이용하여 data volume을 사용 할 수 있습니다.
-  - `v1beta1`을 사용하는 아래 yaml 참고하여 `v1beta1` 사용 권장합니다.
-```
-apiVersion: cdi.kubevirt.io/v1beta1
-kind: DataVolume
-metadata:
-  name: dv
-spec:
-  source:
-    http:
-      url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
-  pvc:
-    volumeMode: Block
-    storageClassName: rook-ceph-block
-    accessModes:
-      - ReadWriteMany
-    resources:
-      requests:
-        storage: 3Gi
 ```
 
 ## Appendix
