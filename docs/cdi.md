@@ -39,6 +39,87 @@
 - namespace 에 존재하는 datavolume 중 {$datavolumename} 을 삭제합니다.
   - `kubectl delete datavolume {$datavolumename} -n {$namespace}`
 
+## CDI 모듈 버전 업그레이드
+
+### 업그레이드 방법
+- CDI 상태를 확인 합니다.
+```
+$ kubectl get cdi -n cdi
+NAME   AGE   PHASE
+cdi    28s   Deployed
+```
+```
+$ kubectl get pod -n cdi
+NAME                               READY   STATUS    RESTARTS   AGE
+cdi-apiserver-6485b49c46-4t6h6     1/1     Running   0          26s
+cdi-deployment-7fcc7cbf55-fk4rb    1/1     Running   0          26s
+cdi-operator-64b7bb9b5d-ddf7l      1/1     Running   0          2m40s
+cdi-uploadproxy-5865f7cb98-dclvz   1/1     Running   0          26s
+```
+
+- 업그레이드 할 버전을 명시 하고 yaml을 적용하여 업그레이드를 진행 합니다.
+```
+$ export VERSION=v1.18.0
+$ kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-operator.yaml
+$ kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
+```
+
+- 업그레이드 된 버전을 확인 합니다.
+```
+$ kubectl describe cdi -n cdi
+Name:         cdi
+Namespace:
+Labels:       <none>
+Annotations:  API Version:  cdi.kubevirt.io/v1alpha1
+Kind:         CDI
+...
+...
+Status:
+  Conditions:
+    Last Heartbeat Time:   2021-01-04T05:45:58Z
+    Last Transition Time:  2021-01-04T05:41:28Z
+    Message:               Deployment Completed
+    Reason:                DeployCompleted
+    Status:                True
+    Type:                  Available
+    Last Heartbeat Time:   2021-01-04T05:45:58Z
+    Last Transition Time:  2021-01-04T05:45:58Z
+    Status:                False
+    Type:                  Progressing
+    Last Heartbeat Time:   2021-01-04T05:45:58Z
+    Last Transition Time:  2021-01-04T05:45:48Z
+    Status:                False
+    Type:                  Degraded
+  Observed Version:        v1.18.0
+  Operator Version:        v1.18.0
+  Phase:                   Deployed
+  Target Version:          v1.18.0
+Events:                    <none>
+```
+
+### v1.20.0 이후 버전 사용 시 주의 사항
+- 버전 업그레이드 방법은 위와 동일 합니다.
+- v1.20.0 버전부터 apiVersion이 `v1beta1`으로 업그레이드 되었으나 `v1alpha1`도 지원하고 있기 때문에 기존 example yaml을 이용하여 data volume을 사용 할 수 있습니다.
+  - `v1beta1`을 사용하는 아래 yaml 참고하여 `v1beta1` 사용 권장합니다.
+```
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: dv
+spec:
+  source:
+    http:
+      url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
+  pvc:
+    volumeMode: Block
+    storageClassName: rook-ceph-block
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: 3Gi
+```
+
 ## Appendix
 
 ### configmap 변경 방법
