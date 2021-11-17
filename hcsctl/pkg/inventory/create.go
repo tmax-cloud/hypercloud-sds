@@ -28,10 +28,10 @@ func Create(inventoryName string, isIncludingCdi bool) error {
 
 	inventoryDir := path.Join(wd, inventoryName)
 	glog.Infof("Start Creating Sample Inventory on \"%s\"", inventoryDir)
-	glog.Infof("Sample Inventory contains rook version : \"v1.4.2\"") // TODO yaml 파일 읽어서 값 가져오는 것으로 변경
+	glog.Infof("Sample Inventory contains rook version : \"v1.7.6\"") // TODO yaml 파일 읽어서 값 가져오는 것으로 변경
 
 	if isIncludingCdi {
-		glog.Infof("Sample Inventory contains cdi version : \"v1.22.0\"")
+		glog.Infof("Sample Inventory contains cdi version : \"v1.40.0\"")
 	}
 
 	err = createInventory(inventoryDir, isIncludingCdi)

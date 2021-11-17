@@ -35,6 +35,8 @@ var (
 
 	// PriorityYaml represents priority.yaml
 	PriorityYaml string = "priority.yaml"
+	// CrdYaml represents crds.yaml
+	CrdYaml string = "crds.yaml"
 	// CommonYaml represents common.yaml
 	CommonYaml string = "common.yaml"
 	// OperatorYaml represents operator.yaml
@@ -61,7 +63,7 @@ var (
 
 	// RookYamlSet represents required yamls of rook
 	RookYamlSet = sets.NewString(SnapshotCrdsYaml, SnapshotControllerRbacYaml, SnapshotControllerYaml,
-		PriorityYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml, RbdSnapClassYaml,
+		PriorityYaml, CrdYaml, CommonYaml, OperatorYaml, ClusterYaml, RbdPoolYaml, RbdStorageClassYaml, RbdSnapClassYaml,
 		CephfsFilesystemYaml, CephfsStorageClassYaml, CephfsSnapClassYaml, ToolboxYaml)
 )
 
@@ -102,6 +104,11 @@ func Apply(inventoryPath string) error {
 	}
 
 	err = rookApply(inventoryPath, PriorityYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookApply(inventoryPath, CrdYaml)
 	if err != nil {
 		return err
 	}
@@ -406,6 +413,11 @@ func Delete(inventoryPath string) error {
 	}
 
 	err = rookDelete(inventoryPath, CommonYaml)
+	if err != nil {
+		return err
+	}
+
+	err = rookDelete(inventoryPath, CrdYaml)
 	if err != nil {
 		return err
 	}
