@@ -1,6 +1,7 @@
 package cdi
 
 import (
+	"context"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,7 +23,7 @@ func makeNamespaceSpec(namespacePrefix string) *corev1.Namespace {
 }
 
 func createNamespace(clientset *kubernetes.Clientset, nsSpec *corev1.Namespace) (*corev1.Namespace, error) {
-	ns, err := clientset.CoreV1().Namespaces().Create(nsSpec)
+	ns, err := clientset.CoreV1().Namespaces().Create(context.TODO(), nsSpec, metav1.CreateOptions{})
 
 	return ns, err
 }
@@ -48,6 +49,6 @@ func makePvcInStorageClassSpec(name string, namespace string, size string,
 
 func createPvcInStorageClass(clientset *kubernetes.Clientset, pvcSpec *corev1.PersistentVolumeClaim) (
 	*corev1.PersistentVolumeClaim, error) {
-	pvc, err := clientset.CoreV1().PersistentVolumeClaims(pvcSpec.Namespace).Create(pvcSpec)
+	pvc, err := clientset.CoreV1().PersistentVolumeClaims(pvcSpec.Namespace).Create(context.TODO(), pvcSpec, metav1.CreateOptions{})
 	return pvc, err
 }
