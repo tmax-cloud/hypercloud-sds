@@ -191,6 +191,11 @@ func Apply(inventoryPath string) error {
 		return err
 	}
 
+	err = waitRookToolBox()
+	if err != nil {
+		return err
+	}
+
 	glog.Info("[STEP 6 / 6] End Applying Rook-ceph")
 
 	return nil
@@ -211,6 +216,10 @@ func waitClusterApply() error {
 
 func waitCephFSReady() error {
 	return wait.PollImmediate(time.Second, applyTimeout, isMdsCreated)
+}
+
+func waitRookToolBox() error {
+	return wait.PollImmediate(time.Second, applyTimeout, isToolboxCreated)
 }
 
 // TODO inventoryPath 를 parameter 로 받도록
@@ -286,6 +295,31 @@ func isMdsCreated() (bool, error) {
 
 	if len(mdsDeployments) == expectedMdsActiveNum {
 		return isDaemonReadyAndAvailable(mdsDeployments)
+	}
+
+	return false, nil
+}
+
+func isToolboxCreated() (bool, error) {
+	toolboxDeployments, err := getDaemonDeployNames("ceph-tools")
+	if err != nil {
+		return false, err
+	}
+
+	replicaNumTyped, err := util.GetValueFromYamlFile(path.Join(_inventoryPath, "rook", ToolboxYaml),
+		util.Deployment, "spec.replicas")
+	if err != nil {
+		return false, err
+	}
+
+	expectedReplicaNum, isConvertibleToInt := replicaNumTyped[0].(int)
+	if !isConvertibleToInt {
+		return false, errors.New("Unable to convert value of " +
+			"spec.replicas" + " to int: " + fmt.Sprintf("%v", replicaNumTyped[0]))
+	}
+
+	if len(toolboxDeployments) == expectedReplicaNum {
+		return isDaemonReadyAndAvailable(toolboxDeployments)
 	}
 
 	return false, nil
