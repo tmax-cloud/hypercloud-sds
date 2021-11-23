@@ -69,7 +69,7 @@
     apiVersion: storage.k8s.io/v1
     kind: StorageClass
     metadata:
-       name: rook-ceph-block-hdd   ## hdd를 사용할 storage class
+       name: ceph-block-hdd-sc  ## hdd를 사용할 storage class
     provisioner: rook-ceph.rbd.csi.ceph.com
     parameters:
         clusterID: rook-ceph

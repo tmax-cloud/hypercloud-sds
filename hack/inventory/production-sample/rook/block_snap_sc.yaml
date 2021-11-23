@@ -5,7 +5,7 @@
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshotClass
 metadata:
-  name: csi-rbdplugin-snapclass
+  name: ceph-block-snapclass
 driver: rook-ceph.rbd.csi.ceph.com # driver:namespace:operator
 parameters:
   # Specify a string that identifies your cluster. Ceph CSI supports any

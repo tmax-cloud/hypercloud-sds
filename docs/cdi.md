@@ -79,4 +79,4 @@
 
 * `kubectl patch cdiconfig {$CDIConfigName} --type merge -p '{"spec":{"scratchSpaceStorageClass": "{$storageClassName}"}}'` 명령어를 입력하여 scratchSpaceStoragClass 값을 수정 할 수 있습니다.
   * `{$CDIConfigName}` 는 cdiconfig 이름으로 변경하고, `{$storageClassName}` 는 수정하고자 하는 storageClass 이름으로 변경하면 됩니다.
-    * ex) `kubectl patch cdiconfig config --type merge -p '{"spec":{"scratchSpaceStorageClass": "rook-ceph-block"}}'`
+    * ex) `kubectl patch cdiconfig config --type merge -p '{"spec":{"scratchSpaceStorageClass": "ceph-block-sc"}}'`
