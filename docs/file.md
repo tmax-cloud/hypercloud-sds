@@ -102,7 +102,7 @@ spec:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: ceph-file-sc
+  name: rook-cephfs
 provisioner: rook-ceph.cephfs.csi.ceph.com
 parameters:
   # clusterID is the namespace where operator is deployed.

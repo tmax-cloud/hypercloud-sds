@@ -14,22 +14,22 @@ defaults:
   run:
     working-directory: hcsctl
 jobs:
-  lint:
-    runs-on: ubuntu-18.04 # golangci-lint-action does not support prolinux
-    timeout-minutes: 3
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.29
-          working-directory: hcsctl
+#  lint:
+#    runs-on: ubuntu-18.04 # golangci-lint-action does not support prolinux
+#    timeout-minutes: 3
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#      - name: Run golangci-lint
+#        uses: golangci/golangci-lint-action@v2
+#        with:
+#          version: v1.29
+#          working-directory: hcsctl
   build:
     if: "! contains(github.event.pull_request.title, '[skip-ci]')"
     runs-on: prolinux
     timeout-minutes: 3
-    needs: [lint]
+#    needs: [lint]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -66,7 +66,8 @@ jobs:
         working-directory: hcsctl/build
   deploy:
     if: github.event_name == 'release'
-    needs: [lint, build, e2e]
+#    needs: [lint, build, e2e]
+    needs: [build, e2e]
     runs-on: prolinux
     steps:
       - name: Upload hcsctl binary

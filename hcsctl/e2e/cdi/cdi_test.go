@@ -29,11 +29,11 @@ const (
 	FedoraImageSize = "5Gi"
 	CirrosImageSize = "500Mi"
 
-	TimeOutForCreatingDv  = 500 * time.Second *2
-	TimeoutForDeletingDv  = 300 * time.Second *2
-	TimeOutForCreatingPvc = 60 * time.Second *2
+	TimeOutForCreatingDv  = 500 * time.Second * 2
+	TimeoutForDeletingDv  = 300 * time.Second * 2
+	TimeOutForCreatingPvc = 60 * time.Second * 2
 
-	StorageClassCephfs = "ceph-file-sc"
+	StorageClassCephfs = "rook-cephfs"
 
 	SampleRegistryURL = "docker://kubevirt/fedora-cloud-registry-disk-demo"
 	SampleHTTPURL     = "https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img"
