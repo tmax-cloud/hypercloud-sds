@@ -8,7 +8,7 @@ spec:
   resources:
     requests:
       storage: 100Mi
-  storageClassName: ceph-file-sc
+  storageClassName: csi-cephfs-sc
 ---
 apiVersion: apps/v1
 kind: Deployment
