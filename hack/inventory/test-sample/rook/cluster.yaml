@@ -19,6 +19,7 @@ data:
     mon_warn_on_pool_no_redundancy = false
     bdev_flock_retry = 20
     bluefs_buffered_io = false
+    mon_data_avail_warn = 10
 ---
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
@@ -28,7 +29,7 @@ metadata:
 spec:
   dataDirHostPath: /var/lib/rook
   cephVersion:
-    image: quay.io/ceph/ceph:v16.2.10
+    image: quay.io/ceph/ceph:v17.2.6
     allowUnsupported: true
   mon:
     count: 1
@@ -44,6 +45,8 @@ spec:
     useAllNodes: true
     useAllDevices: true
     #deviceFilter:
+  monitoring:
+    enabled: false
   healthCheck:
     daemonHealth:
       mon:
@@ -54,3 +57,14 @@ spec:
     mgr: system-cluster-critical
   disruptionManagement:
     managePodBudgets: true
+---
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: builtin-mgr
+  namespace: rook-ceph # namespace:cluster
+spec:
+  name: .mgr
+  replicated:
+    size: 1
+    requireSafeReplicaSize: false

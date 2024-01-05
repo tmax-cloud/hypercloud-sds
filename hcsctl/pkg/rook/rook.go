@@ -257,7 +257,7 @@ func isClusterCreated() (bool, error) {
 		return false, err
 	}
 
-	if stdout.String() == "HEALTH_OK" {
+	if stdout.String() == "HEALTH_OK" || stdout.String() == "HEALTH_WARN" {
 		osdDeployments, err := getDaemonDeployNames("ceph-osd")
 
 		if err != nil {

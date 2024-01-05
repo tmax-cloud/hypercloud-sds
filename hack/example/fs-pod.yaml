@@ -1,0 +1,37 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fs-deployment-nginx
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fs-pod-nginx
+  template:
+    metadata:
+      labels:
+        app: fs-pod-nginx
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - fs-pod-nginx
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: web-server
+        image: nginx
+        volumeMounts:
+          - name: mypvc
+            mountPath: /var/lib/www/html
+      volumes:
+        - name: mypvc
+          persistentVolumeClaim:
+            claimName: cephfs-pvc
+            readOnly: false
